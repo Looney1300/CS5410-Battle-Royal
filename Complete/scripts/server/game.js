@@ -97,7 +97,7 @@ function collided(obj1, obj2) {
 function update(elapsedTime, currentTime) {
     for (let clientId in activeClients) {
         activeClients[clientId].player.update(currentTime);
-        console.log(activeClients[clientId].player.direction);
+        //console.log(activeClients[clientId].player.direction);
         //console.log('hello');
     }
 
