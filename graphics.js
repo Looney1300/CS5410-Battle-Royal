@@ -43,13 +43,17 @@ MyGame.graphics = (function(){
             context.rotate(spec.rotation);
             context.translate(-(spec.x + spec.width/2), -(spec.y + spec.height/2));
             //3. Draw shape at original coordinates
-            context.fillStyle = spec.fillStyle;
-            context.fillRect(spec.x, spec.y, spec.width, spec.height);
-            context.strokeStyle = spec.strokeStyle;
+            if (spec.hasOwnProperty('fillStyle')){
+                context.fillStyle = spec.fillStyle;
+                context.fillRect(spec.x, spec.y, spec.width, spec.height);
+            }
             if (spec.hasOwnProperty('lineWidth')){
                 context.lineWidth = spec.lineWidth;
             }
-            context.strokeRect(spec.x, spec.y, spec.width, spec.height);
+            if (spec.hasOwnProperty('strokeStyle')){
+                context.strokeStyle = spec.strokeStyle;
+                context.strokeRect(spec.x, spec.y, spec.width, spec.height);
+            }
             //4. Undo translations and rotations of canvas.
             context.restore();
         };
@@ -81,18 +85,18 @@ MyGame.graphics = (function(){
         that.updateRotation = function(angle){
             spec.rotation += angle;
         };
-
+        
         that.draw = function(){
-            if (ready){                
+            if (ready){
                 context.save();
-                context.translate(spec.center.x, spec.center.y);
+                context.translate(spec.x, spec.y);
                 context.rotate(spec.rotation);
-                context.translate(-spec.center.x, -spec.center.y);
+                context.translate(-spec.x, -spec.y);
 
                 context.drawImage(
                     image,
-                    spec.center.x - spec.width/2,
-                    spec.center.y -spec.height/2,
+                    spec.x - spec.width/2,
+                    spec.y -spec.height/2,
                     spec.width, spec.height);
 
                 context.restore();   

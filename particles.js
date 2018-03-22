@@ -29,7 +29,8 @@ MyGame.particleSystem = (function(graphics){
     function Particle(particle){
         let particleGraphic;
         if (particle.hasOwnProperty('imageSrc')){
-            particle.center = particle.position;
+            particle.x = particle.position.x;
+            particle.y = particle.position.y;
             particle.width = particle.size;
             particle.height = particle.size;
             particleGraphic = graphics.Texture(particle);
@@ -37,10 +38,14 @@ MyGame.particleSystem = (function(graphics){
         else if (particle.hasOwnProperty('fill') || particle.hasOwnProperty('stroke')){
             particle.x = particle.position.x;
             particle.y = particle.position.y;
-            particle.fillStyle = particle.fill;
-            particle.strokeStyle = particle.stroke;
             particle.width = particle.size;
             particle.height = particle.size;
+            if (particle.hasOwnProperty('fill')){
+                particle.fillStyle = particle.fill;
+            }
+            if (particle.hasOwnProperty('stroke')){
+                particle.strokeStyle = particle.stroke;
+            }
             particleGraphic = graphics.Rectangle(particle);
         }
         //Returns either a rectangle or a texture.
@@ -49,10 +54,12 @@ MyGame.particleSystem = (function(graphics){
 
     /*
     ParticleEffect creates a particle effect based on spec passed to it, which has...
-      x
+      x - position of particle
       y
-      xMax (optional)
-      yMax (optional)
+      xMax (optional) - for effect over a range.
+      yMax (optional) -  "    "     "     "
+      limitY (optional) - expects 1, 0, or -1 : limits y direction of particles to either only up or only down, or no change in y.
+      limitX (optional) - expects 1, 0, or -1 : limits x directoin of particles to either only right or only left, or no change in x.
       particlesPerSec
       lifetime.mean
       lifetime.std
@@ -63,7 +70,7 @@ MyGame.particleSystem = (function(graphics){
       gravity
       stroke/fill/imageSrc
       rotationMax (optional)
-      duration (optional)
+      duration (optional) - how long the effect will last, if left blank, will continue endlessly.
     Returns true if still active, and false if effect duration is finished.
     */
     function ParticleEffect(spec){
@@ -92,6 +99,28 @@ MyGame.particleSystem = (function(graphics){
                     alive: 0,
                     size: Random.nextGaussian(spec.size.mean, spec.size.std),
                 };
+                if (spec.hasOwnProperty('limitY')){
+                    if (spec.limitY > 0){
+                        p.direction.y = Math.abs(p.direction.y);
+                    }
+                    else if (spec.limitY < 0){
+                        p.direction.y = -1 * Math.abs(p.direction.y);
+                    }else{
+                        p.direction.x += Math.abs(p.direction.y);
+                        p.direction.y = 0;
+                    }
+                }
+                if (spec.hasOwnProperty('limitX')){
+                    if (spec.limitX > 0){
+                        p.direction.x = Math.abs(p.direction.x);
+                    }
+                    else if (spec.limitX < 0){
+                        p.direction.x = -1 * Math.abs(p.direction.x);
+                    }else{
+                        p.direction.y += Math.abs(p.direction.x);
+                        p.direction.x = 0;
+                    }
+                }
                 if (spec.hasOwnProperty('rotationMax')){
                     p.rotationRate = Random.nextGaussian(0, spec.rotationMax);
                 }
@@ -111,15 +140,19 @@ MyGame.particleSystem = (function(graphics){
                     p.imageSrc = spec.imageSrc;
                 }
                 if (spec.hasOwnProperty('xMax') && spec.hasOwnProperty('yMax')){
-                    p.position = { x: Random.nextRange(spec.x, spec.maxX), y: Random.nextRange(spec.y, spec.maxY)};
+                    p.position = { x: Random.nextRange(spec.x, spec.xMax), y: Random.nextRange(spec.y, spec.yMax)};
                 }else{
                     p.position = {x: spec.x, y: spec.y};
                 }
                 if (spec.hasOwnProperty('imageSrc')){
                     p.imageSrc = spec.imageSrc;
                 }
-                particles.push(p);
-                particleGraphics.push(Particle(p));
+                let index = Math.random()*100000 % particles.length;
+                particles.splice(index, 0, p);
+                if (spec.hasOwnProperty('onTop')){
+                    index = particles.length - 1;
+                }
+                particleGraphics.splice(index, 0, Particle(p));
             }
 
             return true;
@@ -133,9 +166,9 @@ MyGame.particleSystem = (function(graphics){
         //Loop through particles
         for (let particle = (particles.length-1); particle >= 0; --particle) {
             particles[particle].alive += elapsedTime;
+            particles[particle].direction.y += (elapsedTime * particles[particle].gravity/1000);
             particles[particle].x += (elapsedTime * particles[particle].speed * particles[particle].direction.x);
             particles[particle].y += (elapsedTime * particles[particle].speed * particles[particle].direction.y);
-            particles[particle].direction.y += (elapsedTime * particles[particle].gravity/1000);
 
             if (particles[particle].hasOwnProperty('rotationRate')){
                 particles[particle].rotation += (elapsedTime * particles[particle].rotationRate/1000);
