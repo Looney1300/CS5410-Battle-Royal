@@ -1,7 +1,5 @@
-MyGame.main = (function (graphics, input, particleSystem, persistence) {
+MyGame.main = (function (graphics, particleSystem) {
     let previousTime = performance.now();
-
-    let keyboard = input.Keyboard();
 
     let menuSpec = {
         background: '',
@@ -113,7 +111,6 @@ MyGame.main = (function (graphics, input, particleSystem, persistence) {
     }
 
     function processInput(elapsedTime) {
-        keyboard.processInput(elapsedTime);
     }
 
     function render() {
@@ -134,4 +131,4 @@ MyGame.main = (function (graphics, input, particleSystem, persistence) {
     console.log('game initializing...');
     requestAnimationFrame(gameLoop);
 
-})(MyGame.graphics, MyGame.input, MyGame.particleSystem, MyGame.persistence);
+})(MyGame.graphics, MyGame.particleSystem);
