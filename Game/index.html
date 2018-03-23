@@ -1,0 +1,67 @@
+<!DOCTYPE HTML>
+<html lang = "en-US">
+<head>
+	<meta charset = "UTF-8">
+	<title>FortDay</title>
+	<script src = "/node_modules/socket.io-client/dist/socket.io.slim.js"></script>
+	<link rel = "stylesheet" type = "text/css" href = "styles/game.css">
+</head>
+
+<body>
+	<div id = "game">
+		<div id = "main-menu" class="screen">
+			<ul class = "menu">
+				<li><button id = "id-join-game">Join&nbsp;Game</button></li>
+				<li><button id = "id-high-scores">High&nbsp;Scores</button></li>
+				<li><button id = "id-new-user">New&nbsp;User</button></li>
+				<li><button id = "id-options">Options</button></li>
+				<li><button id = "id-credits">Credits</button></li>
+			</ul>
+		</div>
+
+		<div id = "game-play" class = "screen">
+			<canvas id = "canvas-main" width = "700" height = "700" ></canvas>
+		</div>
+
+		<div id = "high-scores" class = "screen">
+			<h1>High Scores</h1>
+			<div id = 'hslist'>
+
+			</div>
+			<ul class = "menu">
+				<li><button id = "id-high-scores-back">Back</button></li>
+			</ul>
+			<ul class = "menu">
+				<li><button id = "id-high-scores-clear">Clear Scores</button></li>
+			</ul>
+		</div>
+
+		<div id = "help" class = "screen">
+			<h1>Help</h1>
+			<p>Use the A and D keys to move the paddle</p>
+			<p>Use the arrow keys to move the paddle</p>
+			<p>Press n or esc to start over</p>
+			<ul class = "menu">
+				<li><button id = "id-help-back">Back</button></li>
+			</ul>
+		</div>
+
+		<div id = "credits" class = "screen">
+			<h1>About</h1>
+			<p>Developed by</p>
+			<p>Brigham Michaelis</p>
+			<p>McKade Hermansen</p>
+			<p>Landon Henrie</p>
+			<p>Justin Bradshaw</p>
+			<p>Using some code provided by Dr. Mathias</p>
+			<ul class = "menu">
+				<li><button id = "id-about-back">Back</button></li>
+			</ul>
+		</div>
+
+	</div>
+
+	<script data-main = "scripts/client/loader" src = "scripts/client/require.js"></script>
+
+</body>
+</html>
