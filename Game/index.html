@@ -1,0 +1,77 @@
+<!DOCTYPE HTML>
+<html lang = "en-US">
+<head>
+	<meta charset = "UTF-8">
+	<title>Brigham's Break Out!</title>
+	<link rel = "stylesheet" type = "text/css" href = "styles/game.css">
+</head>
+
+<!-- <body onload = "MyGame.game.initialize();"> -->
+<body>
+		
+
+	<div id = "game">
+
+		<div id = "main-menu" class = "screen">
+			<ul class = "menu">
+				<li><button id = "id-new-game">New&nbsp;Game</button></li>
+				<li><button id = "id-high-scores">High&nbsp;Scores</button></li>
+				<li><button id = "id-help">Help</button></li>
+				<li><button id = "id-about">About</button></li>
+			</ul>
+		</div>
+
+		<div id = "game-play" class = "screen">
+			<canvas id = "canvas-main" width = "700" height = "700" ></canvas>
+		</div>
+
+		<div id = "high-scores" class = "screen">
+			<h1>High Scores</h1>
+			<div id = 'hslist'>
+
+			</div>
+			<ul class = "menu">
+				<li><button id = "id-high-scores-back">Back</button></li>
+			</ul>
+			<ul class = "menu">
+				<li><button id = "id-high-scores-clear">Clear Scores</button></li>
+			</ul>
+		</div>
+
+		<div id = "help" class = "screen">
+			<h1>Help</h1>
+			<p>Use the A and D keys to move the paddle</p>
+			<p>Use the arrow keys to move the paddle</p>
+			<p>Press n or esc to start over</p>
+			<ul class = "menu">
+				<li><button id = "id-help-back">Back</button></li>
+			</ul>
+		</div>
+
+		<div id = "about" class = "screen">
+			<h1>About</h1>
+			<p>Developed by</p>
+			<p>Brigham Michaelis</p>
+			<p>Using some code provided by Dr. Mathias</p>
+			<ul class = "menu">
+				<li><button id = "id-about-back">Back</button></li>
+			</ul>
+		</div>
+
+	</div>
+
+	<!-- <script>
+		let MyGame = {
+			screens : {},
+		};
+	</script>
+	<script src = "scripts/input.js"></script>	
+	<script src = "scripts/graphics.js"></script>
+	<script src = "scripts/game.js"></script>
+	<script src = "scripts/mainmenu.js"></script>
+	<script src = "scripts/gameplay.js"></script>
+	<script src = "scripts/highscores.js"></script>
+	<script src = "scripts/help.js"></script>
+	<script src = "scripts/about.js"></script> -->
+</body>
+</html>
