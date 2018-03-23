@@ -1,21 +1,24 @@
 /*
 EXAMPLE spec object:
-{
-    x: 100,
-    y: 100,
-    xMax: 150, //(for dissolve) 
-    yMax: 150, //(for dissolve) 
-    particlesPerSec: 10, //(for explosion and burning)
-    fill: color.white,
-    stroke: 'rgba(0,0,0,0)',
-    imageSrc: 'fire.png',
-    rotation: {mean: .1, std: .1},
-    lifetime: {mean: 700, std: 100},
-    speed: {mean: 2, std: .5},
-    size: {mean: 9, std: 3},
-    gravity: 7,
-    duration: 100,
-}
+    let particleSpec3 = {
+        x: 625,
+        y: 100,
+        // xMax: 850,
+        // yMax: 550,
+        particlesPerSec: 20,
+        fill: color.green,
+        lineWidth: 1,
+        stroke: color.green,
+        imageSrc: 'bubble1b.png',
+        rotationMax: 1,
+        lifetime: {mean: 500, std: 100},
+        speed: {mean: 200, std: 10},
+        size: {mean: 50, std: 1},
+        gravity: 1,
+        onTop: true,
+        disappear: true,
+        duration: 10000,
+    }
 */
 MyGame.particleSystem = (function(graphics){
 
@@ -69,6 +72,7 @@ MyGame.particleSystem = (function(graphics){
       speed.std
       gravity
       stroke/fill/imageSrc
+      disappear (optional)
       rotationMax (optional)
       duration (optional) - how long the effect will last, if left blank, will continue endlessly.
     Returns true if still active, and false if effect duration is finished.
@@ -121,6 +125,9 @@ MyGame.particleSystem = (function(graphics){
                         p.direction.x = 0;
                     }
                 }
+                if (spec.hasOwnProperty('disappear')){
+                    p.disappear = spec.disappear;
+                }
                 if (spec.hasOwnProperty('rotationMax')){
                     p.rotationRate = Random.nextGaussian(0, spec.rotationMax);
                 }
@@ -169,7 +176,16 @@ MyGame.particleSystem = (function(graphics){
             particles[particle].direction.y += (elapsedTime * particles[particle].gravity/1000);
             particles[particle].x += (elapsedTime * particles[particle].speed * particles[particle].direction.x);
             particles[particle].y += (elapsedTime * particles[particle].speed * particles[particle].direction.y);
-
+            
+            if (particles[particle].disappear){
+                let transparency = 1-(particles[particle].alive/particles[particle].lifetime);
+                if (particles[particle].hasOwnProperty('stroke')){
+                    particles[particle].strokeStyle = color.addAlpha(particles[particle].stroke, transparency);
+                }
+                if (particles[particle].hasOwnProperty('fill')){
+                    particles[particle].fillStyle = color.addAlpha(particles[particle].fill, transparency);
+                }
+            }
             if (particles[particle].hasOwnProperty('rotationRate')){
                 particles[particle].rotation += (elapsedTime * particles[particle].rotationRate/1000);
             }

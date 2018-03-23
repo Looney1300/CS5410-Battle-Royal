@@ -50,7 +50,7 @@ MyGame.main = (function (graphics, particleSystem) {
         rotationMax: 1,
         lifetime: {mean: 10000, std: 100},
         speed: {mean: 100, std: 0},
-        size: {mean: 50, std: 10},
+        size: {mean: 20, std: 5},
         gravity: 0,
         limitY: 1,
         limitX: 0,
@@ -64,20 +64,21 @@ MyGame.main = (function (graphics, particleSystem) {
         y: 100,
         // xMax: 850,
         // yMax: 550,
-        particlesPerSec: 20,
+        particlesPerSec: 50,
         fill: color.white,
         lineWidth: 1,
-        // stroke: color.green,
-        // imageSrc: 'bubble1b.png',
-        rotationMax: 1,
-        lifetime: {mean: 10000, std: 100},
-        speed: {mean: 50, std: 10},
-        size: {mean: 10, std: 1},
+        stroke: color.green,
+        // imageSrc: 'flame.png',
+        rotationMax: 2,
+        lifetime: {mean: 1000, std: 100},
+        speed: {mean: 100, std: 50},
+        size: {mean: 50, std: 1},
         gravity: 1,
-        // duration: 10000,
+        // duration: 100,
+        disappear: true
     }
 
-    // particleSystem.ParticleEffect(particleSpec2);
+    particleSystem.ParticleEffect(particleSpec2);
  
     let particleSpec3 = {
         x: 625,
@@ -90,15 +91,16 @@ MyGame.main = (function (graphics, particleSystem) {
         // stroke: color.green,
         // imageSrc: 'bubble1b.png',
         rotationMax: 1,
-        lifetime: {mean: 10000, std: 100},
-        speed: {mean: 50, std: 10},
-        size: {mean: 10, std: 1},
+        lifetime: {mean: 500, std: 100},
+        speed: {mean: 200, std: 10},
+        size: {mean: 50, std: 1},
         gravity: 1,
-        onTop: true,
+        // onTop: true,
+        disappear: true,
         // duration: 10000,
     }
 
-    // particleSystem.ParticleEffect(particleSpec3);
+    particleSystem.ParticleEffect(particleSpec3);
 
     //-----------------------------------------------------
     //
