@@ -19,6 +19,7 @@ BattleRoyal.game = (function(screens) {
 		// Tell the screen to start actively running
 		screens[id].run();
 		//
+		//console.log('hello' + toString(id));
 		// Then, set the new screen to be active
 		document.getElementById(id).classList.add('active');
 	}

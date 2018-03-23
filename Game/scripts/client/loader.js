@@ -7,6 +7,11 @@ BattleRoyal.loader = (function () {
 
   let scriptOrder = [
     {
+        scripts: ['./game'],
+        message: 'game loaded',
+        onComplete: null,
+    },
+    {
       scripts: ['./screens/mainmenu'],
       message: 'main menu screen loaded',
       onComplete: null,
@@ -15,12 +20,8 @@ BattleRoyal.loader = (function () {
       scripts: ['./screens/credits'],
       message: 'credits screen loaded',
       onComplete: null,
-    },
-    {
-      scripts: ['./game'],
-      message: 'game loaded',
-      onComplete: null,
     }
+
   ];
 
   let assetOrder = [];
@@ -132,7 +133,7 @@ function mainComplete() {
 
 //
 // Start with loading the assets, then the scripts.
-console.log('Starting to dynamically load project assets');
+console.log('Starting to dynamically load project assets. From Loader');
 loadAssets(assetOrder,
     function(source, asset) {    // Store it on success
         BattleRoyal.assets[source.key] = asset;

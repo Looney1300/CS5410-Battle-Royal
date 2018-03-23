@@ -2,6 +2,7 @@ BattleRoyal.screens['main-menu'] = (function(game) {
 	'use strict';
 	
 	function initialize() {
+		console.log('main menu is inited!');
 		//
 		// Setup each of menu events for the screens
 		// document.getElementById('id-join-game').addEventListener(
@@ -22,6 +23,7 @@ BattleRoyal.screens['main-menu'] = (function(game) {
 	}
 	
 	function run() {
+		console.log('main menu is runned!');
 		//
 		// I know this is empty, there isn't anything to do.
 	}
