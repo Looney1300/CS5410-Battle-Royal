@@ -2,7 +2,9 @@ BattleRoyal.screens['credits'] = (function(game) {
   'use strict';
 
   function initialize() {
-    console.log('credits running initialize');
+    document.getElementById('id-about-back').addEventListener(
+			'click',
+			function() { game.showScreen('main-menu'); });
   }
 
   function run() {
