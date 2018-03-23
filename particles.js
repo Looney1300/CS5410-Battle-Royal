@@ -148,10 +148,10 @@ MyGame.particleSystem = (function(graphics){
                     p.imageSrc = spec.imageSrc;
                 }
                 let index = Math.random()*100000 % particles.length;
-                particles.splice(index, 0, p);
                 if (spec.hasOwnProperty('onTop')){
                     index = particles.length - 1;
                 }
+                particles.splice(index, 0, p);
                 particleGraphics.splice(index, 0, Particle(p));
             }
 
@@ -178,7 +178,7 @@ MyGame.particleSystem = (function(graphics){
                 particleGraphics.splice(particle, 1);
             }
         }
-        //Add any new particles from ActiveParticleEffects
+        //Add any new particles from ActiveParticleEffects and remove finished effects
         for (let i = (activeParticleEffects.length-1); i >= 0; --i){
             if (!activeParticleEffects[i].update(elapsedTime)){
                 activeParticleEffects.splice(i, 1);
