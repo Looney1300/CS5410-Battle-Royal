@@ -3,21 +3,19 @@
 <head>
 	<meta charset = "UTF-8">
 	<title>Brigham's Break Out!</title>
+	<script src = "/node_modules/socket.io-client/dist/socket.io.slim.js"></script>
 	<link rel = "stylesheet" type = "text/css" href = "styles/game.css">
 </head>
 
-<!-- <body onload = "MyGame.game.initialize();"> -->
 <body>
-		
-
 	<div id = "game">
-
-		<div id = "main-menu" class = "screen">
+		<div id = "main-menu" class="screen">
 			<ul class = "menu">
-				<li><button id = "id-new-game">New&nbsp;Game</button></li>
+				<li><button id = "id-join-game">Join&nbsp;Game</button></li>
 				<li><button id = "id-high-scores">High&nbsp;Scores</button></li>
-				<li><button id = "id-help">Help</button></li>
-				<li><button id = "id-about">About</button></li>
+				<li><button id = "id-new-user">New&nbsp;User</button></li>
+				<li><button id = "id-options">Options</button></li>
+				<li><button id = "id-credits">Credits</button></li>
 			</ul>
 		</div>
 
@@ -73,5 +71,7 @@
 	<script src = "scripts/highscores.js"></script>
 	<script src = "scripts/help.js"></script>
 	<script src = "scripts/about.js"></script> -->
+	<script data-main = "scripts/client/loader" src = "scripts/client/require.js"></script>
+
 </body>
 </html>
