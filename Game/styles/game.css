@@ -102,3 +102,12 @@ ul.menu li button:active {
 #credits {
 	text-align: center;
 }
+
+#hslist{
+	height: 50%;
+}
+
+#highScoresTable th {
+	text-align: left;
+}
+
