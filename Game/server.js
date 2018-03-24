@@ -1,7 +1,7 @@
 let http = require('http');
 let path = require('path');
 let fs = require('fs');
-// let game = require('./scripts/server/game');
+let game = require('./scripts/server/game');
 
 let mimeTypes = {
         '.js' : 'text/javascript',
@@ -38,6 +38,6 @@ function handleRequest(request, response) {
 let server = http.createServer(handleRequest);
 
 server.listen(3000, function() {
-    //game.initialize(server);
+    game.initialize(server);
     console.log('Server is listening on port 3000');
 });
