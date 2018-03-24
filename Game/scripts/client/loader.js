@@ -20,6 +20,11 @@ BattleRoyal.loader = (function () {
       scripts: ['./screens/credits'],
       message: 'credits screen loaded',
       onComplete: null,
+    },
+    {
+        scripts: ['./screens/highscores'],
+        message: 'high scores screen loaded',
+        onComplete: null,
     }
 
   ];
