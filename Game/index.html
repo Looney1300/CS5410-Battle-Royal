@@ -23,6 +23,20 @@
 			<canvas id = "canvas-main" width = "700" height = "700" ></canvas>
 		</div>
 
+		<div id = "new-user" class = "screen">
+			<h1>Create New User</h1>
+			<div id = "new-user-data">
+				<label for="newUserName">Username: </label><input type="text" id="newuserName" pattern=".{5,}"   required title="At least 5 characters required" data-required="true"/><br>
+				<label for="newUserPassword">Password: </label><input type="password" id="newUserPassword" pattern=".{8,15}"   required title="8-15 characters required" data-required="true"/><br>
+			</div>
+			<ul class = "menu">
+					<li><button id = "id-create-user">Create User</button></li>
+				</ul>
+			<ul class = "menu">
+				<li><button id = "id-new-user-back">Back</button></li>
+			</ul>
+		</div>
+
 		<div id = "high-scores" class = "screen">
 			<h1>High Scores</h1>
 			<div id = 'hslist'>

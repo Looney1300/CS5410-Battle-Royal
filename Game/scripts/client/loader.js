@@ -17,6 +17,11 @@ BattleRoyal.loader = (function () {
       onComplete: null,
     },
     {
+        scripts:['./screens/newuser'],
+        message: 'new user screen loaded',
+        onComplete: null,
+    },
+    {
       scripts: ['./screens/credits'],
       message: 'credits screen loaded',
       onComplete: null,

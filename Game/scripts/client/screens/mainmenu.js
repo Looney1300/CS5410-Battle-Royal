@@ -12,6 +12,10 @@ BattleRoyal.screens['main-menu'] = (function(game) {
 		// document.getElementById('id-high-scores').addEventListener(
 		// 	'click',
 		// 	function() { game.showScreen('high-scores'); });
+
+		document.getElementById('id-new-user').addEventListener(
+			'click',
+			function() { game.showScreen('new-user'); });
 		
 		// document.getElementById('id-help').addEventListener(
 		// 	'click',
