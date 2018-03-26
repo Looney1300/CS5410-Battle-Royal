@@ -30,7 +30,7 @@ BattleRoyal.game = (function(screens,components) {
     });
 
     socket.on(NetworkIds.CONNECT_OTHER, data => {
-		console.log('SOMEBODY CONNECTED!');
+		console.log('SOMEBODY CONNECTED!', data);
         networkQueue.enqueue({
             type: NetworkIds.CONNECT_OTHER,
             data: data
@@ -38,7 +38,7 @@ BattleRoyal.game = (function(screens,components) {
     });
 
     socket.on(NetworkIds.DISCONNECT_OTHER, function(data) {
-		console.log('SOMEBODY DISCONNECTED!');
+		console.log('SOMEBODY DISCONNECTED!', socket.id);
         networkQueue.enqueue({
             type: NetworkIds.DISCONNECT_OTHER,
             data: data
