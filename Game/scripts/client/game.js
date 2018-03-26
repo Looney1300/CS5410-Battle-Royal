@@ -22,7 +22,7 @@ BattleRoyal.game = (function(screens,components) {
 
 
 	socket.on(NetworkIds.CONNECT_ACK, data => {
-		console.log('I CONNECTED', socket.id);
+		console.log('I CONNECTED', data);
         networkQueue.enqueue({
             type: NetworkIds.CONNECT_ACK,
             data: data
@@ -58,6 +58,9 @@ BattleRoyal.game = (function(screens,components) {
             data: data
         });
     });
+
+       //Send a message after a timeout of 4seconds
+
 
     //------------------------------------------------------------------
     //
@@ -243,7 +246,7 @@ BattleRoyal.game = (function(screens,components) {
 		}
 		//
 		// Tell the screen to start actively running
-		screens[id].run();
+		screens[id].run(socket);
 		//
 		//console.log('hello' + toString(id));
 		// Then, set the new screen to be active

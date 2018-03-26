@@ -174,6 +174,10 @@ function initializeSocketIO(httpServer) {
             //speed: newPlayer.speed
         });
 
+        socket.on('hello', function(data) {
+            console.log(data);
+         })
+
         socket.on(NetworkIds.INPUT, data => {
             inputQueue.enqueue({
                 clientId: socket.id,

@@ -36,6 +36,11 @@ BattleRoyal.loader = (function () {
       scripts: ['./screens/credits'],
       message: 'credits screen loaded',
       onComplete: null,
+    },
+    {
+        scripts: ['./screens/joinroom'],
+        message: 'joinroom screen loaded',
+        onComplete: null,
     }
 
   ];

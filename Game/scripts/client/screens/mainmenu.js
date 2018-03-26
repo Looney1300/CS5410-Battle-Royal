@@ -20,6 +20,9 @@ BattleRoyal.screens['main-menu'] = (function(game) {
 		document.getElementById('id-credits').addEventListener(
 			'click',
 			function() { game.showScreen('credits'); });
+		document.getElementById('id-join-room').addEventListener(
+			'click',
+			function() { game.showScreen('joinroom'); });
 	}
 	
 	function run() {
