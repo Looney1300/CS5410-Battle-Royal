@@ -85,13 +85,26 @@ MyGame.particleSystem = (function(graphics){
         let that = {};
         let time = 1001/spec.particlesPerSec;
         let effectDuration = 0.0;
+        let hasDuration = spec.hasOwnProperty('duration');
+        let hasLimitY = spec.hasOwnProperty('limitY');
+        let hasLimitX = spec.hasOwnProperty('limitX');
+        let hasDissappear = spec.hasOwnProperty('disappear');
+        let hasRotationMax = spec.hasOwnProperty('rotationMax');
+        let hasGravity = spec.hasOwnProperty('gravity');
+        let hasFill = spec.hasOwnProperty('fill');
+        let hasLineWidth = spec.hasOwnProperty('lineWidth');
+        let hasStroke = spec.hasOwnProperty('stroke');
+        let hasImageSrc = spec.hasOwnProperty('imageSrc');
+        let hasXMax = spec.hasOwnProperty('xMax');
+        let hasYMax = spec.hasOwnProperty('yMax');
+        let hasOnTop = spec.hasOwnProperty('onTop');
 
         that.update = function(elapsedTime){
             time += elapsedTime;
             effectDuration += elapsedTime;
             //Makes a certain number of particles per second.
             // make one particle every 1000/spec.particlesPerSec
-            if (spec.hasOwnProperty('duration') && effectDuration > spec.duration){
+            if (hasDuration && effectDuration > spec.duration){
                 return false;
             }
             for (time; time > (1000/spec.particlesPerSec); time -= (1000/spec.particlesPerSec) ){
@@ -103,7 +116,7 @@ MyGame.particleSystem = (function(graphics){
                     alive: 0,
                     size: Random.nextGaussian(spec.size.mean, spec.size.std),
                 };
-                if (spec.hasOwnProperty('limitY')){
+                if (hasLimitY){
                     if (spec.limitY > 0){
                         p.direction.y = Math.abs(p.direction.y);
                     }
@@ -114,7 +127,7 @@ MyGame.particleSystem = (function(graphics){
                         p.direction.y = 0;
                     }
                 }
-                if (spec.hasOwnProperty('limitX')){
+                if (hasLimitX){
                     if (spec.limitX > 0){
                         p.direction.x = Math.abs(p.direction.x);
                     }
@@ -125,37 +138,34 @@ MyGame.particleSystem = (function(graphics){
                         p.direction.x = 0;
                     }
                 }
-                if (spec.hasOwnProperty('disappear')){
+                if (hasDissappear){
                     p.disappear = spec.disappear;
                 }
-                if (spec.hasOwnProperty('rotationMax')){
+                if (hasRotationMax){
                     p.rotationRate = Random.nextGaussian(0, spec.rotationMax);
                 }
-                if (spec.hasOwnProperty('gravity')){
+                if (hasGravity){
                     p.gravity = spec.gravity;
                 }
-                if (spec.hasOwnProperty('fill')){
+                if (hasFill){
                     p.fill = spec.fill;
                 }
-                if (spec.hasOwnProperty('lineWidth')){
+                if (hasLineWidth){
                     p.lineWidth = spec.lineWidth;
                 }
-                if (spec.hasOwnProperty('stroke')){
+                if (hasStroke){
                     p.stroke = spec.stroke;
                 }
-                if (spec.hasOwnProperty('imageSrc')){
+                if (hasImageSrc){
                     p.imageSrc = spec.imageSrc;
                 }
-                if (spec.hasOwnProperty('xMax') && spec.hasOwnProperty('yMax')){
+                if (hasXMax && hasYMax){
                     p.position = { x: Random.nextRange(spec.x, spec.xMax), y: Random.nextRange(spec.y, spec.yMax)};
                 }else{
                     p.position = {x: spec.x, y: spec.y};
                 }
-                if (spec.hasOwnProperty('imageSrc')){
-                    p.imageSrc = spec.imageSrc;
-                }
                 let index = Math.random()*100000 % particles.length;
-                if (spec.hasOwnProperty('onTop')){
+                if (hasOnTop){
                     index = particles.length - 1;
                 }
                 particles.splice(index, 0, p);

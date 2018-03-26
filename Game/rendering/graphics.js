@@ -29,6 +29,9 @@ MyGame.graphics = (function(){
     */
     function Rectangle(spec){
         let that = {};
+        let hasFillStyle = spec.hasOwnProperty('fillStyle');
+        let hasLineWidth = spec.hasOwnProperty('lineWidth');
+        let hasStrokeStyle = spec.hasOwnProperty('strokeStyle');
 
         that.updateRotation = function(angle){
             spec.rotation += angle;
@@ -43,14 +46,14 @@ MyGame.graphics = (function(){
             context.rotate(spec.rotation);
             context.translate(-(spec.x + spec.width/2), -(spec.y + spec.height/2));
             //3. Draw shape at original coordinates
-            if (spec.hasOwnProperty('fillStyle')){
+            if (hasFillStyle){
                 context.fillStyle = spec.fillStyle;
                 context.fillRect(spec.x, spec.y, spec.width, spec.height);
             }
-            if (spec.hasOwnProperty('lineWidth')){
+            if (hasLineWidth){
                 context.lineWidth = spec.lineWidth;
             }
-            if (spec.hasOwnProperty('strokeStyle')){
+            if (hasStrokeStyle){
                 context.strokeStyle = spec.strokeStyle;
                 context.strokeRect(spec.x, spec.y, spec.width, spec.height);
             }
