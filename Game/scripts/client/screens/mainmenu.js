@@ -23,6 +23,10 @@ BattleRoyal.screens['main-menu'] = (function(game) {
 		document.getElementById('id-join-room').addEventListener(
 			'click',
 			function() { game.showScreen('joinroom'); });
+
+
+
+			
 	}
 	
 	function run() {

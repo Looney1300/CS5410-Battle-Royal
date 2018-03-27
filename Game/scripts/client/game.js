@@ -59,7 +59,20 @@ BattleRoyal.game = (function(screens,components) {
         });
     });
 
-       //Send a message after a timeout of 4seconds
+     
+    
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     //------------------------------------------------------------------
@@ -274,29 +287,6 @@ BattleRoyal.game = (function(screens,components) {
 		showScreen('main-menu');
 		requestAnimationFrame(gameLoop);
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
