@@ -12,6 +12,16 @@ BattleRoyal.loader = (function () {
         onComplete: null,
     },
     {
+        scripts: ['./input/renderer'],
+        message: 'input renderer loaded',
+        onComplete: null,
+    },
+    {
+        scripts: ['./input/input'],
+        message: 'input loaded',
+        onComplete: null,
+    },
+    {
       scripts: ['./screens/mainmenu'],
       message: 'main menu screen loaded',
       onComplete: null,
@@ -20,7 +30,12 @@ BattleRoyal.loader = (function () {
       scripts: ['./screens/credits'],
       message: 'credits screen loaded',
       onComplete: null,
-    }
+    },
+    {
+      scripts: ['./screens/options'],
+      message: 'options screen loaded',
+      onComplete: null,
+    },
 
   ];
 

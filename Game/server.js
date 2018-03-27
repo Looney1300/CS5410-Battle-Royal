@@ -1,7 +1,7 @@
 let http = require('http');
 let path = require('path');
 let fs = require('fs');
-// let game = require('./scripts/server/game');
+//let game = require('./scripts/server/game');
 
 let mimeTypes = {
         '.js' : 'text/javascript',
@@ -13,11 +13,11 @@ let mimeTypes = {
     };
 
 function handleRequest(request, response) {
-    let lookup = (request.url === '/') ? '/index.html' : decodeURI(request.url);
+    let lookup = (request.url === '/') ? ' /index.html' : decodeURI(request.url);
     let file = lookup.substring(1, lookup.length);
 
     fs.exists(file, function(exists) {
-        console.log('her');
+        fs.exists('index.html'), function(exists){console.log(exists)};
         if (exists) {
             fs.readFile(file, function(err, data) {
                 if (err) {

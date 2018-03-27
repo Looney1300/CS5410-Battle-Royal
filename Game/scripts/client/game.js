@@ -43,7 +43,7 @@ BattleRoyal.game = (function(screens) {
 		// Make the main-menu screen the active one
 		showScreen('main-menu');
 	}
-	
+
 	return {
 		initialize : initialize,
 		showScreen : showScreen

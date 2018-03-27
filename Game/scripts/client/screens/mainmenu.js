@@ -13,9 +13,9 @@ BattleRoyal.screens['main-menu'] = (function(game) {
 		// 	'click',
 		// 	function() { game.showScreen('high-scores'); });
 		
-		// document.getElementById('id-help').addEventListener(
-		// 	'click',
-		// 	function() { game.showScreen('help'); });
+		document.getElementById('id-options').addEventListener(
+			'click',
+			function() { game.showScreen('options'); });
 		
 		document.getElementById('id-credits').addEventListener(
 			'click',

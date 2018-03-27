@@ -36,12 +36,15 @@
 			</ul>
 		</div>
 
-		<div id = "id-options" class = "screen">
+		<div id = "options" class = "screen">
 			<h1>Help</h1>
-			<p>Use mouse input to aim</p>
-			<p>Use w, a, s, d to navigate</p>
+            <canvas id="canvas-keybindings" width="500" height="400" style="width: 50%; height:40%; background:grey; float: right; "></canvas>
+			<p>Use the mouse to aim and click to fire</p>
+			<button id="moveLeft"></button>
+			<button id="moveRight"></button>
+			<button id="moveUp"></button>
+			<button id="moveDown"></button>
             <p>Press esc to leave game</p>
-            <canvas id="canvas-keybindings" width="100" height="600" style="width: 10%; height:40%"></canvas>
 			<ul class = "menu">
 				<li><button id = "id-options-back">Back</button></li>
 			</ul>
