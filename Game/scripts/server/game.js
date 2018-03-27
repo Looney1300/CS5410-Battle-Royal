@@ -10,6 +10,7 @@ let Player = require('./player');
 //let Missile = require('./missile');
 let NetworkIds = require('../shared/network-ids');
 let Queue = require('../shared/queue.js');
+let gameHasBegun = false;
 
 
 
@@ -153,11 +154,12 @@ function initializeSocketIO(httpServer) {
     }
     
     let users = [];
+    let minChatterSizeHasBeenReached = false;
     io.on('connection', function(socket) {
         console.log('Connection established: ', socket.id);
         //
         // Create an entry in our list of connected clients
-        let newPlayer = Player.create()
+        let newPlayer = Player.create();
         newPlayer.clientId = socket.id;
 
         // Now push this player into the active clients array
@@ -165,6 +167,7 @@ function initializeSocketIO(httpServer) {
             socket: socket,
             player: newPlayer
         };
+        //activeClients[socket.id].player.state = 'nowhere';
 
         // Tell everything where this player is
         socket.emit(NetworkIds.CONNECT_ACK, {
@@ -179,16 +182,57 @@ function initializeSocketIO(httpServer) {
         socket.on('hello', function(data) {
             console.log(data);
         })
+        
 
         socket.on('setUsername', function(data) {
             console.log(data);
+            let chatterBoxSize = 0;
             
             if(users.indexOf(data) > -1) {
                socket.emit('userExists', data + ' username is taken! Try some other username.');
             } else {
                users.push(data);
+               activeClients[socket.id].player.state = 'chatting';
+               //console.log(activeClients[socket.id].player.state);
                socket.emit('userSet', {username: data});
             }
+
+            if(!minChatterSizeHasBeenReached){
+                for (let clientId in activeClients) {
+                    if(activeClients[clientId].player.state == 'chatting'){
+                        chatterBoxSize++;
+                        console.log('we counted a chatter.');
+                    }
+                }
+                if(chatterBoxSize > 2){
+                    console.log('The countdown has begun.');
+                    minChatterSizeHasBeenReached = true;
+                    io.sockets.emit('BeginCountDown');
+                    var seconds_left = 10;
+                    var interval = setInterval(function() {
+                        --seconds_left;
+                        //document.getElementById('joinroom').innerHTML += --seconds_left;
+                    
+                        if (seconds_left <= 0)
+                        {
+                            //document.getElementById('joinroom').innerHTML = 'You are ready';
+                            console.log('the server has begun the game!!!');
+                            gameHasBegun = true;
+                            clearInterval(interval);
+                            
+                            
+                            
+                        }
+                    }, 1000);
+                }
+                else {
+                    chatterBoxSize = 0;
+                }
+            }
+
+
+
+
          });
          
          socket.on('msg', function(data) {

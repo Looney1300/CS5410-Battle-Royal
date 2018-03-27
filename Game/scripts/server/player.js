@@ -21,6 +21,8 @@ function createPlayer() {
         y: random.nextDouble()
     };
 
+    let state = 'nowhere';
+
     // let size = {
     //     width: 0.01,
     //     height: 0.01,
@@ -34,6 +36,11 @@ function createPlayer() {
     // Object.defineProperty(that, 'direction', {
     //     get: () => direction
     // });
+
+    Object.defineProperty(that, 'state', {
+        get: () => state,
+        set: value => state = value
+    });
 
     Object.defineProperty(that, 'position', {
         get: () => position

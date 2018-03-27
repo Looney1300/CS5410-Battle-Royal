@@ -11,8 +11,15 @@ BattleRoyal.components.Player = function() {
         y: 0
     };
 
+    let state = '';
+
     Object.defineProperty(that, 'position', {
         get: () => position
+    });
+
+    Object.defineProperty(that, 'state', {
+        get: () => state,
+        set: value => state = value
     });
 
 

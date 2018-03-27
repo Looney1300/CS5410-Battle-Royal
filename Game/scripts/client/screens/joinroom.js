@@ -22,6 +22,8 @@ BattleRoyal.screens['joinroom'] = (function(game) {
         socket.emit('setUsername', document.getElementById('id-chat-name').value);
       });
 
+      
+
     }
   
     return {

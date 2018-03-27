@@ -10,7 +10,8 @@ BattleRoyal.game = (function(screens,components) {
 	let messageHistory = Queue.create();
 	let messageId = 1;
 	let socket = io();
-	let networkQueue = Queue.create();
+    let networkQueue = Queue.create();
+    let gameHasBegun = false;
 
 
 
@@ -89,6 +90,23 @@ BattleRoyal.game = (function(screens,components) {
            document.getElementById('message-container').innerHTML += '<div><b>' + 
               data.user + '</b>: ' + data.message + '</div>'
         }
+    })
+
+    socket.on('BeginCountDown', function(){
+        console.log('The server says to begin the count down');
+        var seconds_left = 10;
+        var interval = setInterval(function() {
+            document.getElementById('joinroom').innerHTML += --seconds_left;
+        
+            if (seconds_left <= 0)
+            {
+                document.getElementById('joinroom').innerHTML = 'You are ready';
+                gameHasBegun = true;
+                clearInterval(interval);
+                
+            }
+        }, 1000);
+        
     })
 
 
@@ -246,7 +264,7 @@ BattleRoyal.game = (function(screens,components) {
 
 
 	function render() {
-
+        //console.log('clientside rendering is happening');
 	}
 
 
