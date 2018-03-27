@@ -1,12 +1,18 @@
-BattleRoyal.game = (function(screens,components) {
+BattleRoyal.game = (function(screens,components,graphics,renderer,input) {
 	'use strict';
 
 
-	let lastTimeStamp = performance.now();
+    let lastTimeStamp = performance.now();
+    let myKeyboard = input.Keyboard();
 	let playerSelf = {
-		model: components.Player(),
+        model: components.Player(),
+        texture: BattleRoyal.assets['player-self']
 		};
-	let playerOthers = {};
+    let playerOthers = {};
+    // We are not using missiles yet.
+    // let missiles = {}
+    // let explosions = {}
+    // let nextExplosionId = 1;
 	let messageHistory = Queue.create();
 	let messageId = 1;
 	let socket = io();
@@ -60,12 +66,30 @@ BattleRoyal.game = (function(screens,components) {
         });
     });
 
+    // We are not using missiles yet.
+    // socket.on(NetworkIds.MISSILE_NEW, data => {
+    //     networkQueue.enqueue({
+    //         type: NetworkIds.MISSILE_NEW,
+    //         data: data
+    //     });
+    // });
+
+    // socket.on(NetworkIds.MISSILE_HIT, data => {
+    //     networkQueue.enqueue({
+    //         type: NetworkIds.MISSILE_HIT,
+    //         data: data
+    //     });
+    // });
+
      
+
+
+
+    // The following socket code is used for chatting in the chat room.
+    // Some errors crop up when a client leaves and re-enters the chat room.
     socket.on('userExists', function(data) {
         document.getElementById('error-container').innerHTML = data;
     });
-
-
 
     var user;
 
@@ -129,6 +153,13 @@ BattleRoyal.game = (function(screens,components) {
     function connectPlayerSelf(data) {
         playerSelf.model.position.x = data.position.x;
         playerSelf.model.position.y = data.position.y;
+
+        playerSelf.model.size.x = data.size.x;
+        playerSelf.model.size.y = data.size.y;
+
+        playerSelf.model.direction = data.direction;
+        playerSelf.model.speed = data.speed;
+        playerSelf.model.rotateRate = data.rotateRate;
     }
 
 
@@ -143,14 +174,20 @@ BattleRoyal.game = (function(screens,components) {
         let model = components.PlayerRemote();
         model.state.position.x = data.position.x;
         model.state.position.y = data.position.y;
-
+        model.state.direction = data.direction;
         model.state.lastUpdate = performance.now();
 
         model.goal.position.x = data.position.x;
         model.goal.position.y = data.position.y;
+        model.goal.direction = data.direction;
+        model.goal.updateWindow = 0;
+
+        model.size.x = data.size.x;
+        model.size.y = data.size.y;
 
         playerOthers[data.clientId] = {
-            model: model
+            model: model,
+            texture: BattleRoyal.assets['player-other']
         };
     }
 
@@ -172,7 +209,7 @@ BattleRoyal.game = (function(screens,components) {
     function updatePlayerSelf(data) {
         playerSelf.model.position.x = data.position.x;
         playerSelf.model.position.y = data.position.y;
-
+        playerSelf.model.direction = data.direction;
         //
         // Remove messages from the queue up through the last one identified
         // by the server as having been processed.
@@ -208,43 +245,114 @@ BattleRoyal.game = (function(screens,components) {
             model.goal.updateWindow = data.updateWindow;
 
             model.goal.position.x = data.position.x;
-            model.goal.position.y = data.position.y
+            model.goal.position.y = data.position.y;
+            model.goal.direction = data.direction;
         }
     }
 
 
 
-	function processInput(elapsedTime) {
-        //
-        // Start with the keyboard updates so those messages can get in transit
-        // while the local updating of received network messages are processed.
-        //myKeyboard.update(elapsedTime);
 
-        //
-        // Double buffering on the queue so we don't asynchronously receive messages
-        // while processing.
-        // let processMe = networkQueue;
-        // networkQueue = networkQueue = Queue.create();
-        // while (!processMe.empty) {
-        //     let message = processMe.dequeue();
-        //     switch (message.type) {
-        //         case NetworkIds.CONNECT_ACK:
-        //             connectPlayerSelf(message.data);
-        //             break;
-        //         case NetworkIds.CONNECT_OTHER:
-        //             connectPlayerOther(message.data);
-        //             break;
-        //         case NetworkIds.DISCONNECT_OTHER:
-        //             disconnectPlayerOther(message.data);
-        //             break;
-        //         case NetworkIds.UPDATE_SELF:
-        //             updatePlayerSelf(message.data);
-        //             break;
-        //         case NetworkIds.UPDATE_OTHER:
-        //             updatePlayerOther(message.data);
-        //             break;
-        //     }
-        // }
+
+    // No Missiles yet.
+    //------------------------------------------------------------------
+    //
+    // Handler for receiving notice of a new missile in the environment.
+    //
+    //------------------------------------------------------------------
+    // function missileNew(data) {
+    //     missiles[data.id] = components.Missile({
+    //         id: data.id,
+    //         radius: data.radius,
+    //         speed: data.speed,
+    //         direction: data.direction,
+    //         position: {
+    //             x: data.position.x,
+    //             y: data.position.y
+    //         },
+    //         timeRemaining: data.timeRemaining
+    //     });
+    // }
+
+    //------------------------------------------------------------------
+    //
+    // Handler for receiving notice that a missile has hit a player.
+    //
+    //------------------------------------------------------------------
+    // function missileHit(data) {
+    //     explosions[nextExplosionId] = components.AnimatedSprite({
+    //         id: nextExplosionId++,
+    //         spriteSheet: MyGame.assets['explosion'],
+    //         spriteSize: { width: 0.07, height: 0.07 },
+    //         spriteCenter: data.position,
+    //         spriteCount: 16,
+    //         spriteTime: [ 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
+    //     });
+
+    //     //
+    //     // When we receive a hit notification, go ahead and remove the
+    //     // associated missle from the client model.
+    //     delete missiles[data.missileId];
+    // }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //------------------------------------------------------------------
+    //
+    // Process the registered input handlers here.
+    //
+    //------------------------------------------------------------------
+	function processInput(elapsedTime) {
+        if(gameHasBegun){
+            //
+            // Start with the keyboard updates so those messages can get in transit
+            // while the local updating of received network messages are processed.
+            myKeyboard.update(elapsedTime);
+
+            //
+            // Double buffering on the queue so we don't asynchronously receive messages
+            // while processing.
+            let processMe = networkQueue;
+            networkQueue = networkQueue = Queue.create();
+            while (!processMe.empty) {
+                let message = processMe.dequeue();
+                switch (message.type) {
+                    case NetworkIds.CONNECT_ACK:
+                        connectPlayerSelf(message.data);
+                        break;
+                    case NetworkIds.CONNECT_OTHER:
+                        connectPlayerOther(message.data);
+                        break;
+                    case NetworkIds.DISCONNECT_OTHER:
+                        disconnectPlayerOther(message.data);
+                        break;
+                    case NetworkIds.UPDATE_SELF:
+                        updatePlayerSelf(message.data);
+                        break;
+                    case NetworkIds.UPDATE_OTHER:
+                        updatePlayerOther(message.data);
+                        break;
+                    // No missiles yet
+                    // case NetworkIds.MISSILE_NEW:
+                    //     missileNew(message.data);
+                    //     break;
+                    // case NetworkIds.MISSILE_HIT:
+                    //     missileHit(message.data);
+                    //     break;
+                }
+            }
+        }
     }
 
 
@@ -255,15 +363,53 @@ BattleRoyal.game = (function(screens,components) {
     //
     //------------------------------------------------------------------
     function update(elapsedTime) {
-        playerSelf.model.update(elapsedTime);
-        for (let id in playerOthers) {
-            playerOthers[id].model.update(elapsedTime);
-        }
+        if(gameHasBegun){
+            playerSelf.model.update(elapsedTime);
+            for (let id in playerOthers) {
+                playerOthers[id].model.update(elapsedTime);
+            }
 
+            // No missiles yet.
+            // let removeMissiles = [];
+            // for (let missile in missiles) {
+            //     if (!missiles[missile].update(elapsedTime)) {
+            //         removeMissiles.push(missiles[missile]);
+            //     }
+            // }
+    
+            // for (let missile = 0; missile < removeMissiles.length; missile++) {
+            //     delete missiles[removeMissiles[missile].id];
+            // }
+    
+            // for (let id in explosions) {
+            //     if (!explosions[id].update(elapsedTime)) {
+            //         delete explosions[id];
+            //     }
+            // }
+
+        }
     }
 
 
 	function render() {
+        if(gameHasBegun){
+            console.log('client is rendering');
+            graphics.clear();
+            renderer.Player.render(playerSelf.model, playerSelf.texture);
+            for (let id in playerOthers) {
+                let player = playerOthers[id];
+                renderer.PlayerRemote.render(player.model, player.texture);
+            }
+    
+            // Still no missiles
+            // for (let missile in missiles) {
+            //     renderer.Missile.render(missiles[missile]);
+            // }
+    
+            // for (let id in explosions) {
+            //     renderer.AnimatedSprite.render(explosions[id]);
+            // }
+        }
         //console.log('clientside rendering is happening');
 	}
 
@@ -325,7 +471,72 @@ BattleRoyal.game = (function(screens,components) {
 			if (screens.hasOwnProperty(screen)) {
 				screens[screen].initialize();
 			}
-		}
+        }
+        
+
+
+
+
+
+
+
+
+
+        myKeyboard.registerHandler(elapsedTime => {
+            let message = {
+                id: messageId++,
+                elapsedTime: elapsedTime,
+                type: NetworkIds.INPUT_MOVE
+            };
+            socket.emit(NetworkIds.INPUT, message);
+            messageHistory.enqueue(message);
+            playerSelf.model.move(elapsedTime);
+        },
+        BattleRoyal.input.KeyEvent.DOM_VK_W, true);
+
+        myKeyboard.registerHandler(elapsedTime => {
+            let message = {
+                id: messageId++,
+                elapsedTime: elapsedTime,
+                type: NetworkIds.INPUT_ROTATE_RIGHT
+            };
+            socket.emit(NetworkIds.INPUT, message);
+            messageHistory.enqueue(message);
+            playerSelf.model.rotateRight(elapsedTime);
+        },
+        BattleRoyal.input.KeyEvent.DOM_VK_D, true);
+
+        myKeyboard.registerHandler(elapsedTime => {
+            let message = {
+                id: messageId++,
+                elapsedTime: elapsedTime,
+                type: NetworkIds.INPUT_ROTATE_LEFT
+            };
+            socket.emit(NetworkIds.INPUT, message);
+            messageHistory.enqueue(message);
+            playerSelf.model.rotateLeft(elapsedTime);
+        },
+        BattleRoyal.input.KeyEvent.DOM_VK_A, true);
+
+        // No missile or spacebar functionality yet
+        // myKeyboard.registerHandler(elapsedTime => {
+        //     let message = {
+        //         id: messageId++,
+        //         elapsedTime: elapsedTime,
+        //         type: NetworkIds.INPUT_FIRE
+        //     };
+        //     socket.emit(NetworkIds.INPUT, message);
+        // },
+        // BattleRoyal.input.KeyEvent.DOM_VK_SPACE, false);
+
+
+
+
+
+
+
+
+
 		
 		//
 		// Make the main-menu screen the active one
@@ -349,4 +560,4 @@ BattleRoyal.game = (function(screens,components) {
 		initialize : initialize,
 		showScreen : showScreen
 	};
-}(BattleRoyal.screens, BattleRoyal.components));
+}(BattleRoyal.screens, BattleRoyal.components, BattleRoyal.graphics, BattleRoyal.renderer, BattleRoyal.input));

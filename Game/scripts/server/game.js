@@ -24,9 +24,41 @@ const STATE_UPDATE_RATE_MS = 50;
 let lastUpdate = 0;
 let quit = false;
 let activeClients = {};
+// let newMissiles = [];
+// let activeMissiles = [];
+// let hits = [];
+// let nextMissileId = 1;
 
 // Here we are creating a queue from the queue class
 let inputQueue = Queue.create();
+
+
+
+
+
+// We have not yet implemented missiles.
+// //------------------------------------------------------------------
+// //
+// // Used to create a missile in response to user input.
+// //
+// //------------------------------------------------------------------
+// function createMissile(clientId, playerModel) {
+//     let missile = Missile.create({
+//         id: nextMissileId++,
+//         clientId: clientId,
+//         position: {
+//             x: playerModel.position.x,
+//             y: playerModel.position.y
+//         },
+//         direction: playerModel.direction,
+//         speed: playerModel.speed
+//     });
+
+//     newMissiles.push(missile);
+// }
+
+
+
 
 
 
@@ -39,6 +71,31 @@ let inputQueue = Queue.create();
 //------------------------------------------------------------------
 function processInput(elapsedTime) {
     // We don't have any input happening yet!
+    // Double buffering on the queue so we don't asynchronously receive inputs
+    // while processing.
+    let processMe = inputQueue;
+    inputQueue = Queue.create();
+
+    while (!processMe.empty) {
+        let input = processMe.dequeue();
+        let client = activeClients[input.clientId];
+        client.lastMessageId = input.message.id;
+        switch (input.message.type) {
+            case NetworkIds.INPUT_MOVE:
+                client.player.move(input.message.elapsedTime);
+                break;
+            case NetworkIds.INPUT_ROTATE_LEFT:
+                client.player.rotateLeft(input.message.elapsedTime);
+                break;
+            case NetworkIds.INPUT_ROTATE_RIGHT:
+                client.player.rotateRight(input.message.elapsedTime);
+                break;
+            // We have not yet implemented missiles.
+            // case NetworkIds.INPUT_FIRE:
+            //     createMissile(input.clientId, client.player);
+            //     break;
+        }
+    }
 }
 
 //------------------------------------------------------------------
@@ -60,6 +117,51 @@ function collided(obj1, obj2) {
 //------------------------------------------------------------------
 function update(elapsedTime, currentTime) {
     // No need to update anything yet.
+    for (let clientId in activeClients) {
+        activeClients[clientId].player.update(currentTime);
+        //console.log(activeClients[clientId].player.direction);
+        //console.log('hello');
+    }
+
+    // Still no missiles
+    // for (let missile = 0; missile < newMissiles.length; missile++) {
+    //     newMissiles[missile].update(elapsedTime);
+    // }
+    // let keepMissiles = [];
+    // for (let missile = 0; missile < activeMissiles.length; missile++) {
+    //     //
+    //     // If update returns false, that means the missile lifetime ended and
+    //     // we don't keep it around any longer.
+    //     if (activeMissiles[missile].update(elapsedTime)) {
+    //         keepMissiles.push(activeMissiles[missile]);
+    //     }
+    // }
+    // activeMissiles = keepMissiles;
+    
+    // // Check to see if any missiles collide with any players (no friendly fire)
+    // keepMissiles = [];
+    // for (let missile = 0; missile < activeMissiles.length; missile++) {
+    //     let hit = false;
+    //     for (let clientId in activeClients) {
+    //         //
+    //         // Don't allow a missile to hit the player it was fired from.
+    //         if (clientId !== activeMissiles[missile].clientId) {
+    //             if (collided(activeMissiles[missile], activeClients[clientId].player)) {
+    //                 hit = true;
+    //                 hits.push({
+    //                     clientId: clientId,
+    //                     missileId: activeMissiles[missile].id,
+    //                     position: activeClients[clientId].player.position
+    //                 });
+    //             }
+    //         }
+    //     }
+    //     if (!hit) {
+    //         keepMissiles.push(activeMissiles[missile]);
+    //     }
+    // }
+    // activeMissiles = keepMissiles;
+
 }
 
 //------------------------------------------------------------------
@@ -68,7 +170,93 @@ function update(elapsedTime, currentTime) {
 //
 //------------------------------------------------------------------
 function updateClients(elapsedTime) {
-    // No purpose to updating the clients yet.
+    //
+    // For demonstration purposes, network updates run at a slower rate than
+    // the game simulation.
+    lastUpdate += elapsedTime;
+    if (lastUpdate < STATE_UPDATE_RATE_MS) {
+        return;
+    }
+
+
+    // Still no missile work!
+    // // Build the missile messages one time, then reuse inside the loop
+    // let missileMessages = [];
+    // for (let item = 0; item < newMissiles.length; item++) {
+    //     let missile = newMissiles[item];
+    //     missileMessages.push({
+    //         id: missile.id,
+    //         direction: missile.direction,
+    //         position: {
+    //             x: missile.position.x,
+    //             y: missile.position.y
+    //         },
+    //         radius: missile.radius,
+    //         speed: missile.speed,
+    //         timeRemaining: missile.timeRemaining
+    //     });
+    // }
+
+    // //
+    // // Move all the new missiles over to the active missiles array
+    // for (let missile = 0; missile < newMissiles.length; missile++) {
+    //     activeMissiles.push(newMissiles[missile]);
+    // }
+    // newMissiles.length = 0;
+
+
+    for (let clientId in activeClients) {
+        let client = activeClients[clientId];
+        let update = {
+            clientId: clientId,
+            lastMessageId: client.lastMessageId,
+            direction: client.player.direction,
+            position: client.player.position,
+            updateWindow: lastUpdate
+        };
+        if (client.player.reportUpdate) {
+            client.socket.emit(NetworkIds.UPDATE_SELF, update);
+
+            //
+            // Notify all other connected clients about every
+            // other connected client status...but only if they are updated.
+            for (let otherId in activeClients) {
+                if (otherId !== clientId) {
+                    activeClients[otherId].socket.emit(NetworkIds.UPDATE_OTHER, update);
+                }
+            }
+        }
+        // Missile stuff
+        // //
+        // // Report any new missiles to the active clients
+        // for (let missile = 0; missile < missileMessages.length; missile++) {
+        //     client.socket.emit(NetworkIds.MISSILE_NEW, missileMessages[missile]);
+        // }
+
+        // //
+        // // Report any missile hits to this client
+        // for (let hit = 0; hit < hits.length; hit++) {
+        //     client.socket.emit(NetworkIds.MISSILE_HIT, hits[hit]);
+        // }
+
+
+        for (let clientId in activeClients) {
+            activeClients[clientId].player.reportUpdate = false;
+        }
+    
+        //
+        // Don't need these anymore, clean up
+        // MISSILE STUFF!!!! DON'T FORGET TO COMMENT THIS BACK IN.****************************************************************************
+        // hits.length = 0;
+        //
+        // Reset the elapsedt time since last update so we can know
+        // when to put out the next update.
+        lastUpdate = 0;
+    }
+
+
+
+
 }
 
 //------------------------------------------------------------------
@@ -123,14 +311,22 @@ function initializeSocketIO(httpServer) {
                 // Tell existing about the newly connected player
                 client.socket.emit(NetworkIds.CONNECT_OTHER, {
                     clientId: newPlayer.clientId,
-                    position: newPlayer.position
+                    direction: newPlayer.direction,
+                    position: newPlayer.position,
+                    rotateRate: newPlayer.rotateRate,
+                    speed: newPlayer.speed,
+                    size: newPlayer.size
                 });
 
                 //
                 // Tell the new player about the already connected player
                 socket.emit(NetworkIds.CONNECT_OTHER, {
                     clientId: client.player.clientId,
-                    position: client.player.position
+                    direction: client.player.direction,
+                    position: client.player.position,
+                    rotateRate: client.player.rotateRate,
+                    speed: client.player.speed,
+                    size: client.player.size
                 });
             }
         }
@@ -171,11 +367,11 @@ function initializeSocketIO(httpServer) {
 
         // Tell everything where this player is
         socket.emit(NetworkIds.CONNECT_ACK, {
-            //direction: newPlayer.direction,
+            direction: newPlayer.direction,
             position: newPlayer.position,
-            //size: newPlayer.size,
-            //rotateRate: newPlayer.rotateRate,
-            //speed: newPlayer.speed
+            size: newPlayer.size,
+            rotateRate: newPlayer.rotateRate,
+            speed: newPlayer.speed
         });
 
         // not needed I think.
@@ -192,14 +388,14 @@ function initializeSocketIO(httpServer) {
                socket.emit('userExists', data + ' username is taken! Try some other username.');
             } else {
                users.push(data);
-               activeClients[socket.id].player.state = 'chatting';
+               activeClients[socket.id].player.menuState = 'chatting';
                //console.log(activeClients[socket.id].player.state);
                socket.emit('userSet', {username: data});
             }
 
             if(!minChatterSizeHasBeenReached){
                 for (let clientId in activeClients) {
-                    if(activeClients[clientId].player.state == 'chatting'){
+                    if(activeClients[clientId].player.menuState == 'chatting'){
                         chatterBoxSize++;
                         console.log('we counted a chatter.');
                     }

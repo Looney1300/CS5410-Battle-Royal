@@ -1,6 +1,10 @@
 BattleRoyal = {
-  screens : {},
-  components: {},
+    input: {},
+    components: {},
+    renderer: {},
+    utilities: {},
+    assets: {},
+    screens : {},
 };
 
 BattleRoyal.loader = (function () {
@@ -16,10 +20,25 @@ BattleRoyal.loader = (function () {
         scripts: ['../shared/queue'],
         message: 'Utilities loaded',
         onComplete: null,
+    },
+    {
+        scripts: ['./input'],
+        message: 'Input loaded',
+        onComplete: null
     }, 
     {
-        scripts: ['./components/player', './components/player-remote'],
+        scripts: ['./components/player', './components/player-remote', './components/animated-sprite'],
         message: 'Player models loaded',
+        onComplete: null
+    },
+    {
+        scripts: ['rendering/graphics'],
+        message: 'Graphics loaded',
+        onComplete: null
+    }, 
+    {
+        scripts: ['rendering/player', 'rendering/player-remote', 'rendering/animated-sprite'],
+        message: 'Renderers loaded',
         onComplete: null
     }, 
     {
@@ -45,7 +64,16 @@ BattleRoyal.loader = (function () {
 
   ];
 
-  let assetOrder = [];
+  let assetOrder = [
+    {
+        key: 'player-self',
+        source: './../../assets/playerShip1_blue.png'
+    }, 
+    {
+        key: 'player-other',
+        source: './../../assets/playerShip1_red.png'
+    }
+  ];
 
   function loadScripts(scripts, onComplete) {
     //
