@@ -7,8 +7,22 @@ BattleRoyal.screens['options'] = (function(game, graphics, input) {
     let myKeyboard;
     let myMouse;
     
+    let selection;
+
     let myTexture;
     let background;
+
+    function assignKeyButton(id, handler){
+        let ele = document.getElementById(id);
+        ele.addEventListener(
+            'click',
+            function(){
+                selection = ele;
+                ele.style.border = "thick solid rgb(0, 255, 0)"
+                ele.innerText = myKeyboard.registerNextKeyPress(ele, handler);
+            }
+        );
+    }
 
     function initialize() {
         myfov = graphics.FOV();
@@ -29,28 +43,38 @@ BattleRoyal.screens['options'] = (function(game, graphics, input) {
 
         myMouse.registerCommand('mousemove', function(e){
             myfov.move(e.clientX, e.clientY);
-        })
+        });
 
+        document.addEventListener('keyup', function(){
+            if(selection){
+                selection.style.border="0px solid rgba(0, 0, 0, 0)";
+                selection = null;
+            }
+        }); 
+
+        //Default Key registrations
         myKeyboard.registerCommand(KeyEvent.DOM_VK_W, myTexture.moveUp);
         myKeyboard.registerCommand(KeyEvent.DOM_VK_S, myTexture.moveDown);
         myKeyboard.registerCommand(KeyEvent.DOM_VK_A, myTexture.moveLeft);
         myKeyboard.registerCommand(KeyEvent.DOM_VK_D, myTexture.moveRight);
         myKeyboard.registerCommand(KeyEvent.DOM_VK_E, myfov.widen);
         myKeyboard.registerCommand(KeyEvent.DOM_VK_Q, myfov.thin);
+        
+        document.getElementById('moveLeft').innerText = KeyEvent.DOM_VK_A;
+        document.getElementById('moveRight').innerText = KeyEvent.DOM_VK_D;
+        document.getElementById('moveUp').innerText = KeyEvent.DOM_VK_W;
+        document.getElementById('moveDown').innerText = KeyEvent.DOM_VK_S;
 
         document.getElementById('id-options-back').addEventListener(
             'click',
             function() { quit = true; game.showScreen('main-menu'); }
         );
-        let ele = document.getElementById('moveLeft');
-        ele.innerText = KeyEvent.DOM_VK_A;
-        ele.addEventListener(
-            'click',
-            function(){
-                ele.style.border = "thick solid rgb(0, 255, 0)"
-                ele.innerText = myKeyboard.registerNextKeyPress(ele, myTexture.moveLeft);
-            }
-        );
+
+        assignKeyButton('moveLeft', myTexture.moveLeft);
+        assignKeyButton('moveRight', myTexture.moveRight);
+        assignKeyButton('moveUp', myTexture.moveUp);
+        assignKeyButton('moveDown', myTexture.moveDown);
+
         //game.updateKeyBinding(nextClick)
     }
 

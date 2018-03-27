@@ -85,7 +85,6 @@ BattleRoyal.input = (function() {
 		};
 
 		function keyPress(e) {
-			console.log(e.keyCode + ' keypress');
 			that.keys[e.keyCode] = e.timeStamp;
 		}
 
