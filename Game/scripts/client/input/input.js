@@ -84,12 +84,8 @@ BattleRoyal.input = (function() {
 			that.handlers[key] = handler;
 		};
 
-		that.unregisterCommand = function(key){
-			delete that.handlers[key];
-		}
-
 		function keyPress(e) {
-			
+			console.log(e.keyCode + ' keypress');
 			that.keys[e.keyCode] = e.timeStamp;
 		}
 
@@ -106,6 +102,25 @@ BattleRoyal.input = (function() {
 				}
 			}
 		};
+
+		that.registerNextKeyPress = function(oldKeyElement, handler){
+			document.removeEventListener('keydown', keyPress);
+			function kd(e){
+				delete that.handlers[Number(oldKeyElement.innerText)];
+				oldKeyElement.innerText = e.keyCode;
+				that.registerCommand(e.keyCode, handler);
+				document.removeEventListener('keydown', kd);
+				document.addEventListener('keydown', keyPress);
+			};
+			document.addEventListener('keydown', kd);
+
+			document.removeEventListener('keyup', keyRelease);
+			function ku(e){
+				document.removeEventListener('keyup', ku);
+				document.addEventListener('keyup', keyRelease);		
+			};
+			document.addEventListener('keyup', keyRelease);
+		}
 
 		document.addEventListener('keydown', keyPress);
 		document.addEventListener('keyup', keyRelease);
