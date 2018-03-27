@@ -1,11 +1,27 @@
 BattleRoyal = {
   screens : {},
+  components: {},
 };
 
 BattleRoyal.loader = (function () {
   'use strict';
 
   let scriptOrder = [
+    {
+        scripts: ['../shared/network-ids'],
+        message: 'Network Ids loaded',
+        onComplete: null,
+    }, 
+    {
+        scripts: ['../shared/queue'],
+        message: 'Utilities loaded',
+        onComplete: null,
+    }, 
+    {
+        scripts: ['./components/player', './components/player-remote'],
+        message: 'Player models loaded',
+        onComplete: null
+    }, 
     {
         scripts: ['./game'],
         message: 'game loaded',
