@@ -59,7 +59,11 @@
         'MISSILE_HIT': {
             value: 'missile-hit',
             writable: false
-        }
+        },
+        'HIGH_SCORES' : {
+            value: 'high-scores',
+            writeable: false
+        },
     });
 
 })(typeof exports === 'undefined' ? this['NetworkIds'] = {} : exports);
