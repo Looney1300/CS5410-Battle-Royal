@@ -8,11 +8,17 @@ BattleRoyal.screens['new-user'] = (function(game) {
 			function() { 
                 //check to see if valid user, not already used before, we can talk about constrains on username and password
 				//send a request to the server to create a new user
-				if (!userAlreadyTaken){
+				var name = document.getElementById('newUserName');
+				var password = document.getElementById('newUserPassword');
+				if (!userAlreadyTaken(name.value)){
 
-					game.requestCreateUser();
+					game.requestCreateUser({
+						name: name.value,
+						password: password.value
+					});
 				}
 				else{
+					window.alert("Username " + name.value + " is already taken!");
 					//alert the user that the username is already taken
 				}
              });
@@ -24,6 +30,13 @@ BattleRoyal.screens['new-user'] = (function(game) {
 
 	function userAlreadyTaken(name){
 		//check to see if the username is already taken
+		if (validUsers != null){
+			for (var i = 0; i < validUsers.length; ++i){
+				if (validUsers[i].name === name){
+					return true;
+				}
+			}
+		}
 		return false;
 	}
 	
