@@ -8,6 +8,8 @@ BattleRoyal.screens['options'] = (function(game, graphics, input) {
     let myMouse;
     
     let selection;
+    let backgroundColr;
+    backgroundColr = document.getElementById('moveUp').style.backgroundColor;
 
     let keyText = {};
     for (let key in KeyName){
@@ -24,7 +26,7 @@ BattleRoyal.screens['options'] = (function(game, graphics, input) {
             'click',
             function(){
                 selection = ele;
-                ele.style.border = "thick solid rgb(0, 255, 0)"
+                ele.style.backgroundColor = 'rgb(0, 200, 0)';
                 myKeyboard.registerNextKeyPress(ele, handler);
             }
         );
@@ -51,13 +53,14 @@ BattleRoyal.screens['options'] = (function(game, graphics, input) {
             myfov.move(e.clientX, e.clientY);
         });
 
+        //TODO: firing
         myMouse.registerCommand('mousepress', function(e){
             console.log('clicked');
         });
 
         document.addEventListener('keyup', function(){
             if(selection){
-                selection.style.border="0px solid rgba(0, 0, 0, 0)";
+                selection.style.backgroundColor = backgroundColr;
                 selection = null;
             }
         }); 
@@ -85,13 +88,13 @@ BattleRoyal.screens['options'] = (function(game, graphics, input) {
         assignKeyButton('moveUp', myTexture.moveUp);
         assignKeyButton('moveDown', myTexture.moveDown);
 
-        //game.updateKeyBinding(nextClick)
     }
 
   
     function run() {
         console.log('credits running');
-        quit = false;        
+        quit = false;
+        
         let lastTimeStamp = performance.now();
 
         function processInput(elapsedTime) {
