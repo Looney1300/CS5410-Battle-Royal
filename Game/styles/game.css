@@ -76,6 +76,21 @@ ul.menu li button:active {
 	background: rgb(0, 0, 0);
 }
 
+.binding-buttons {
+	font-size: 1em;
+}
+
+.binding-buttons:hover {
+	background: #2E2EFE;
+	cursor: url(../assets/darkBlue.png) 38 38, auto;
+}
+
+.binding-buttons:active {
+	color: #CECEF6;
+	background: rgb(0, 0, 0);
+	cursor: url(../assets/darkBlue.png) 38 38, auto;
+}
+
 #game div h1 {
 	font-size: 1em;
 	text-align: center;
