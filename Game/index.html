@@ -40,13 +40,21 @@
 			<h1>Help</h1>
             <canvas id="canvas-keybindings" width="500" height="400" style="width: 50%; height:40%; float: right; "></canvas>
 			<p>Use the mouse to aim and click to fire</p>
-			<ul>
-				<li>Move Left</li><button id="moveLeft"></button>
-				<li>Move Right</li><button id="moveRight"></button>
-				<li>Move Up</li><button id="moveUp"></button>
-				<li>Move Down</li><button id="moveDown"></button>
-				<p>Press esc to leave game</p>
-			</ul>
+			<div class="keybinding">
+				<table>
+					<tr>
+						<th></th>
+						<th><button class="binding-buttons" id="moveUp">W</button></th>
+						<th></th>
+					</tr>
+					<tr>
+						<th><button class="binding-buttons" id="moveLeft">A</button></th>
+						<th><button class="binding-buttons" id="moveDown">S</button></th>
+						<th><button class="binding-buttons" id="moveRight">D</button></th>
+					</tr>
+				</table>
+			</div>
+			<p>Press esc to leave game</p>
 			<ul class = "menu">
 				<li><button id = "id-options-back">Back</button></li>
 			</ul>

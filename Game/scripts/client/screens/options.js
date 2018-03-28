@@ -9,6 +9,12 @@ BattleRoyal.screens['options'] = (function(game, graphics, input) {
     
     let selection;
 
+    let keyText = {};
+    for (let key in KeyName){
+        keyText[KeyName[key]] = key;
+    }
+    KeyName = keyText;
+
     let myTexture;
     let background;
 
@@ -19,7 +25,7 @@ BattleRoyal.screens['options'] = (function(game, graphics, input) {
             function(){
                 selection = ele;
                 ele.style.border = "thick solid rgb(0, 255, 0)"
-                ele.innerText = myKeyboard.registerNextKeyPress(ele, handler);
+                myKeyboard.registerNextKeyPress(ele, handler);
             }
         );
     }
@@ -45,6 +51,10 @@ BattleRoyal.screens['options'] = (function(game, graphics, input) {
             myfov.move(e.clientX, e.clientY);
         });
 
+        myMouse.registerCommand('mousepress', function(e){
+            console.log('clicked');
+        });
+
         document.addEventListener('keyup', function(){
             if(selection){
                 selection.style.border="0px solid rgba(0, 0, 0, 0)";
@@ -60,10 +70,10 @@ BattleRoyal.screens['options'] = (function(game, graphics, input) {
         myKeyboard.registerCommand(KeyEvent.DOM_VK_E, myfov.widen);
         myKeyboard.registerCommand(KeyEvent.DOM_VK_Q, myfov.thin);
         
-        document.getElementById('moveLeft').innerText = KeyEvent.DOM_VK_A;
-        document.getElementById('moveRight').innerText = KeyEvent.DOM_VK_D;
-        document.getElementById('moveUp').innerText = KeyEvent.DOM_VK_W;
-        document.getElementById('moveDown').innerText = KeyEvent.DOM_VK_S;
+        document.getElementById('moveLeft').name = KeyEvent.DOM_VK_A;
+        document.getElementById('moveRight').name = KeyEvent.DOM_VK_D;
+        document.getElementById('moveUp').name = KeyEvent.DOM_VK_W;
+        document.getElementById('moveDown').name = KeyEvent.DOM_VK_S;
 
         document.getElementById('id-options-back').addEventListener(
             'click',
