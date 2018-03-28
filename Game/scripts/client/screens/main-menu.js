@@ -17,7 +17,18 @@ MyGame.screens['main-menu'] = (function() {
             
         document.getElementById('id-join-room').addEventListener(
             'click',
-            function() { MyGame.pregame.showScreen('join-room'); });
+			function() { MyGame.pregame.showScreen('join-room'); });
+
+		document.getElementById('id-about').addEventListener(
+			'click',
+			function() { MyGame.pregame.showScreen('about'); });
+		document.getElementById('id-options').addEventListener(
+			'click',
+			function() { MyGame.pregame.showScreen('options'); });
+		document.getElementById('id-high-scores').addEventListener(
+			'click',
+			function() { MyGame.pregame.showScreen('high-scores'); });
+
 	}
 	
 	function run() {

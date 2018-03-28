@@ -75,6 +75,21 @@ MyGame.loader = (function() {
             onComplete: null,
         },
         {
+            scripts: ['./screens/about'],
+            message: 'about screen loaded',
+            onComplete: null,
+        },
+        {
+            scripts: ['./screens/options'],
+            message: 'options screen loaded',
+            onComplete: null,
+        },
+        {
+            scripts: ['./screens/high-scores'],
+            message: 'high score screen loaded',
+            onComplete: null,
+        },
+        {
             scripts: ['./pregame'],
             message: 'pregame loaded',
             onComplete: null,
