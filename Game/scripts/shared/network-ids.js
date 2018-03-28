@@ -36,6 +36,10 @@
             value: 'update-other',
             writable: false
         },
+        'CREATE_NEW_USER' : {
+            value: 'create-new-user',
+            writable: false
+        },
     });
 
 })(typeof exports === 'undefined' ? this['NetworkIds'] = {} : exports);
