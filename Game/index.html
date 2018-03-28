@@ -2,66 +2,88 @@
 <html lang = "en-US">
 <head>
 	<meta charset = "UTF-8">
-	<title>FortDay</title>
+	<title>FORTDAY!</title>
 	<script src = "/node_modules/socket.io-client/dist/socket.io.slim.js"></script>
 	<link rel = "stylesheet" type = "text/css" href = "styles/game.css">
 </head>
-
 <body>
+
 	<div id = "game">
 		<div id = "main-menu" class="screen">
 			<ul class = "menu">
-				<li><button id = "id-join-game">Join&nbsp;Game</button></li>
-				<li><button id = "id-high-scores">High&nbsp;Scores</button></li>
-				<li><button id = "id-new-user">New&nbsp;User</button></li>
+				<!-- <li><button id = "id-join-room">Join&nbsp;Game</button></li> -->
+				<li><button id = "id-join-room">Join_Lobby</button></li>
+				<li><button id = "id-game-play">Canvas(backdoor)</button></li>
 				<li><button id = "id-options">Options</button></li>
+				<li><button id = "id-high-scores">High_Scores</button></li>
+				<li><button id = "id-about">About</button></li>
 				<li><button id = "id-credits">Credits</button></li>
+
 			</ul>
 		</div>
-
+		<!-- This is just for back door purposes, it will be removed at a later time. -->
 		<div id = "game-play" class = "screen">
-			<canvas id = "canvas-main" width = "700" height = "700" ></canvas>
+			<canvas id = "canvas-main" width = "600" height = "600" style = "background-color: rgb(0, 0, 0)"></canvas>
 		</div>
 
-		<div id = "high-scores" class = "screen">
-			<h1>High Scores</h1>
-			<div id = 'hslist'>
-
-			</div>
+		<div id = "join-room" class = "screen">
+			<div id = "error-container"></div>
+			<input type = "text" id = "id-chat-name" value = "" placeholder = "Enter your name!">
+			<button type = "button" id = "id-chat-start-button">Let me chat!</button>
 			<ul class = "menu">
-				<li><button id = "id-high-scores-back">Back</button></li>
-			</ul>
-			<ul class = "menu">
-				<li><button id = "id-high-scores-clear">Clear Scores</button></li>
+					<li><button id = "id-join-room-back">Back</button></li>
 			</ul>
 		</div>
 
-		<div id = "help" class = "screen">
-			<h1>Help</h1>
-			<p>Use the A and D keys to move the paddle</p>
-			<p>Use the arrow keys to move the paddle</p>
-			<p>Press n or esc to start over</p>
-			<ul class = "menu">
-				<li><button id = "id-help-back">Back</button></li>
-			</ul>
+		<div id = "high-scores" class="screen">
+				<h1>HIGH_SCORES</h1>
+					<p>High Scores info...</p>
+	
+					<ul class = "menu">
+							<li><button id = "id-high-scores-back">Back</button></li>
+					</ul>
+		</div>
+
+		<div id = "about" class="screen">
+			<h1>ABOUT</h1>
+				<p>This is a work in progress by team FORTDAY.</p>
+
+				<ul class = "menu">
+						<li><button id = "id-about-back">Back</button></li>
+				</ul>
+		</div>
+
+		<div id = "options" class="screen">
+				<h1>OPTIONS</h1>
+					<p>Options Stuff</p>
+	
+					<ul class = "menu">
+							<li><button id = "id-options-back">Back</button></li>
+					</ul>
 		</div>
 
 		<div id = "credits" class = "screen">
-			<h1>About</h1>
+			<h1>CREDITS</h1>
 			<p>Developed by</p>
-			<p>Brigham Michaelis</p>
+			<p>Justin Bradshaw</p>
 			<p>McKade Hermansen</p>
 			<p>Landon Henrie</p>
-			<p>Justin Bradshaw</p>
+			<p>Brigham Michaelis</p>
 			<p>Using some code provided by Dr. Mathias</p>
 			<ul class = "menu">
-				<li><button id = "id-about-back">Back</button></li>
+				<li><button id = "id-credits-back">Back</button></li>
 			</ul>
 		</div>
 
 	</div>
 
-	<script data-main = "scripts/client/loader" src = "scripts/client/require.js"></script>
 
+
+
+
+
+
+
+	<script data-main = "scripts/client/loader" src = "scripts/client/require.js"></script>
 </body>
 </html>

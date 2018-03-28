@@ -36,12 +36,11 @@ body {
 
 #game .screen.active {
 	display: block;
-	cursor: url(../assets/darkBlue.png) 38 38, auto;
 }
 
 #main-menu {
 	padding-top: 1em;
-	cursor: url(../assets/darkBlue.png) 38 38, auto;
+	cursor: pointer;
 	font-size: 0.75em;
 }
 
@@ -70,13 +69,11 @@ ul.menu li button {
 
 ul.menu li button:hover {
 	background: #2E2EFE;
-	cursor: url(../assets/darkBlue.png) 38 38, auto;
 }
 
 ul.menu li button:active {
 	color: #CECEF6;
 	background: rgb(0, 0, 0);
-	cursor: url(../assets/darkBlue.png) 38 38, auto;
 }
 
 #game div h1 {
@@ -96,9 +93,5 @@ ul.menu li button:active {
 }
 
 #about p {
-	text-align: center;
-}
-
-#credits {
 	text-align: center;
 }

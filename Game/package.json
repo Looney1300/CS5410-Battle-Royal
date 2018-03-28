@@ -1,11 +1,11 @@
 {
-	"name": "websockets",
-	"version": "1.0.0",
-	"scripts": {
-	"start": "node server.js"
-	},
-	"dependencies": {
-		"socket.io": "2.0.*",
-		"present": "1.0.0"
-	}
+  "name": "websockets",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "present": "^1.0.0",
+    "socket.io": "^2.0.4"
+  }
 }
