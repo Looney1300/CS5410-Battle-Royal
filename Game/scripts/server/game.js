@@ -187,6 +187,15 @@ function initializeSocketIO(httpServer) {
             notifyDisconnect(socket.id);
         });
 
+        socket.on(NetworkIds.VALID_USERS, data =>{
+            //get the valid users and relay the data
+        })
+
+        socket.on(NetworkIds.CREATE_NEW_USER, data =>{
+            //create the new user and add it to the file.
+            //for now just assume the user hasn't been created
+        })
+
         notifyConnect(socket, newPlayer);
     });
 }

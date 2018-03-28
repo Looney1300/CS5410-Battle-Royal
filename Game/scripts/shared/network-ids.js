@@ -40,6 +40,10 @@
             value: 'create-new-user',
             writable: false
         },
+        'VALID_USERS' : {
+            value: 'valid-users',
+            writable: false,
+        },
     });
 
 })(typeof exports === 'undefined' ? this['NetworkIds'] = {} : exports);

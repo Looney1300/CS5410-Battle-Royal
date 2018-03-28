@@ -11,8 +11,7 @@ BattleRoyal.game = (function(screens,components) {
 	let messageId = 1;
 	let socket = io();
 	let networkQueue = Queue.create();
-
-
+    let validUsers = null;
 
 
 
@@ -57,6 +56,10 @@ BattleRoyal.game = (function(screens,components) {
             type: NetworkIds.UPDATE_OTHER,
             data: data
         });
+    });
+
+    socket.on(NetworkIds.VALID_USERS, data =>{
+        validUsers = JSON.parse(data);
     });
 
     //------------------------------------------------------------------
@@ -149,6 +152,19 @@ BattleRoyal.game = (function(screens,components) {
             model.goal.position.x = data.position.x;
             model.goal.position.y = data.position.y
         }
+    }
+
+    function requestValidUsers(){
+        socket.emit(NetworkIds.VALID_USERS, null);
+    }
+
+    function getValidUsers(){
+        return validUsers;
+    }
+
+    function requestCreateUser(data){
+        //request the creation of a new user
+        socket.emit(NetworkIds.CREATE_NEW_USER,data);
     }
 
 
@@ -309,6 +325,8 @@ BattleRoyal.game = (function(screens,components) {
 	
 	return {
 		initialize : initialize,
-		showScreen : showScreen
+        showScreen : showScreen,
+        getValidUsers: getValidUsers,
+        requestValidUsers: requestValidUsers,
 	};
 }(BattleRoyal.screens, BattleRoyal.components));
