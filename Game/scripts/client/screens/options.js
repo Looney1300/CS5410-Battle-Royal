@@ -54,10 +54,12 @@ BattleRoyal.screens['options'] = (function(game, graphics, input) {
         });
 
         //TODO: firing
-        myMouse.registerCommand('mousepress', function(e){
+        myMouse.registerCommand('mousedown', function(e){
             console.log('clicked');
+            
         });
 
+        //This is for changing the background back of the keybinding buttons.
         document.addEventListener('keyup', function(){
             if(selection){
                 selection.style.backgroundColor = backgroundColr;
