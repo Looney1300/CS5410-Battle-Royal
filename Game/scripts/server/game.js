@@ -188,13 +188,32 @@ function initializeSocketIO(httpServer) {
         });
 
         socket.on(NetworkIds.VALID_USERS, data =>{
-            //get the valid users and relay the data
+            console.log("Sending valid users to client");
+            var fs = require('fs');
+            var obj;
+            fs.readFile('../Game/data/users.json', 'utf8', function (err, fileData) {
+            if (err){
+                console.log(err);
+                throw err;
+            }
+            socket.emit(NetworkIds.VALID_USERS,JSON.parse(fileData));
+            });
         })
 
         socket.on(NetworkIds.CREATE_NEW_USER, data =>{
             //create the new user and add it to the file.
-            //for now just assume the user hasn't been created
-        })
+            var fs = require('fs');
+            var obj;
+            var obj = JSON.parse(fs.readFileSync('../Game/data/users.json', 'utf8'));
+            obj.push({
+                name: data.name,
+                password: data.password,
+            });
+
+            fs.writeFileSync('../Game/data/users.json',JSON.stringify(obj));
+            socket.emit(NetworkIds.VALID_USERS,obj);
+            socket.broadcast.emit(NetworkIds.VALID_USERS,obj);
+        });
 
         notifyConnect(socket, newPlayer);
     });

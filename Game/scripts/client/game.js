@@ -59,7 +59,9 @@ BattleRoyal.game = (function(screens,components) {
     });
 
     socket.on(NetworkIds.VALID_USERS, data =>{
-        validUsers = JSON.parse(data);
+        console.log("Receiving valid users");
+        validUsers = data;
+        console.log(validUsers);
     });
 
     //------------------------------------------------------------------
@@ -328,5 +330,6 @@ BattleRoyal.game = (function(screens,components) {
         showScreen : showScreen,
         getValidUsers: getValidUsers,
         requestValidUsers: requestValidUsers,
+        requestCreateUser: requestCreateUser,
 	};
 }(BattleRoyal.screens, BattleRoyal.components));
