@@ -11,7 +11,7 @@ BattleRoyal.game = (function(screens,components) {
 	let messageId = 1;
 	let socket = io();
 	let networkQueue = Queue.create();
-
+    let highScores = null;
 
 
 
@@ -57,6 +57,11 @@ BattleRoyal.game = (function(screens,components) {
             type: NetworkIds.UPDATE_OTHER,
             data: data
         });
+    });
+
+    socket.on(NetworkIds.HIGH_SCORES, data => {
+        console.log("Received a high score message from the server");
+        highScores = JSON.parse(data);
     });
 
     //------------------------------------------------------------------
@@ -149,6 +154,14 @@ BattleRoyal.game = (function(screens,components) {
             model.goal.position.x = data.position.x;
             model.goal.position.y = data.position.y
         }
+    }
+
+    function sendHighScoresRequest(){
+        socket.emit(NetworkIds.HIGH_SCORES,null);
+    }
+
+    function getHighScores(){
+        return highScores;
     }
 
 
@@ -309,6 +322,8 @@ BattleRoyal.game = (function(screens,components) {
 	
 	return {
 		initialize : initialize,
-		showScreen : showScreen
+        showScreen : showScreen,
+        getHighScores : getHighScores,
+        sendHighScoresRequest : sendHighScoresRequest,
 	};
 }(BattleRoyal.screens, BattleRoyal.components));

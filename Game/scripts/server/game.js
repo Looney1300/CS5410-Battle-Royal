@@ -187,6 +187,20 @@ function initializeSocketIO(httpServer) {
             notifyDisconnect(socket.id);
         });
 
+        socket.on(NetworkIds.HIGH_SCORES, data =>{
+            console.log("Got a high scores request from the user!");
+            var fs = require('fs');
+            var obj;
+            fs.readFile('../Game/data/highscores.json', 'utf8', function (err, fileData) {
+            if (err){
+                console.log(err);
+                throw err;
+            }
+            socket.emit(NetworkIds.HIGH_SCORES,fileData);
+            });
+           
+        })
+
         notifyConnect(socket, newPlayer);
     });
 }
