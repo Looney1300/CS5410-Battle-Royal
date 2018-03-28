@@ -1,28 +1,28 @@
-BattleRoyal.game = (function(screens,components) {
-	'use strict';
+//------------------------------------------------------------------
+//
+// This function provides the "game" code.
+//
+//------------------------------------------------------------------
+MyGame.main = (function(graphics, renderer, input, components) {
+    'use strict';
 
+    let lastTimeStamp = performance.now(),
+        myKeyboard = input.Keyboard(),
+        playerSelf = {
+            model: components.Player(),
+            texture: MyGame.assets['player-self']
+        },
+        playerOthers = {},
+        missiles = {},
+        explosions = {},
+        messageHistory = Queue.create(),
+        messageId = 1,
+        nextExplosionId = 1,
+        socket = io(),
+        networkQueue = Queue.create();
 
-	let lastTimeStamp = performance.now();
-	let playerSelf = {
-		model: components.Player(),
-		};
-	let playerOthers = {};
-	let messageHistory = Queue.create();
-	let messageId = 1;
-	let socket = io();
-	let networkQueue = Queue.create();
-
-
-
-
-
-
-
-	// We are going to throw all of the network messages into a network queue
-
-
-	socket.on(NetworkIds.CONNECT_ACK, data => {
-		console.log('I CONNECTED', socket.id);
+    
+    socket.on(NetworkIds.CONNECT_ACK, data => {
         networkQueue.enqueue({
             type: NetworkIds.CONNECT_ACK,
             data: data
@@ -30,15 +30,13 @@ BattleRoyal.game = (function(screens,components) {
     });
 
     socket.on(NetworkIds.CONNECT_OTHER, data => {
-		console.log('SOMEBODY CONNECTED!', data);
         networkQueue.enqueue({
             type: NetworkIds.CONNECT_OTHER,
             data: data
         });
     });
 
-    socket.on(NetworkIds.DISCONNECT_OTHER, function(data) {
-		console.log('SOMEBODY DISCONNECTED!', data);
+    socket.on(NetworkIds.DISCONNECT_OTHER, data => {
         networkQueue.enqueue({
             type: NetworkIds.DISCONNECT_OTHER,
             data: data
@@ -59,6 +57,20 @@ BattleRoyal.game = (function(screens,components) {
         });
     });
 
+    socket.on(NetworkIds.MISSILE_NEW, data => {
+        networkQueue.enqueue({
+            type: NetworkIds.MISSILE_NEW,
+            data: data
+        });
+    });
+
+    socket.on(NetworkIds.MISSILE_HIT, data => {
+        networkQueue.enqueue({
+            type: NetworkIds.MISSILE_HIT,
+            data: data
+        });
+    });
+
     //------------------------------------------------------------------
     //
     // Handler for when the server ack's the socket connection.  We receive
@@ -68,9 +80,14 @@ BattleRoyal.game = (function(screens,components) {
     function connectPlayerSelf(data) {
         playerSelf.model.position.x = data.position.x;
         playerSelf.model.position.y = data.position.y;
+
+        playerSelf.model.size.x = data.size.x;
+        playerSelf.model.size.y = data.size.y;
+
+        playerSelf.model.direction = data.direction;
+        playerSelf.model.speed = data.speed;
+        playerSelf.model.rotateRate = data.rotateRate;
     }
-
-
 
     //------------------------------------------------------------------
     //
@@ -82,17 +99,22 @@ BattleRoyal.game = (function(screens,components) {
         let model = components.PlayerRemote();
         model.state.position.x = data.position.x;
         model.state.position.y = data.position.y;
-
+        model.state.direction = data.direction;
         model.state.lastUpdate = performance.now();
 
         model.goal.position.x = data.position.x;
         model.goal.position.y = data.position.y;
+        model.goal.direction = data.direction;
+        model.goal.updateWindow = 0;
+
+        model.size.x = data.size.x;
+        model.size.y = data.size.y;
 
         playerOthers[data.clientId] = {
-            model: model
+            model: model,
+            texture: MyGame.assets['player-other']
         };
     }
-
 
     //------------------------------------------------------------------
     //
@@ -103,7 +125,7 @@ BattleRoyal.game = (function(screens,components) {
         delete playerOthers[data.clientId];
     }
 
-  //------------------------------------------------------------------
+    //------------------------------------------------------------------
     //
     // Handler for receiving state updates about the self player.
     //
@@ -111,6 +133,7 @@ BattleRoyal.game = (function(screens,components) {
     function updatePlayerSelf(data) {
         playerSelf.model.position.x = data.position.x;
         playerSelf.model.position.y = data.position.y;
+        playerSelf.model.direction = data.direction;
 
         //
         // Remove messages from the queue up through the last one identified
@@ -134,8 +157,6 @@ BattleRoyal.game = (function(screens,components) {
         messageHistory = memory;
     }
 
-
-
     //------------------------------------------------------------------
     //
     // Handler for receiving state updates about other players.
@@ -148,45 +169,93 @@ BattleRoyal.game = (function(screens,components) {
 
             model.goal.position.x = data.position.x;
             model.goal.position.y = data.position.y
+            model.goal.direction = data.direction;
         }
     }
 
+    //------------------------------------------------------------------
+    //
+    // Handler for receiving notice of a new missile in the environment.
+    //
+    //------------------------------------------------------------------
+    function missileNew(data) {
+        missiles[data.id] = components.Missile({
+            id: data.id,
+            radius: data.radius,
+            speed: data.speed,
+            direction: data.direction,
+            position: {
+                x: data.position.x,
+                y: data.position.y
+            },
+            timeRemaining: data.timeRemaining
+        });
+    }
 
+    //------------------------------------------------------------------
+    //
+    // Handler for receiving notice that a missile has hit a player.
+    //
+    //------------------------------------------------------------------
+    function missileHit(data) {
+        explosions[nextExplosionId] = components.AnimatedSprite({
+            id: nextExplosionId++,
+            spriteSheet: MyGame.assets['explosion'],
+            spriteSize: { width: 0.07, height: 0.07 },
+            spriteCenter: data.position,
+            spriteCount: 16,
+            spriteTime: [ 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
+        });
 
-	function processInput(elapsedTime) {
+        //
+        // When we receive a hit notification, go ahead and remove the
+        // associated missle from the client model.
+        delete missiles[data.missileId];
+    }
+
+    //------------------------------------------------------------------
+    //
+    // Process the registered input handlers here.
+    //
+    //------------------------------------------------------------------
+    function processInput(elapsedTime) {
         //
         // Start with the keyboard updates so those messages can get in transit
         // while the local updating of received network messages are processed.
-        //myKeyboard.update(elapsedTime);
+        myKeyboard.update(elapsedTime);
 
         //
         // Double buffering on the queue so we don't asynchronously receive messages
         // while processing.
-        // let processMe = networkQueue;
-        // networkQueue = networkQueue = Queue.create();
-        // while (!processMe.empty) {
-        //     let message = processMe.dequeue();
-        //     switch (message.type) {
-        //         case NetworkIds.CONNECT_ACK:
-        //             connectPlayerSelf(message.data);
-        //             break;
-        //         case NetworkIds.CONNECT_OTHER:
-        //             connectPlayerOther(message.data);
-        //             break;
-        //         case NetworkIds.DISCONNECT_OTHER:
-        //             disconnectPlayerOther(message.data);
-        //             break;
-        //         case NetworkIds.UPDATE_SELF:
-        //             updatePlayerSelf(message.data);
-        //             break;
-        //         case NetworkIds.UPDATE_OTHER:
-        //             updatePlayerOther(message.data);
-        //             break;
-        //     }
-        // }
+        let processMe = networkQueue;
+        networkQueue = networkQueue = Queue.create();
+        while (!processMe.empty) {
+            let message = processMe.dequeue();
+            switch (message.type) {
+                case NetworkIds.CONNECT_ACK:
+                    connectPlayerSelf(message.data);
+                    break;
+                case NetworkIds.CONNECT_OTHER:
+                    connectPlayerOther(message.data);
+                    break;
+                case NetworkIds.DISCONNECT_OTHER:
+                    disconnectPlayerOther(message.data);
+                    break;
+                case NetworkIds.UPDATE_SELF:
+                    updatePlayerSelf(message.data);
+                    break;
+                case NetworkIds.UPDATE_OTHER:
+                    updatePlayerOther(message.data);
+                    break;
+                case NetworkIds.MISSILE_NEW:
+                    missileNew(message.data);
+                    break;
+                case NetworkIds.MISSILE_HIT:
+                    missileHit(message.data);
+                    break;
+            }
+        }
     }
-
-
 
     //------------------------------------------------------------------
     //
@@ -199,13 +268,45 @@ BattleRoyal.game = (function(screens,components) {
             playerOthers[id].model.update(elapsedTime);
         }
 
+        let removeMissiles = [];
+        for (let missile in missiles) {
+            if (!missiles[missile].update(elapsedTime)) {
+                removeMissiles.push(missiles[missile]);
+            }
+        }
+
+        for (let missile = 0; missile < removeMissiles.length; missile++) {
+            delete missiles[removeMissiles[missile].id];
+        }
+
+        for (let id in explosions) {
+            if (!explosions[id].update(elapsedTime)) {
+                delete explosions[id];
+            }
+        }
     }
 
+    //------------------------------------------------------------------
+    //
+    // Render the current state of the game simulation
+    //
+    //------------------------------------------------------------------
+    function render() {
+        graphics.clear();
+        renderer.Player.render(playerSelf.model, playerSelf.texture);
+        for (let id in playerOthers) {
+            let player = playerOthers[id];
+            renderer.PlayerRemote.render(player.model, player.texture);
+        }
 
-	function render() {
+        for (let missile in missiles) {
+            renderer.Missile.render(missiles[missile]);
+        }
 
-	}
-
+        for (let id in explosions) {
+            renderer.AnimatedSprite.render(explosions[id]);
+        }
+    }
 
     //------------------------------------------------------------------
     //
@@ -223,92 +324,70 @@ BattleRoyal.game = (function(screens,components) {
         requestAnimationFrame(gameLoop);
     };
 
+    //------------------------------------------------------------------
+    //
+    // Public function used to get the game initialized and then up
+    // and running.
+    //
+    //------------------------------------------------------------------
+    function initialize() {
+        console.log('game initializing...');
+        //
+        // Create the keyboard input handler and register the keyboard commands
+        myKeyboard.registerHandler(elapsedTime => {
+                let message = {
+                    id: messageId++,
+                    elapsedTime: elapsedTime,
+                    type: NetworkIds.INPUT_MOVE
+                };
+                socket.emit(NetworkIds.INPUT, message);
+                messageHistory.enqueue(message);
+                playerSelf.model.move(elapsedTime);
+            },
+            MyGame.input.KeyEvent.DOM_VK_W, true);
 
+        myKeyboard.registerHandler(elapsedTime => {
+                let message = {
+                    id: messageId++,
+                    elapsedTime: elapsedTime,
+                    type: NetworkIds.INPUT_ROTATE_RIGHT
+                };
+                socket.emit(NetworkIds.INPUT, message);
+                messageHistory.enqueue(message);
+                playerSelf.model.rotateRight(elapsedTime);
+            },
+            MyGame.input.KeyEvent.DOM_VK_D, true);
 
+        myKeyboard.registerHandler(elapsedTime => {
+                let message = {
+                    id: messageId++,
+                    elapsedTime: elapsedTime,
+                    type: NetworkIds.INPUT_ROTATE_LEFT
+                };
+                socket.emit(NetworkIds.INPUT, message);
+                messageHistory.enqueue(message);
+                playerSelf.model.rotateLeft(elapsedTime);
+            },
+            MyGame.input.KeyEvent.DOM_VK_A, true);
 
-	
-	//------------------------------------------------------------------
-	//
-	// This function is used to change to a new active screen.
-	//
-	//------------------------------------------------------------------
-	function showScreen(id) {
-		let screen = 0;
-		let active = null;
-		//
-		// Remove the active state from all screens.  There should only be one...
-		active = document.getElementsByClassName('active');
-		for (screen = 0; screen < active.length; screen++) {
-			active[screen].classList.remove('active');
-		}
-		//
-		// Tell the screen to start actively running
-		screens[id].run();
-		//
-		//console.log('hello' + toString(id));
-		// Then, set the new screen to be active
-		document.getElementById(id).classList.add('active');
-	}
+        myKeyboard.registerHandler(elapsedTime => {
+                let message = {
+                    id: messageId++,
+                    elapsedTime: elapsedTime,
+                    type: NetworkIds.INPUT_FIRE
+                };
+                socket.emit(NetworkIds.INPUT, message);
+            },
+            MyGame.input.KeyEvent.DOM_VK_SPACE, false);
 
-	//------------------------------------------------------------------
-	//
-	// This function performs the one-time game initialization.
-	//
-	//------------------------------------------------------------------
-	function initialize() {
-		let screen = null;
-		console.log('game initializing!');
-		//
-		// Go through each of the screens and tell them to initialize
-		for (screen in screens) {
-			if (screens.hasOwnProperty(screen)) {
-				screens[screen].initialize();
-			}
-		}
-		
-		//
-		// Make the main-menu screen the active one
-		showScreen('main-menu');
-		requestAnimationFrame(gameLoop);
-	}
+        //
+        // Get the game loop started
+        requestAnimationFrame(gameLoop);
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	
-	
-	return {
-		initialize : initialize,
-		showScreen : showScreen
-	};
-}(BattleRoyal.screens, BattleRoyal.components));
+    return {
+        initialize: initialize,
+        socket: socket
+    };
+ 
+}(MyGame.graphics, MyGame.renderer, MyGame.input, MyGame.components));

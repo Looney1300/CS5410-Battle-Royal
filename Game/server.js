@@ -1,7 +1,7 @@
-let http = require('http');
-let path = require('path');
-let fs = require('fs');
-let game = require('./scripts/server/game');
+let http = require('http'),
+    path = require('path'),
+    fs = require('fs'),
+    game = require('./scripts/server/game');
 
 let mimeTypes = {
         '.js' : 'text/javascript',

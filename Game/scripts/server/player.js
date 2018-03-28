@@ -21,44 +21,44 @@ function createPlayer() {
         y: random.nextDouble()
     };
 
-    // let size = {
-    //     width: 0.01,
-    //     height: 0.01,
-    //     radius: 0.02
-    // };
-    //let direction = random.nextDouble() * 2 * Math.PI;    // Angle in radians
-    //let rotateRate = Math.PI / 1000;    // radians per millisecond
-    //let speed = 0.0002;                  // unit distance per millisecond
+    let size = {
+        width: 0.01,
+        height: 0.01,
+        radius: 0.02
+    };
+    let direction = random.nextDouble() * 2 * Math.PI;    // Angle in radians
+    let rotateRate = Math.PI / 1000;    // radians per millisecond
+    let speed = 0.0002;                  // unit distance per millisecond
     let reportUpdate = false;    // Indicates if this model was updated during the last update
 
-    // Object.defineProperty(that, 'direction', {
-    //     get: () => direction
-    // });
+    Object.defineProperty(that, 'direction', {
+        get: () => direction
+    });
 
     Object.defineProperty(that, 'position', {
         get: () => position
     });
 
-    // Object.defineProperty(that, 'size', {
-    //     get: () => size
-    // });
+    Object.defineProperty(that, 'size', {
+        get: () => size
+    });
 
-    // Object.defineProperty(that, 'speed', {
-    //     get: () => speed
-    // })
+    Object.defineProperty(that, 'speed', {
+        get: () => speed
+    })
 
-    // Object.defineProperty(that, 'rotateRate', {
-    //     get: () => rotateRate
-    // });
+    Object.defineProperty(that, 'rotateRate', {
+        get: () => rotateRate
+    });
 
     Object.defineProperty(that, 'reportUpdate', {
         get: () => reportUpdate,
         set: value => reportUpdate = value
     });
 
-    // Object.defineProperty(that, 'radius', {
-    //     get: () => size.radius
-    // });
+    Object.defineProperty(that, 'radius', {
+        get: () => size.radius
+    });
 
     //------------------------------------------------------------------
     //
@@ -66,14 +66,14 @@ function createPlayer() {
     // last move took place.
     //
     //------------------------------------------------------------------
-    // that.move = function(elapsedTime) {
-    //     reportUpdate = true;
-    //     let vectorX = Math.cos(direction);
-    //     let vectorY = Math.sin(direction);
+    that.move = function(elapsedTime) {
+        reportUpdate = true;
+        let vectorX = Math.cos(direction);
+        let vectorY = Math.sin(direction);
 
-    //     position.x += (vectorX * elapsedTime * speed);
-    //     position.y += (vectorY * elapsedTime * speed);
-    // };
+        position.x += (vectorX * elapsedTime * speed);
+        position.y += (vectorY * elapsedTime * speed);
+    };
 
     //------------------------------------------------------------------
     //
@@ -81,10 +81,10 @@ function createPlayer() {
     // last rotate took place.
     //
     //------------------------------------------------------------------
-    // that.rotateRight = function(elapsedTime) {
-    //     reportUpdate = true;
-    //     direction += (rotateRate * elapsedTime);
-    // };
+    that.rotateRight = function(elapsedTime) {
+        reportUpdate = true;
+        direction += (rotateRate * elapsedTime);
+    };
 
     //------------------------------------------------------------------
     //
@@ -92,10 +92,10 @@ function createPlayer() {
     // last rotate took place.
     //
     //------------------------------------------------------------------
-    // that.rotateLeft = function(elapsedTime) {
-    //     reportUpdate = true;
-    //     direction -= (rotateRate * elapsedTime);
-    // };
+    that.rotateLeft = function(elapsedTime) {
+        reportUpdate = true;
+        direction -= (rotateRate * elapsedTime);
+    };
 
     //------------------------------------------------------------------
     //
