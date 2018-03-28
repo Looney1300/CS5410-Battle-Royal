@@ -60,6 +60,11 @@ BattleRoyal.loader = (function () {
         scripts: ['./screens/joinroom'],
         message: 'joinroom screen loaded',
         onComplete: null,
+    },
+    {
+        scripts: ['./screens/game-play'],
+        message: 'game-play screen loaded',
+        onComplete: null,
     }
 
   ];

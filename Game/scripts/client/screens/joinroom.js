@@ -4,12 +4,12 @@ BattleRoyal.screens['joinroom'] = (function(game) {
   
     function initialize() {
       console.log('joinroom running initialize');
-      // document.getElementById('id-joinroom-back').addEventListener(
-      //   'click',
-      //   function() {
-      //     game.showScreen('main-menu');
-      //   }
-      // );
+      document.getElementById('id-joinroom-back').addEventListener(
+        'click',
+        function() {
+          game.showScreen('main-menu');
+        }
+      );
     }
   
     function run(socket) {
@@ -21,6 +21,8 @@ BattleRoyal.screens['joinroom'] = (function(game) {
         // When the button is clicked set the user name equal to the input
         socket.emit('setUsername', document.getElementById('id-chat-name').value);
       });
+
+      //game.showScreen('game-play');
 
       
 

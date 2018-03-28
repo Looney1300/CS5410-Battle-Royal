@@ -16,6 +16,18 @@
             value: 'input',
             writable: false
         },
+        'INPUT_MOVE': {
+            value: 'move',
+            writable: false
+        },
+        'INPUT_ROTATE_LEFT': {
+            value: 'rotate-left',
+            writable: false
+        },
+        'INPUT_ROTATE_RIGHT': {
+            value: 'rotate-right',
+            writable: false
+        },
         'CONNECT_ACK': {
             value: 'connect-ack',
             writable: false

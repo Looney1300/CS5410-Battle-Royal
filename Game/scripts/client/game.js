@@ -28,8 +28,7 @@ BattleRoyal.game = (function(screens,components,graphics,renderer,input) {
 	// We are going to throw all of the network messages into a network queue
 
 
-	socket.on(NetworkIds.CONNECT_ACK, data => {
-		console.log('I CONNECTED', data);
+    socket.on(NetworkIds.CONNECT_ACK, data => {
         networkQueue.enqueue({
             type: NetworkIds.CONNECT_ACK,
             data: data
@@ -37,7 +36,6 @@ BattleRoyal.game = (function(screens,components,graphics,renderer,input) {
     });
 
     socket.on(NetworkIds.CONNECT_OTHER, data => {
-		console.log('SOMEBODY CONNECTED!', data);
         networkQueue.enqueue({
             type: NetworkIds.CONNECT_OTHER,
             data: data
@@ -45,7 +43,6 @@ BattleRoyal.game = (function(screens,components,graphics,renderer,input) {
     });
 
     socket.on(NetworkIds.DISCONNECT_OTHER, function(data) {
-		console.log('SOMEBODY DISCONNECTED!', data);
         networkQueue.enqueue({
             type: NetworkIds.DISCONNECT_OTHER,
             data: data
@@ -118,14 +115,18 @@ BattleRoyal.game = (function(screens,components,graphics,renderer,input) {
 
     socket.on('BeginCountDown', function(){
         console.log('The server says to begin the count down');
-        var seconds_left = 10;
+        var seconds_left = 3;
         var interval = setInterval(function() {
             document.getElementById('joinroom').innerHTML += --seconds_left;
         
             if (seconds_left <= 0)
             {
+                console.log('the game has begun');
                 document.getElementById('joinroom').innerHTML = 'You are ready';
                 gameHasBegun = true;
+                requestAnimationFrame(gameLoop);
+                showScreen('game-play');
+                //showScreen(game-play);
                 clearInterval(interval);
                 
             }
@@ -393,12 +394,13 @@ BattleRoyal.game = (function(screens,components,graphics,renderer,input) {
 
 	function render() {
         if(gameHasBegun){
-            console.log('client is rendering');
+            //console.log('client is rendering');
             graphics.clear();
             renderer.Player.render(playerSelf.model, playerSelf.texture);
             for (let id in playerOthers) {
                 let player = playerOthers[id];
                 renderer.PlayerRemote.render(player.model, player.texture);
+                console.log(player.model.state.direction);
             }
     
             // Still no missiles
@@ -539,9 +541,12 @@ BattleRoyal.game = (function(screens,components,graphics,renderer,input) {
 
 		
 		//
-		// Make the main-menu screen the active one
-		showScreen('main-menu');
-		requestAnimationFrame(gameLoop);
+        // Make the main-menu screen the active one
+        if(!gameHasBegun){
+            showScreen('main-menu');
+        }
+		
+		//requestAnimationFrame(gameLoop);
 	}
 
 

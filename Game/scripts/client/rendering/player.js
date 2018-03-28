@@ -13,6 +13,7 @@ BattleRoyal.renderer.Player = (function(graphics) {
     //
     // ------------------------------------------------------------------
     that.render = function(model, texture) {
+        //console.log('should be showing');
         graphics.saveContext();
         graphics.rotateCanvas(model.position, model.direction);
         graphics.drawImage(texture, model.position, model.size);
