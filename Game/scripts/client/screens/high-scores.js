@@ -1,23 +1,29 @@
 MyGame.screens['high-scores'] = (function() {
     'use strict';
   
+    let socket = MyGame.main.socket;
+    let highScores = null;
+
     function initialize() {
       console.log('high score is inited');
+
+      socket.on(NetworkIds.HIGH_SCORES,data =>{
+        highScores = data;
+      });
+
+      socket.emit(NetworkIds.HIGH_SCORES,null);
+      
       document.getElementById('id-high-scores-back').addEventListener(
         'click',
         function() {
           MyGame.pregame.showScreen('main-menu');
         }
       );
-
-      MyGame.pregame.requestHighScores();
     }
   
     function run() {
-      MyGame.pregame.requestHighScores();
+      socket.emit(NetworkIds.HIGH_SCORES,null);
       console.log('high scores is running');
-
-      let highScores = MyGame.pregame.getHighScores();
       var table = document.getElementById('highScoresTable');
       table.innerHTML = "<tr><th>Name:</th><th>Score:</th></tr>";
 

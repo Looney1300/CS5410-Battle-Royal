@@ -220,16 +220,6 @@ MyGame.main = (function(graphics, renderer, input, components) {
         delete missiles[data.missileId];
     }
 
-    //send high scores request. I know this isn't where this should be but, we don't really have another option.
-    function sendHighScoresRequest(){
-        socket.emit(NetworkIds.HIGH_SCORES,null);
-    }
-
-    //get the high scores
-    function getHighScores(){
-        return highScores;
-    }
-
     //------------------------------------------------------------------
     //
     // Process the registered input handlers here.
@@ -405,8 +395,6 @@ MyGame.main = (function(graphics, renderer, input, components) {
     return {
         initialize: initialize,
         socket: socket,
-        sendHighScoresRequest: sendHighScoresRequest,
-        getHighScores: getHighScores,
     };
  
 }(MyGame.graphics, MyGame.renderer, MyGame.input, MyGame.components));

@@ -410,7 +410,6 @@ function initializeSocketIO(httpServer) {
                 console.log(err);
                 throw err;
             }
-            console.log(JSON.parse(fileData));
             socket.emit(NetworkIds.HIGH_SCORES,JSON.parse(fileData));
             });
 
