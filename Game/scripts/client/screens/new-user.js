@@ -9,7 +9,7 @@ MyGame.screens['new-user'] = (function() {
         document.getElementById('id-create-user').addEventListener(
 			'click',
 			function() { 
-                //check to see if valid user, not already used before, we can talk about constrains on username and password
+                //check to see if valid user, not already used before, we can talk about constraints on username and password
 				//send a request to the server to create a new user
 				var name = document.getElementById('newUserName');
 				var password = document.getElementById('newUserPassword');
@@ -17,7 +17,11 @@ MyGame.screens['new-user'] = (function() {
 					MyGame.main.requestCreateUser({
 						name: name.value,
 						password: password.value
-					});
+                    });
+                    validUsers.push({
+                        name: name.value,
+                        password: password.value
+                    });
 				}
 				else{
 					window.alert("Username " + name.value + " is already taken!");
