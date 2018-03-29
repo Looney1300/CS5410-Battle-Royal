@@ -127,6 +127,7 @@ MyGame.input.Keyboard = function() {
 	that.registerNextKeyPress = function(oldKeyElement, handler){
 		document.removeEventListener('keydown', keyDown);
 		function kd(e){
+			MyGame.input.KeyEvent[oldKeyElement.id] = e.keyCode;
 			delete handlers[Number(oldKeyElement.name)];
 			oldKeyElement.name = e.keyCode;
 			oldKeyElement.innerText = MyGame.input.KeyName[e.keyCode];
@@ -240,6 +241,12 @@ MyGame.input.Mouse = function() {
 MyGame.input.KeyEvent = (function() {
 	'use strict';
 	let that = {
+		//These will be dynamically changed before game in options, to be used in game.
+		moveUp: 87,
+		moveDown: 83,
+		moveLeft: 65,
+		moveRight: 68,
+		fire: 32,
 		get DOM_VK_CANCEL() { return 3; },
 		get DOM_VK_HELP() { return 6; },
 		get DOM_VK_BACK_SPACE() { return 8; },
@@ -354,7 +361,7 @@ MyGame.input.KeyEvent = (function() {
 		get DOM_VK_BACK_SLASH() { return 220; },
 		get DOM_VK_CLOSE_BRACKET() { return 221; },
 		get DOM_VK_QUOTE() { return 222; },
-		get DOM_VK_META() { return 224; }
+		get DOM_VK_META() { return 224; },
 	};
 
 	return that;
