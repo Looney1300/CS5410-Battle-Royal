@@ -21,6 +21,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
         socket = io(),
         networkQueue = Queue.create();
 
+    let highScores = null;
+
     
     socket.on(NetworkIds.CONNECT_ACK, data => {
         networkQueue.enqueue({
@@ -70,6 +72,11 @@ MyGame.main = (function(graphics, renderer, input, components) {
             data: data
         });
     });
+
+    socket.on(NetworkIds.HIGH_SCORES, data => {
+        console.log("Got a high scores message from the server");
+        highScores = data;
+    })
 
     //------------------------------------------------------------------
     //
@@ -211,6 +218,16 @@ MyGame.main = (function(graphics, renderer, input, components) {
         // When we receive a hit notification, go ahead and remove the
         // associated missle from the client model.
         delete missiles[data.missileId];
+    }
+
+    //send high scores request. I know this isn't where this should be but, we don't really have another option.
+    function sendHighScoresRequest(){
+        socket.emit(NetworkIds.HIGH_SCORES,null);
+    }
+
+    //get the high scores
+    function getHighScores(){
+        return highScores;
     }
 
     //------------------------------------------------------------------
@@ -387,7 +404,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
 
     return {
         initialize: initialize,
-        socket: socket
+        socket: socket,
+        sendHighScoresRequest: sendHighScoresRequest,
+        getHighScores: getHighScores,
     };
  
 }(MyGame.graphics, MyGame.renderer, MyGame.input, MyGame.components));

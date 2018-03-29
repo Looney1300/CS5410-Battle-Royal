@@ -50,9 +50,23 @@ MyGame.pregame = (function(screens) {
 		// Make the main-menu screen the active one
 		showScreen('main-menu');
 	}
+
+	//request the high scores from the server
+	function requestHighScores(){
+		MyGame.main.requestHighScores();
+	}
+
+	//get the high scores
+	function getHighScores(){
+		return MyGame.main.getHighScores();
+	}
+
+	MyGame.main 
 	
 	return {
 		initialize : initialize,
-		showScreen : showScreen
+		showScreen : showScreen,
+		requestHighScores: requestHighScores,
+		getHighScores: getHighScores,
 	};
 }(MyGame.screens));
