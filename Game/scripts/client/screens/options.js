@@ -1,4 +1,4 @@
-BattleRoyal.screens['options'] = (function(game, graphics, input) {
+MyGame.screens['options'] = (function(graphics, input) {
   'use strict';
 
   let quit;
@@ -11,11 +11,13 @@ BattleRoyal.screens['options'] = (function(game, graphics, input) {
   let backgroundColr;
   backgroundColr = document.getElementById('moveUp').style.backgroundColor;
 
+  // --This initializes the key value pairs for the right functionality.
   let keyText = {};
-  for (let key in KeyName){
-      keyText[KeyName[key]] = key;
+  for (let key in input.KeyName){
+      keyText[input.KeyName[key]] = key;
   }
-  KeyName = keyText;
+  input.KeyName = keyText;
+  // ---------------------------------------------
 
   let myTexture;
   let background;
@@ -49,12 +51,12 @@ BattleRoyal.screens['options'] = (function(game, graphics, input) {
           image : 'assets/FortDayMapTest.png'
       });
 
-      myMouse.registerCommand('mousemove', function(e){
+      myMouse.registerHandler('mousemove', function(e){
           myfov.move(e.clientX, e.clientY);
       });
 
       //TODO: firing
-      myMouse.registerCommand('mousedown', function(e){
+      myMouse.registerHandler('mousedown', function(e){
           console.log('clicked');
           
       });
@@ -68,21 +70,21 @@ BattleRoyal.screens['options'] = (function(game, graphics, input) {
       }); 
 
       //Default Key registrations
-      myKeyboard.registerCommand(KeyEvent.DOM_VK_W, myTexture.moveUp);
-      myKeyboard.registerCommand(KeyEvent.DOM_VK_S, myTexture.moveDown);
-      myKeyboard.registerCommand(KeyEvent.DOM_VK_A, myTexture.moveLeft);
-      myKeyboard.registerCommand(KeyEvent.DOM_VK_D, myTexture.moveRight);
-      myKeyboard.registerCommand(KeyEvent.DOM_VK_E, myfov.widen);
-      myKeyboard.registerCommand(KeyEvent.DOM_VK_Q, myfov.thin);
+      myKeyboard.registerHandler(myTexture.moveUp, input.KeyEvent.DOM_VK_W, true);
+      myKeyboard.registerHandler(myTexture.moveDown, input.KeyEvent.DOM_VK_S, true);
+      myKeyboard.registerHandler(myTexture.moveLeft, input.KeyEvent.DOM_VK_A, true);
+      myKeyboard.registerHandler(myTexture.moveRight, input.KeyEvent.DOM_VK_D, true);
+      myKeyboard.registerHandler(myfov.widen, input.KeyEvent.DOM_VK_E, true);
+      myKeyboard.registerHandler(myfov.thin, input.KeyEvent.DOM_VK_Q, true);
       
-      document.getElementById('moveLeft').name = KeyEvent.DOM_VK_A;
-      document.getElementById('moveRight').name = KeyEvent.DOM_VK_D;
-      document.getElementById('moveUp').name = KeyEvent.DOM_VK_W;
-      document.getElementById('moveDown').name = KeyEvent.DOM_VK_S;
+      document.getElementById('moveLeft').name = input.KeyEvent.DOM_VK_A;
+      document.getElementById('moveRight').name = input.KeyEvent.DOM_VK_D;
+      document.getElementById('moveUp').name = input.KeyEvent.DOM_VK_W;
+      document.getElementById('moveDown').name = input.KeyEvent.DOM_VK_S;
 
       document.getElementById('id-options-back').addEventListener(
           'click',
-          function() { quit = true; game.showScreen('main-menu'); }
+          function() { quit = true; MyGame.pregame.showScreen('main-menu'); }
       );
 
       assignKeyButton('moveLeft', myTexture.moveLeft);
@@ -100,7 +102,7 @@ BattleRoyal.screens['options'] = (function(game, graphics, input) {
       let lastTimeStamp = performance.now();
 
       function processInput(elapsedTime) {
-          myKeyboard.processInput(elapsedTime);
+          myKeyboard.update(elapsedTime);
           myMouse.update(elapsedTime);
       }
   
@@ -137,4 +139,4 @@ BattleRoyal.screens['options'] = (function(game, graphics, input) {
       run : run,
   };
 
-}(BattleRoyal.game, BattleRoyal.graphics, BattleRoyal.input));
+}(MyGame.miniCanvas, MyGame.input));

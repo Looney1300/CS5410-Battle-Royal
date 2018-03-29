@@ -1,18 +1,10 @@
 // ------------------------------------------------------------------
 // 
-// This is the game object.  Everything about the game is located in 
-// this object.
-//
-// ------------------------------------------------------------------
-
-var MyGame = {};
-// ------------------------------------------------------------------
-// 
 // This is the graphics rendering code for the game preview in the
 //  options menu.
 //
 // ------------------------------------------------------------------
-BattleRoyal.graphics = (function() {
+MyGame.miniCanvas = (function() {
 	'use strict';
 	let canvas = document.getElementById('canvas-keybindings');
 	let context = canvas.getContext('2d');

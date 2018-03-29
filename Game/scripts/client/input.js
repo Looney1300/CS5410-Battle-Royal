@@ -125,14 +125,14 @@ MyGame.input.Keyboard = function() {
 	//The button elements text is text of what key pressed,
 	// the button.name is the numeric keycode equivalent of the button pressed.
 	that.registerNextKeyPress = function(oldKeyElement, handler){
-		document.removeEventListener('keydown', keyPress);
+		document.removeEventListener('keydown', keyDown);
 		function kd(e){
-			delete that.handlers[Number(oldKeyElement.name)];
+			delete handlers[Number(oldKeyElement.name)];
 			oldKeyElement.name = e.keyCode;
-			oldKeyElement.innerText = KeyName[e.keyCode];
-			that.registerCommand(e.keyCode, handler);
+			oldKeyElement.innerText = MyGame.input.KeyName[e.keyCode];
+			that.registerHandler(handler, e.keyCode, true);
 			document.removeEventListener('keydown', kd);
-			document.addEventListener('keydown', keyPress);
+			document.addEventListener('keydown', keyDown);
 		};
 		document.addEventListener('keydown', kd);
 
@@ -212,7 +212,7 @@ MyGame.input.Mouse = function() {
 		that.mouseMove.length = 0;
 	};
 	
-	that.registerCommand = function(type, handler) {
+	that.registerHandler = function(type, handler) {
 		if (type === 'mousedown') {
 			that.handlersDown.push(handler);
 		}
@@ -360,6 +360,7 @@ MyGame.input.KeyEvent = (function() {
 	return that;
 }());
 
+//This is strictly to be used for the use of the options menu when reassigning keys.
 MyGame.input.KeyName = (function(){
 	'use strict';
 	let that = {
