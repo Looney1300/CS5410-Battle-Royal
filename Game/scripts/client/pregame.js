@@ -53,7 +53,7 @@ MyGame.pregame = (function(screens) {
 
 	//request the high scores from the server
 	function requestHighScores(){
-		MyGame.main.requestHighScores();
+		MyGame.main.sendHighScoresRequest();
 	}
 
 	//get the high scores
