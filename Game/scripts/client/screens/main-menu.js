@@ -29,6 +29,10 @@ MyGame.screens['main-menu'] = (function() {
 			'click',
 			function() { MyGame.pregame.showScreen('high-scores'); });
 
+		document.getElementById('id-new-user').addEventListener(
+			'click',
+			function(){MyGame.pregame.showScreen('new-user'); });
+
 	}
 	
 	function run() {

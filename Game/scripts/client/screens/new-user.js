@@ -5,7 +5,7 @@ MyGame.screens['new-user'] = (function() {
 	let validUsers = null;
 
 	function initialize() {
-		Mygame.main.requestValidUsers();
+		MyGame.main.requestValidUsers();
         document.getElementById('id-create-user').addEventListener(
 			'click',
 			function() { 
@@ -26,7 +26,7 @@ MyGame.screens['new-user'] = (function() {
              });
 		document.getElementById('id-new-user-back').addEventListener(
 			'click',
-			function() { game.showScreen('main-menu'); });
+			function() { MyGame.pregame.showScreen('main-menu'); });
 	}
 
 

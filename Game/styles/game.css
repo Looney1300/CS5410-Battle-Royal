@@ -95,6 +95,11 @@ ul.menu li button:active {
 #about p {
 	text-align: center;
 }
+#new-user-data{
+	text-align: center;
+	margin: 10px;
+	font-size: 40px;
+}
 
 input[type="text"], input[type="password"] {
 	font-size:40px;
