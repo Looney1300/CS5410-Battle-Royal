@@ -71,11 +71,6 @@ MyGame.main = (function(graphics, renderer, input, components) {
         });
     });
 
-    socket.on(NetworkIds.VALID_USERS, data =>{
-        console.log("Receiving valid users");
-        validUsers = data;
-        console.log(validUsers);
-    });
 
     //------------------------------------------------------------------
     //
@@ -177,21 +172,6 @@ MyGame.main = (function(graphics, renderer, input, components) {
             model.goal.position.y = data.position.y
             model.goal.direction = data.direction;
         }
-    }
-
-    //Methods to deal with new users
-
-    function requestValidUsers(){
-        socket.emit(NetworkIds.VALID_USERS, null);
-    }
-
-    function getValidUsers(){
-        return validUsers;
-    }
-
-    function requestCreateUser(data){
-        //request the creation of a new user
-        socket.emit(NetworkIds.CREATE_NEW_USER,data);
     }
 
     //------------------------------------------------------------------
@@ -409,9 +389,6 @@ MyGame.main = (function(graphics, renderer, input, components) {
     return {
         initialize: initialize,
         socket: socket,
-        getValidUsers: getValidUsers,
-        requestValidUsers: requestValidUsers,
-        requestCreateUser: requestCreateUser,
     };
  
 }(MyGame.graphics, MyGame.renderer, MyGame.input, MyGame.components));

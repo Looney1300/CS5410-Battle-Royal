@@ -3,9 +3,18 @@ MyGame.screens['new-user'] = (function() {
 	'use strict';
 
 	let validUsers = null;
+	let socket = MyGame.main.socket;
 
 	function initialize() {
-		MyGame.main.requestValidUsers();
+
+		socket.emit(NetworkIds.VALID_USERS,null);
+		
+		socket.on(NetworkIds.VALID_USERS, data =>{
+			console.log("Receiving valid users");
+			validUsers = data;
+			console.log(validUsers);
+		});
+
         document.getElementById('id-create-user').addEventListener(
 			'click',
 			function() { 
@@ -13,18 +22,19 @@ MyGame.screens['new-user'] = (function() {
 				//send a request to the server to create a new user
 				var name = document.getElementById('newUserName');
 				var password = document.getElementById('newUserPassword');
-				if (!userAlreadyTaken(name.value)){
-					MyGame.main.requestCreateUser({
+				if (!userAlreadyTaken(name.value) && name.value.length > 5 && password.value.length > 7 && password.value.length < 16){
+					socket.emit(NetworkIds.CREATE_NEW_USER, {
 						name: name.value,
 						password: password.value
-                    });
+					})
                     validUsers.push({
                         name: name.value,
                         password: password.value
-                    });
+					});
+					clearFields();
 				}
 				else{
-					window.alert("Username " + name.value + " is already taken!");
+					window.alert("Error Invalid Credentials! Password must be between 8 and 15 characters. \nUsername must be unique and must contain at least 5 characters.");
 					//alert the user that the username is already taken
 				}
              });
@@ -33,6 +43,12 @@ MyGame.screens['new-user'] = (function() {
 			function() { MyGame.pregame.showScreen('main-menu'); });
 	}
 
+	function clearFields(){
+		var name = document.getElementById('newUserName');
+		var password = document.getElementById('newUserPassword');
+		name.value = '';
+		password.value = '';
+	}
 
 	function userAlreadyTaken(name){
 		//check to see if the username is already taken
@@ -47,10 +63,8 @@ MyGame.screens['new-user'] = (function() {
 	}
 
 	function run() {
-		MyGame.main.requestValidUsers();
+		socket.emit(NetworkIds.VALID_USERS,null);
 		console.log('running new user screen');
-		//get the list of already existing users from the server
-		validUsers = MyGame.main.getValidUsers();
 	}
 
 	return {
