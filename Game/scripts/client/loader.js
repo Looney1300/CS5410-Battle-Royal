@@ -90,6 +90,11 @@ MyGame.loader = (function() {
             onComplete: null,
         },
         {
+            scripts: ['./screens/new-user'],
+            message: 'new user screen loaded',
+            onComplete: null,
+        },
+        {
             scripts: ['./pregame'],
             message: 'pregame loaded',
             onComplete: null,
