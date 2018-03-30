@@ -122,13 +122,116 @@ MyGame.input.Keyboard = function() {
 		}
 	};
 
+	//The button elements text is text of what key pressed,
+	// the button.name is the numeric keycode equivalent of the button pressed.
+	that.registerNextKeyPress = function(oldKeyElement, handler){
+		document.removeEventListener('keydown', keyDown);
+		function kd(e){
+			MyGame.input.KeyEvent[oldKeyElement.id] = e.keyCode;
+			delete handlers[Number(oldKeyElement.name)];
+			oldKeyElement.name = e.keyCode;
+			oldKeyElement.innerText = MyGame.input.KeyName[e.keyCode];
+			that.registerHandler(handler, e.keyCode, true);
+			document.removeEventListener('keydown', kd);
+			document.addEventListener('keydown', keyDown);
+		};
+		document.addEventListener('keydown', kd);
+
+		document.removeEventListener('keyup', keyRelease);
+		function ku(e){
+			document.removeEventListener('keyup', ku);
+			document.addEventListener('keyup', keyRelease);		
+		};
+		document.addEventListener('keyup', keyRelease);
+	}
+
 	//
 	// This is how we receive notification of keyboard events.
-	window.addEventListener('keydown', keyDown);
-	window.addEventListener('keyup', keyRelease);
+	document.addEventListener('keydown', keyDown);
+	document.addEventListener('keyup', keyRelease);
 
 	return that;
 };
+
+
+
+// ------------------------------------------------------------------
+//
+// Allows the client code to register a Mouse s.
+//
+// ------------------------------------------------------------------
+MyGame.input.Mouse = function() {
+	let that = {
+		mouseDown : [],
+		mouseUp : [],
+		mouseMove : [],
+		handlersDown : [],
+		handlersUp : [],
+		handlersMove : []
+	};
+
+	function mouseDown(e) {
+		that.mouseDown.push(e);
+	}
+	
+	function mouseUp(e) {
+		that.mouseUp.push(e);
+	}
+	
+	function mouseMove(e) {
+		that.mouseMove.push(e);
+	}
+	
+	that.update = function(elapsedTime) {
+		let event;
+		let handler;
+
+		//
+		// Process the mouse events for each of the different kinds of handlers
+		for (event = 0; event < that.mouseDown.length; event++) {
+			for (handler = 0; handler < that.handlersDown.length; handler++) {
+				that.handlersDown[handler](that.mouseDown[event], elapsedTime);
+			}
+		}
+		
+		for (event = 0; event < that.mouseUp.length; event++) {
+			for (handler = 0; handler < that.handlersUp.length; handler++) {
+				that.handlersUp[handler](that.mouseUp[event], elapsedTime);
+			}
+		}
+		
+		for (event = 0; event < that.mouseMove.length; event++) {
+			for (handler = 0; handler < that.handlersMove.length; handler++) {
+				that.handlersMove[handler](that.mouseMove[event], elapsedTime);
+			}
+		}
+		
+		//
+		// Now that we have processed all the inputs, reset everything back to the empty state
+		that.mouseDown.length = 0;
+		that.mouseUp.length = 0;
+		that.mouseMove.length = 0;
+	};
+	
+	that.registerHandler = function(type, handler) {
+		if (type === 'mousedown') {
+			that.handlersDown.push(handler);
+		}
+		else if (type === 'mouseup') {
+			that.handlersUp.push(handler);
+		}
+		else if (type === 'mousemove') {
+			that.handlersMove.push(handler);
+		}
+	};
+	
+	document.addEventListener('mousedown', mouseDown);
+	document.addEventListener('mouseup', mouseUp);
+	document.addEventListener('mousemove', mouseMove);
+	
+	return that;
+
+}
 
 //------------------------------------------------------------------
 //
@@ -138,6 +241,12 @@ MyGame.input.Keyboard = function() {
 MyGame.input.KeyEvent = (function() {
 	'use strict';
 	let that = {
+		//These will be dynamically changed before game in options, to be used in game.
+		moveUp: 87,
+		moveDown: 83,
+		moveLeft: 65,
+		moveRight: 68,
+		fire: 32,
 		get DOM_VK_CANCEL() { return 3; },
 		get DOM_VK_HELP() { return 6; },
 		get DOM_VK_BACK_SPACE() { return 8; },
@@ -252,7 +361,131 @@ MyGame.input.KeyEvent = (function() {
 		get DOM_VK_BACK_SLASH() { return 220; },
 		get DOM_VK_CLOSE_BRACKET() { return 221; },
 		get DOM_VK_QUOTE() { return 222; },
-		get DOM_VK_META() { return 224; }
+		get DOM_VK_META() { return 224; },
+	};
+
+	return that;
+}());
+
+//This is strictly to be used for the use of the options menu when reassigning keys.
+MyGame.input.KeyName = (function(){
+	'use strict';
+	let that = {
+		CANCEL: 3,
+		HELP: 6,
+		BACK_SPACE: 8,
+		TAB: 9,
+		CLEAR: 12,
+		RETURN: 13,
+		ENTER: 14,
+		SHIFT: 16,
+		CONTROL: 17,
+		ALT: 18,
+		PAUSE: 19,
+		CAPS_LOCK: 20,
+		ESCAPE: 27,
+		SPACE: 32,
+		PAGE_UP: 33,
+		PAGE_DOWN: 34,
+		END: 35,
+		HOME: 36,
+		LEFT: 37,
+		UP: 38,
+		RIGHT: 39,
+		DOWN: 40,
+		PRINTSCREEN: 44,
+		INSERT: 45,
+		DELETE: 46,
+		0: 48,
+		1: 49,
+		2: 50,
+		3: 51,
+		4: 52,
+		5: 53,
+		6: 54,
+		7: 55,
+		8: 56,
+		9: 57,
+		SEMICOLON: 59,
+		EQUALS: 61,
+		A: 65,
+		B: 66,
+		C: 67,
+		D: 68,
+		E: 69,
+		F: 70,
+		G: 71,
+		H: 72,
+		I: 73,
+		J: 74,
+		K: 75,
+		L: 76,
+		M: 77,
+		N: 78,
+		O: 79,
+		P: 80,
+		Q: 81,
+		R: 82,
+		S: 83,
+		T: 84,
+		U: 85,
+		V: 86,
+		W: 87,
+		X: 88,
+		Y: 89,
+		Z: 90,
+		CONTEXT_MENU: 93,
+		NUMPAD0: 96,
+		NUMPAD1: 97,
+		NUMPAD2: 98,
+		NUMPAD3: 99,
+		NUMPAD4: 100,
+		NUMPAD5: 101,
+		NUMPAD6: 102,
+		NUMPAD7: 103,
+		NUMPAD8: 104,
+		NUMPAD9: 105,
+		MULTIPLY: 106,
+		ADD: 107,
+		SEPARATOR: 108,
+		SUBTRACT: 109,
+		DECIMAL: 110,
+		DIVIDE: 111,
+		F1: 112,
+		F2: 113,
+		F3: 114,
+		F4: 115,
+		F5: 116,
+		F6: 117,
+		F7: 118,
+		F8: 119,
+		F9: 120,
+		F10: 121,
+		F11: 122,
+		F12: 123,
+		F13: 124,
+		F14: 125,
+		F15: 126,
+		F16: 127,
+		F17: 128,
+		F18: 129,
+		F19: 130,
+		F20: 131,
+		F21: 132,
+		F22: 133,
+		F23: 134,
+		F24: 135,
+		NUM_LOCK: 144,
+		SCROLL_LOCK: 145,
+		COMMA: 188,
+		PERIOD: 190,
+		SLASH: 191,
+		BACK_QUOTE: 192,
+		OPEN_BRACKET: 219,
+		BACK_SLASH: 220,
+		CLOSE_BRACKET: 221,
+		QUOTE: 222,
+		META: 224
 	};
 
 	return that;

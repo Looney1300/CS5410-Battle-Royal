@@ -332,8 +332,10 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //------------------------------------------------------------------
     function initialize() {
         console.log('game initializing...');
+
         //
         // Create the keyboard input handler and register the keyboard commands
+        //  based on the configurations specified in the options menu (or default).
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
                     id: messageId++,
@@ -344,7 +346,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 messageHistory.enqueue(message);
                 playerSelf.model.move(elapsedTime);
             },
-            MyGame.input.KeyEvent.DOM_VK_W, true);
+            MyGame.input.KeyEvent.moveUp, true);
 
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
@@ -356,7 +358,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 messageHistory.enqueue(message);
                 playerSelf.model.rotateRight(elapsedTime);
             },
-            MyGame.input.KeyEvent.DOM_VK_D, true);
+            MyGame.input.KeyEvent.moveRight, true);
 
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
@@ -368,7 +370,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 messageHistory.enqueue(message);
                 playerSelf.model.rotateLeft(elapsedTime);
             },
-            MyGame.input.KeyEvent.DOM_VK_A, true);
+            MyGame.input.KeyEvent.moveLeft, true);
 
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
@@ -378,7 +380,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 };
                 socket.emit(NetworkIds.INPUT, message);
             },
-            MyGame.input.KeyEvent.DOM_VK_SPACE, false);
+            MyGame.input.KeyEvent.fire, false);
 
         //
         // Get the game loop started
