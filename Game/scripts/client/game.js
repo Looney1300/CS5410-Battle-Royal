@@ -19,7 +19,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
         messageId = 1,
         nextExplosionId = 1,
         socket = io(),
-        networkQueue = Queue.create();
+        //networkQueue = Queue.create(),
+        viewPort = components.ViewPort();
 
     
     socket.on(NetworkIds.CONNECT_ACK, data => {
@@ -80,6 +81,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
     function connectPlayerSelf(data) {
         playerSelf.model.position.x = data.position.x;
         playerSelf.model.position.y = data.position.y;
+
+        playerSelf.model.worldCordinates.x = data.worldCordinates.x;
+        playerSelf.model.worldCordinates.y = data.worldCordinates.y;
 
         playerSelf.model.size.x = data.size.x;
         playerSelf.model.size.y = data.size.y;
@@ -284,6 +288,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 delete explosions[id];
             }
         }
+        // viewPort.update(graphics, playerSelf.model.worldCordinates);
     }
 
     //------------------------------------------------------------------
@@ -306,6 +311,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         for (let id in explosions) {
             renderer.AnimatedSprite.render(explosions[id]);
         }
+        // renderer.ViewPort.render(viewPort);
     }
 
     //------------------------------------------------------------------
@@ -336,6 +342,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         //
         // Create the keyboard input handler and register the keyboard commands
         //  based on the configurations specified in the options menu (or default).
+
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
                     id: messageId++,

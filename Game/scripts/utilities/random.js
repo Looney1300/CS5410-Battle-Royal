@@ -20,6 +20,15 @@ function nextDouble() {
 
 // ------------------------------------------------------------------
 //
+// Generate a random cordinate in map. if limit == 10 it would return random 0-9
+//
+// ------------------------------------------------------------------ 
+function nextMapCord(limit){
+    return Math.floor(Math.random() * limit);
+}
+
+// ------------------------------------------------------------------
+//
 // Generate a uniformly selected random 'integer' within the range [min, max].
 //
 // ------------------------------------------------------------------
@@ -86,3 +95,4 @@ module.exports.nextDouble = nextDouble;
 module.exports.nextRange = nextRange;
 module.exports.nextCircleVector = nextCircleVector;
 module.exports.nextGaussian = nextGaussian;
+module.exports.nextMapCord = nextMapCord;

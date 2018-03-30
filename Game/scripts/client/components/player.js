@@ -10,6 +10,10 @@ MyGame.components.Player = function() {
         x: 0,
         y: 0
     };
+    let worldCordinates = {
+        x: 0,
+        y: 0
+    };
     let size = {
         width: 0.05,
         height: 0.05

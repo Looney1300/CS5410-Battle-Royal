@@ -7,7 +7,9 @@ MyGame.graphics = (function() {
     'use strict';
 
     let canvas = document.getElementById('canvas-main');
-    let context = canvas.getContext('2d')
+    let context = canvas.getContext('2d');
+    canvas.width = document.body.clientWidth;
+    canvas.height = document.body.clientHeight;
 
     //------------------------------------------------------------------
     //
@@ -21,6 +23,14 @@ MyGame.graphics = (function() {
         this.clearRect(0, 0, canvas.width, canvas.height);
         this.restore();
     };
+
+    function getClientWidth(){
+        return document.body.clientWidth;
+    }
+
+    function getClientHeight(){
+        return document.body.clientHeight;
+    }
 
     //------------------------------------------------------------------
     //
@@ -58,6 +68,46 @@ MyGame.graphics = (function() {
         context.translate(center.x * canvas.width, center.y * canvas.width);
         context.rotate(rotation);
         context.translate(-center.x * canvas.width, -center.y * canvas.width);
+    }
+
+    //------------------------------------------------------------------
+    //
+    // Draw a portion of the map on screen with given view portal's center.
+    //
+    //------------------------------------------------------------------
+    function drawMapPortion(viewPort) {
+        let clipX = 0;
+        let clipY = 0;
+        let cornerX = viewPort.center.x - viewPort.width;
+        let cornerY = viewPort.center.y - viewPort.height;
+        let topIndexCol = Math.max(Math.floor(cornerX/tileWidth),0);
+        let topIndexRow = Math.max(Math.floor(cornerY/tileHeight),0);
+        let botIndexCol = Math.min(Math.floor((viewPort.center.x + viewPort.width)/tileWidth),mapWidth);
+        let botIndexRow = Math.min(Math.floor((viewPort.center.y + viewPort.height)/tileHeight),mapHeight);;
+        let tileXCordinate = topIndexCol * tileWidth;
+        let tileYCordinate = topIndexRow * tileHeight;
+        let startX = tileXCordinate - cornerX;
+        startX = Math.min(startX, 0);
+        let curX = startX;
+        let curY = Math.min((tileYCordinate - cornerY),0);
+        for (let i = topIndexRow; i < botIndexRow; i++){
+            for (let j = topIndexCol; j < botIndexCol; j++){
+                clipX = ((map[i][j] % mapFile.tilesets[1].columns) - 1 ) * mapFile.tilesets[1].tileWidth;
+                clipY = Math.floor(map[i][j] / mapFile.tilesets[1].columns) * mapFile.tilesets[1].tileHeight;
+                context.drawImage(
+                    viewPort.image,
+                    clipX, clipY,
+                    mapFile.tilesets[1].tilewidth,
+                    mapFile.tilesets[1].tileheight,
+                    curX, curY,
+                    mapFile.tilesets[1].tilewidth,
+                    mapFile.tilesets[1].tileheight
+                );
+                curX += mapFile.tilesets[1].tilewidth;
+            }
+            curX = startX;
+            curY += mapFile.tilesets[1].tileheight;
+        }
     }
 
     //------------------------------------------------------------------
@@ -299,10 +349,13 @@ MyGame.graphics = (function() {
     }
 
     return {
+        getClientWidth : getClientWidth,
+        getClientHeight : getClientHeight,
         clear: clear,
         saveContext: saveContext,
         restoreContext: restoreContext,
         rotateCanvas: rotateCanvas,
+        drawMapPortion: drawMapPortion,
         drawImage: drawImage,
         drawImageSpriteSheet: drawImageSpriteSheet,
         drawCircle: drawCircle,

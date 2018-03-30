@@ -1,3 +1,4 @@
+
 MyGame = {
     input: {},
     components: {},
@@ -6,6 +7,12 @@ MyGame = {
     assets: {},
     screens: {}
 };
+mapFile = null;
+map = [];
+tileWidth = 0;
+tileHeight = 0;
+mapWidth = 0;
+mapHeight = 0;
 
 //------------------------------------------------------------------
 //
@@ -34,7 +41,12 @@ MyGame.loader = (function() {
             onComplete: null
         }, 
         {
-            scripts: ['components/player', 'components/player-remote', 'components/missile', 'components/animated-sprite'],
+            scripts: ['../shared/maps/SmallMap'],
+            message: 'Small Map loaded',
+            onComplete: null
+        },
+        {
+            scripts: ['components/player', 'components/player-remote', 'components/missile', 'components/animated-sprite', 'components/view-portal'],
             message: 'Player models loaded',
             onComplete: null
         }, 
@@ -44,7 +56,7 @@ MyGame.loader = (function() {
             onComplete: null
         }, 
         {
-            scripts: ['rendering/player', 'rendering/player-remote', 'rendering/missile', 'rendering/animated-sprite'],
+            scripts: ['rendering/player', 'rendering/player-remote', 'rendering/missile', 'rendering/animated-sprite', 'rendering/view-portal'],
             message: 'Renderers loaded',
             onComplete: null
         }, 
@@ -224,6 +236,23 @@ MyGame.loader = (function() {
         xhr.send();
     }
 
+    function loadMap() {
+        mapFile = MyGame.smallMap.data;
+        map = [];
+        let index = 0;
+        for (let i = 0; i < mapFile.height; i++){
+            map.push([]);
+            for (let j = 0; j < mapFile.width; j++){
+                map[i].push(mapFile.layers[0].data[index]);
+                index++;
+            }
+        }
+        tileWidth = mapFile.tileWidth;
+        tileHeight = mapFile.tileHeight;
+        mapWidth = mapFile.width * mapFile.tilewidth;
+        mapHeight = mapFile.height * mapFile.tileheight;
+    }
+
     //------------------------------------------------------------------
     //
     // Called when all the scripts are loaded, it kicks off the demo app.
@@ -231,6 +260,7 @@ MyGame.loader = (function() {
     //------------------------------------------------------------------
     function mainComplete() {
         console.log('it is all loaded up');
+        loadMap();
         MyGame.pregame.initialize();
     }
 

@@ -6,6 +6,8 @@
 'use strict';
 
 let random = require ('../utilities/random');
+let mapWidth = 1600;
+let mapHeight = 1600;
 
 //------------------------------------------------------------------
 //
@@ -20,6 +22,11 @@ function createPlayer() {
         x: random.nextDouble(),
         y: random.nextDouble()
     };
+
+    let worldCordinates = {
+        x: random.nextMapCord(mapWidth),
+        y: random.nextMapCord(mapHeight)
+    }
 
     let size = {
         width: 0.01,
