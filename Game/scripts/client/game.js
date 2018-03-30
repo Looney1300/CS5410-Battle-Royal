@@ -21,8 +21,6 @@ MyGame.main = (function(graphics, renderer, input, components) {
         socket = io(),
         networkQueue = Queue.create();
 
-    let highScores = null;
-
     
     socket.on(NetworkIds.CONNECT_ACK, data => {
         networkQueue.enqueue({
@@ -72,12 +70,6 @@ MyGame.main = (function(graphics, renderer, input, components) {
             data: data
         });
     });
-
-    socket.on(NetworkIds.HIGH_SCORES, data => {
-        console.log("Got a high scores message from the server");
-        highScores = data;
-    })
-
     //------------------------------------------------------------------
     //
     // Handler for when the server ack's the socket connection.  We receive
