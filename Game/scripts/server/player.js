@@ -21,6 +21,9 @@ function createPlayer() {
         y: random.nextDouble()
     };
 
+    let health_remaining = 100;
+    let score = 0;
+
     let size = {
         width: 0.01,
         height: 0.01,
@@ -33,6 +36,10 @@ function createPlayer() {
 
     Object.defineProperty(that, 'direction', {
         get: () => direction
+    });
+
+    Object.defineProperty(that, 'score', {
+        get: () => score
     });
 
     Object.defineProperty(that, 'position', {
@@ -73,6 +80,11 @@ function createPlayer() {
 
         position.x += (vectorX * elapsedTime * speed);
         position.y += (vectorY * elapsedTime * speed);
+    };
+
+    that.scoredAHit = function(){
+        reportUpdate = true;
+        score += 1;
     };
 
     //------------------------------------------------------------------

@@ -14,6 +14,8 @@ MyGame.components.Player = function() {
         width: 0.05,
         height: 0.05
     };
+    let health_remaining = 0;
+    let score = 0;
     let direction = 0;
     let rotateRate = 0;
     let speed = 0;
@@ -26,6 +28,11 @@ MyGame.components.Player = function() {
     Object.defineProperty(that, 'speed', {
         get: () => speed,
         set: value => { speed = value; }
+    });
+
+    Object.defineProperty(that, 'score', {
+        get: () => score,
+        set: value => { score = value; }
     });
 
     Object.defineProperty(that, 'rotateRate', {

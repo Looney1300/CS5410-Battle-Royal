@@ -134,6 +134,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.model.position.x = data.position.x;
         playerSelf.model.position.y = data.position.y;
         playerSelf.model.direction = data.direction;
+        playerSelf.model.score = data.score;
+        console.log(playerSelf.model.score);
 
         //
         // Remove messages from the queue up through the last one identified
@@ -198,6 +200,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //
     //------------------------------------------------------------------
     function missileHit(data) {
+        console.log("A hit happened: ");
+        console.log(data.origin, " hit ", data.destination);
+        console.log(playerSelf.model.score);
         explosions[nextExplosionId] = components.AnimatedSprite({
             id: nextExplosionId++,
             spriteSheet: MyGame.assets['explosion'],

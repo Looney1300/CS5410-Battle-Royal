@@ -120,15 +120,29 @@ function update(elapsedTime, currentTime) {
     for (let missile = 0; missile < activeMissiles.length; missile++) {
         let hit = false;
         for (let clientId in activeClients) {
+            let client = activeClients[clientId];
             //
             // Don't allow a missile to hit the player it was fired from.
             if (clientId !== activeMissiles[missile].clientId) {
                 if (collided(activeMissiles[missile], activeClients[clientId].player)) {
                     hit = true;
+                    //activeClients[clientId].scoredAHit;
+                    // This is player who was hit.
+                    //console.log(activeClients[clientId].player, " was hit");
+
+                    // This player did the hitting
+                    //console.log(activeClients[activeMissiles[missile].clientId].player, " did the hitting");
+                    activeClients[activeMissiles[missile].clientId].player.scoredAHit();
+
+                    // This is who was hit
+                    console.log(client.player.score);
+                    //console.log(activeClients[activeMissiles[missile].clientId].player.score);
                     hits.push({
                         clientId: clientId,
                         missileId: activeMissiles[missile].id,
-                        position: activeClients[clientId].player.position
+                        position: activeClients[clientId].player.position,
+                        origin: activeClients[activeMissiles[missile].clientId].player.clientId,
+                        destination: activeClients[clientId].player.clientId
                     });
                 }
             }
@@ -181,13 +195,16 @@ function updateClients(elapsedTime) {
 
     for (let clientId in activeClients) {
         let client = activeClients[clientId];
+        //console.log('i am score: ', client.player.score);
         let update = {
             clientId: clientId,
             lastMessageId: client.lastMessageId,
             direction: client.player.direction,
             position: client.player.position,
+            score: client.player.score,
             updateWindow: lastUpdate
         };
+        //console.log('i am score: ', client.player.score);
         if (client.player.reportUpdate) {
             client.socket.emit(NetworkIds.UPDATE_SELF, update);
 
@@ -196,6 +213,7 @@ function updateClients(elapsedTime) {
             // other connected client status...but only if they are updated.
             for (let otherId in activeClients) {
                 if (otherId !== clientId) {
+                    //console.log(update);
                     activeClients[otherId].socket.emit(NetworkIds.UPDATE_OTHER, update);
                 }
             }

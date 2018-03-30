@@ -8,7 +8,9 @@ MyGame.graphics = (function() {
 
     let canvas = document.getElementById('canvas-main');
     let context = canvas.getContext('2d')
-
+    canvas.width = document.body.clientWidth; //document.width is obsolete
+	canvas.height = document.body.clientHeight; //document.height is obsolete
+    console.log(canvas.width);
     //------------------------------------------------------------------
     //
     // Place a 'clear' function on the Canvas prototype, this makes it a part
