@@ -70,7 +70,6 @@ MyGame.main = (function(graphics, renderer, input, components) {
             data: data
         });
     });
-
     //------------------------------------------------------------------
     //
     // Handler for when the server ack's the socket connection.  We receive
@@ -389,7 +388,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
 
     return {
         initialize: initialize,
-        socket: socket
+        socket: socket,
     };
  
 }(MyGame.graphics, MyGame.renderer, MyGame.input, MyGame.components));

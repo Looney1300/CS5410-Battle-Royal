@@ -50,9 +50,11 @@ MyGame.pregame = (function(screens) {
 		// Make the main-menu screen the active one
 		showScreen('main-menu');
 	}
+
+	MyGame.main 
 	
 	return {
 		initialize : initialize,
-		showScreen : showScreen
+		showScreen : showScreen,
 	};
 }(MyGame.screens));
