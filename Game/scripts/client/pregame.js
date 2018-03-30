@@ -51,22 +51,10 @@ MyGame.pregame = (function(screens) {
 		showScreen('main-menu');
 	}
 
-	//request the high scores from the server
-	function requestHighScores(){
-		MyGame.main.sendHighScoresRequest();
-	}
-
-	//get the high scores
-	function getHighScores(){
-		return MyGame.main.getHighScores();
-	}
-
 	MyGame.main 
 	
 	return {
 		initialize : initialize,
 		showScreen : showScreen,
-		requestHighScores: requestHighScores,
-		getHighScores: getHighScores,
 	};
 }(MyGame.screens));
