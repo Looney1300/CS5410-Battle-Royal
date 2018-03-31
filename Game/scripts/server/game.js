@@ -10,6 +10,8 @@ let Player = require('./player');
 let Missile = require('./missile');
 let NetworkIds = require('../shared/network-ids');
 let Queue = require('../shared/queue.js');
+let CryptoJS = require('crypto-js');
+let fs = require('fs');
 
 const SIMULATION_UPDATE_RATE_MS = 50;
 const STATE_UPDATE_RATE_MS = 100;
@@ -412,25 +414,29 @@ function initializeSocketIO(httpServer) {
             }
             socket.emit(NetworkIds.HIGH_SCORES,JSON.parse(fileData));
             });
-
          });
 
+         socket.on(NetworkIds.VALID_USER, data => {
+             console.log("Got a login users request");
+             console.log(data.name,data.password);
+             if (validUser(data.name,data.password)){
+                socket.emit(NetworkIds.VALID_USER, null);
+             }
+             else{
+                 socket.emit(NetworkIds.INVALID_USER,null);
+             }
+         });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+         socket.on(NetworkIds.VALID_CREATE_USER, data => {
+             console.log("Got a create users request");
+             if(validCreateUser(data.name,data.password)){
+                 socket.emit(NetworkIds.VALID_CREATE_USER,null);
+             }
+             else {
+                 socket.emit(NetworkIds.INVALID_CREATE_USER, null);
+             }
+         })
+         
 
 
 
@@ -448,6 +454,34 @@ function initializeSocketIO(httpServer) {
 function initialize(httpServer) {
     initializeSocketIO(httpServer);
     gameLoop(present(), 0);
+}
+
+function validUser(uName,uPassword){
+    var obj = JSON.parse(fs.readFileSync('../Game/data/users.json', 'utf8'));
+    for (var i = 0; i < obj.length; ++i){
+        console.log(CryptoJS.AES.decrypt(obj[i].password, "Secret Passphrase").toString(CryptoJS.enc.Utf8));
+        if (obj[i].name == uName && CryptoJS.AES.decrypt(obj[i].password, "Secret Passphrase").toString(CryptoJS.enc.Utf8) == uPassword){
+            return true;
+        }
+    }
+    return false;
+}
+
+function validCreateUser(uName,uPassword){ 
+    console.log('checking for valid create user');
+    var obj = JSON.parse(fs.readFileSync('../Game/data/users.json', 'utf8'));
+    for (var i = 0; i < obj.length; ++i){
+        if (obj[i].name == uName){
+            return false;
+        }
+    }
+    obj.push({
+        name: uName,
+        password: CryptoJS.AES.encrypt(uPassword,"Secret Passphrase").toString(CryptoJS.enc.Utf8)
+    });
+    fs.writeFileSync('../Game/data/users.json',JSON.stringify(obj));
+
+    return true;
 }
 
 //------------------------------------------------------------------

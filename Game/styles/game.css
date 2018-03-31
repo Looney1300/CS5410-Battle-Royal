@@ -119,3 +119,19 @@ ul.menu li button:active {
 #highScoresTable th {
 	text-align: left;
 }
+
+
+#new-user-data{
+	text-align: center;
+	margin: 10px;
+	font-size: 40px;
+}
+
+input[type="text"], input[type="password"] {
+	font-size:40px;
+	margin: 10px;
+}
+
+label{
+	margin: 10px;
+}
