@@ -23,6 +23,7 @@ let activeMissiles = [];
 let hits = [];
 let inputQueue = Queue.create();
 let nextMissileId = 1;
+let salt = 'xnBZngGg*+FhQz??V6FMjfd9G4m5w^z8P*6';
 
 //------------------------------------------------------------------
 //
@@ -459,8 +460,8 @@ function initialize(httpServer) {
 function validUser(uName,uPassword){
     var obj = JSON.parse(fs.readFileSync('../Game/data/users.json', 'utf8'));
     for (var i = 0; i < obj.length; ++i){
-        console.log(CryptoJS.AES.decrypt(obj[i].password, "Secret Passphrase").toString(CryptoJS.enc.Utf8));
-        if (obj[i].name == uName && CryptoJS.AES.decrypt(obj[i].password, "Secret Passphrase").toString(CryptoJS.enc.Utf8) == uPassword){
+        console.log(CryptoJS.AES.decrypt(obj[i].password, salt).toString(CryptoJS.enc.Utf8));
+        if (obj[i].name == uName && CryptoJS.AES.decrypt(obj[i].password, salt).toString(CryptoJS.enc.Utf8) == uPassword){
             return true;
         }
     }
@@ -475,9 +476,10 @@ function validCreateUser(uName,uPassword){
             return false;
         }
     }
+
     obj.push({
         name: uName,
-        password: CryptoJS.AES.encrypt(uPassword,"Secret Passphrase").toString(CryptoJS.enc.Utf8)
+        password: CryptoJS.AES.encrypt(uPassword,salt).toString()
     });
     fs.writeFileSync('../Game/data/users.json',JSON.stringify(obj));
 
