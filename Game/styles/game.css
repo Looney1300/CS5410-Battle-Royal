@@ -135,3 +135,8 @@ input[type="text"], input[type="password"] {
 label{
 	margin: 10px;
 }
+
+.logo {
+    display: block;
+    margin: 0 auto;
+}
