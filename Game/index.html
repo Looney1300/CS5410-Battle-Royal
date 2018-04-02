@@ -35,19 +35,43 @@
 			</ul>
 		</div>
 
+		<div id = "startup" class = "screen">
+			<img src = 'assets/logo.png' class = "logo">
+			<ul class = "menu">
+				<li><button id = "id-login">Login User</button></li>
+			</ul>
+			<ul class = "menu">
+				<li><button id = "id-register">Register User</button></li>
+			</ul>
+		</div>
+
 		<div id = "login" class = "screen">
 			<img src = 'assets/logo.png' class = "logo">
 			<div id = "new-user-data">
-				<label for="newUserName">Username: </label><input type="text" id="newUserName" pattern=".{5,}"   required title="At least 5 characters required" data-required="true"/><br>
-				<label for="newUserPassword">Password: </label><input type="password" id="newUserPassword" pattern=".{8,15}"   required title="8-15 characters required" data-required="true"/><br>
+				<label for="userName">Username: </label><input type="text" id="userName" pattern=".{5,}"   required title="At least 5 characters required" data-required="true"/><br>
+				<label for="userPassword">Password: </label><input type="password" id="userPassword" pattern=".{8,15}"   required title="8-15 characters required" data-required="true"/><br>
 			</div>
 			<ul class = "menu">
 				<li><button id = "id-login-user">Login User</button></li>
 			</ul>
 			<ul class = "menu">
-				<li><button id = "id-create-user">Create User</button></li>
+				<li><button id = "id-login-user-back">Back</button></li>
 			</ul>
+		</div>
 
+		<div id = "register-user" class = "screen">
+			<img src = 'assets/logo.png' class = "logo">
+			<div id = "new-user-data">
+				<label for="newUserName">Username: </label><input type="text" id="newUserName" pattern=".{5,}"   required title="At least 5 characters required" data-required="true"/><br>
+				<label for="newUserPassword">Password: </label><input type="password" id="newUserPassword" pattern=".{8,15}"   required title="8-15 characters required" data-required="true"/><br>
+				<label for="newUserPasswordConfirm">Confirm: </label><input type="password" id="passwordConfirm" pattern=".{8,15}"   required title="8-15 characters required" data-required="true"/><br>
+			</div>
+			<ul class = "menu">
+				<li><button id = "id-register-user">Register User</button></li>
+			</ul>
+			<ul class = "menu">
+				<li><button id = "id-register-user-back">Back</button></li>
+			</ul>
 		</div>
 
 		<div id = "high-scores" class="screen">
