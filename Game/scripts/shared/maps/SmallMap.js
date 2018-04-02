@@ -1,18 +1,22 @@
-MyGame.smallMap = (function(name,data){
-  let d = data;
-  let n = name;
+(function(name,data,exports){
+  
   if(typeof onTileMapLoaded === 'undefined') {
-   if(typeof TileMaps === 'undefined') TileMaps = {};
-   TileMaps[name] = data;
+    if(typeof TileMaps === 'undefined') TileMaps = {};
+    TileMaps[name] = data;
   } else {
-   onTileMapLoaded(name,data);
+    onTileMapLoaded(name,data);
   }
   if(typeof module === 'object' && module && module.exports) {
-   module.exports = data;
+    module.exports = data;
   }
-  return {
-    data : d,
-    name : n
+  exports.create = function () {
+    let that = {};
+
+    Object.defineProperty(that, 'data', {
+      get: () => data
+    });
+
+    return that;
   };
 })("SmallMap",
 { "height":50,
@@ -67,4 +71,4 @@ MyGame.smallMap = (function(name,data){
  "type":"map",
  "version":1.2,
  "width":50
-});
+}, typeof exports === 'undefined' ? this['SmallMap'] = {} : exports);

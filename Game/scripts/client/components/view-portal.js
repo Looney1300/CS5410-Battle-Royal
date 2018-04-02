@@ -13,21 +13,27 @@ MyGame.components.ViewPortal = function() {
     x : 300,
     y : 300,
   };
-  let image = new Image();
 
-  image.onload = function() {
-    ready = true;
-  };
+  Object.defineProperty(that, 'center', {
+    get: () => center
+  });
 
-  image.src = mapFile.tilesets[1].image;
+  Object.defineProperty(that, 'width', {
+    get: () => width
+  });
+
+  Object.defineProperty(that, 'height', {
+    get: () => height
+  });
+
 
   that.update = function(graphics, playerWC) { //player world cordinates
-    width = graphics.getClientWidth;
-    height = graphics.getClientHeight;
+    width = graphics.getClientWidth();
+    height = graphics.getClientHeight();
     center.x = playerWC.x;
     center.y = playerWC.y;
   };
 
   return that;
 
-}
+};

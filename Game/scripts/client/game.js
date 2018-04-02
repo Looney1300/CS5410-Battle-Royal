@@ -7,9 +7,12 @@ MyGame.main = (function(graphics, renderer, input, components) {
     'use strict';
 
     let lastTimeStamp = performance.now(),
+        map = Map.create(),
         myKeyboard = input.Keyboard(),
-        playerSelf = {
-            model: components.Player(),
+        smallMap = SmallMap.create();
+        map.setMap(smallMap.data);
+    let playerSelf = {
+            model: components.Player(map),
             texture: MyGame.assets['player-self']
         },
         playerOthers = {},
@@ -18,9 +21,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
         messageHistory = Queue.create(),
         messageId = 1,
         nextExplosionId = 1,
+        viewPort = components.ViewPortal(),
         socket = io(),
-        //networkQueue = Queue.create(),
-        viewPort = components.ViewPort();
+        networkQueue = Queue.create();
 
     
     socket.on(NetworkIds.CONNECT_ACK, data => {
@@ -82,8 +85,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.model.position.x = data.position.x;
         playerSelf.model.position.y = data.position.y;
 
-        playerSelf.model.worldCordinates.x = data.worldCordinates.x;
-        playerSelf.model.worldCordinates.y = data.worldCordinates.y;
+        playerSelf.model.worldCordinates = data.worldCordinates;
 
         playerSelf.model.size.x = data.size.x;
         playerSelf.model.size.y = data.size.y;
@@ -135,9 +137,14 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //
     //------------------------------------------------------------------
     function updatePlayerSelf(data) {
-        playerSelf.model.position.x = data.position.x;
-        playerSelf.model.position.y = data.position.y;
+        // playerSelf.model.position.x = data.position.x;
+        // playerSelf.model.position.y = data.position.y;
+        playerSelf.model.position.x = 0.5;
+        playerSelf.model.position.y = 0.5;
         playerSelf.model.direction = data.direction;
+
+        playerSelf.model.worldCordinates.x = data.worldCordinates.x;
+        playerSelf.model.worldCordinates.y = data.worldCordinates.y;
 
         //
         // Remove messages from the queue up through the last one identified
@@ -288,7 +295,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 delete explosions[id];
             }
         }
-        // viewPort.update(graphics, playerSelf.model.worldCordinates);
+        viewPort.update(graphics, playerSelf.model.worldCordinates);
     }
 
     //------------------------------------------------------------------
@@ -298,6 +305,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //------------------------------------------------------------------
     function render() {
         graphics.clear();
+        renderer.ViewPortal.render(viewPort);
         renderer.Player.render(playerSelf.model, playerSelf.texture);
         for (let id in playerOthers) {
             let player = playerOthers[id];
@@ -311,7 +319,6 @@ MyGame.main = (function(graphics, renderer, input, components) {
         for (let id in explosions) {
             renderer.AnimatedSprite.render(explosions[id]);
         }
-        // renderer.ViewPort.render(viewPort);
     }
 
     //------------------------------------------------------------------
@@ -347,11 +354,11 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 let message = {
                     id: messageId++,
                     elapsedTime: elapsedTime,
-                    type: NetworkIds.INPUT_MOVE
+                    type: NetworkIds.INPUT_MOVE_UP
                 };
                 socket.emit(NetworkIds.INPUT, message);
                 messageHistory.enqueue(message);
-                playerSelf.model.move(elapsedTime);
+                playerSelf.model.moveUp(elapsedTime);
             },
             MyGame.input.KeyEvent.moveUp, true);
 
@@ -359,11 +366,11 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 let message = {
                     id: messageId++,
                     elapsedTime: elapsedTime,
-                    type: NetworkIds.INPUT_ROTATE_RIGHT
+                    type: NetworkIds.INPUT_MOVE_RIGHT
                 };
                 socket.emit(NetworkIds.INPUT, message);
                 messageHistory.enqueue(message);
-                playerSelf.model.rotateRight(elapsedTime);
+                playerSelf.model.moveRight(elapsedTime);
             },
             MyGame.input.KeyEvent.moveRight, true);
 
@@ -371,13 +378,25 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 let message = {
                     id: messageId++,
                     elapsedTime: elapsedTime,
-                    type: NetworkIds.INPUT_ROTATE_LEFT
+                    type: NetworkIds.INPUT_MOVE_LEFT
                 };
                 socket.emit(NetworkIds.INPUT, message);
                 messageHistory.enqueue(message);
-                playerSelf.model.rotateLeft(elapsedTime);
+                playerSelf.model.moveLeft(elapsedTime);
             },
             MyGame.input.KeyEvent.moveLeft, true);
+
+        myKeyboard.registerHandler(elapsedTime => {
+                let message = {
+                    id: messageId++,
+                    elapsedTime: elapsedTime,
+                    type: NetworkIds.INPUT_MOVE_DOWN
+                };
+                socket.emit(NetworkIds.INPUT, message);
+                messageHistory.enqueue(message);
+                playerSelf.model.moveDown(elapsedTime);
+            },
+            MyGame.input.KeyEvent.moveDown, true);
 
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
@@ -396,6 +415,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
 
     return {
         initialize: initialize,
+        map: map,
         socket: socket
     };
  

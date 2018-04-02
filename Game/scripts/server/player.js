@@ -6,8 +6,6 @@
 'use strict';
 
 let random = require ('../utilities/random');
-let mapWidth = 1600;
-let mapHeight = 1600;
 
 //------------------------------------------------------------------
 //
@@ -15,17 +13,18 @@ let mapHeight = 1600;
 // at some random location.
 //
 //------------------------------------------------------------------
-function createPlayer() {
+function createPlayer(mapLogic) {
     let that = {};
-
+    let map = mapLogic;
+    
     let position = {
-        x: random.nextDouble(),
-        y: random.nextDouble()
+        x: 0.5,
+        y: 0.5
     };
 
     let worldCordinates = {
-        x: random.nextMapCord(mapWidth),
-        y: random.nextMapCord(mapHeight)
+        x: random.nextMapCord(map.mapWidth),
+        y: random.nextMapCord(map.mapHeight)
     }
 
     let size = {
@@ -37,6 +36,7 @@ function createPlayer() {
     let rotateRate = Math.PI / 1000;    // radians per millisecond
     let speed = 0.0002;                  // unit distance per millisecond
     let reportUpdate = false;    // Indicates if this model was updated during the last update
+    let moveRate = 200;
 
     Object.defineProperty(that, 'direction', {
         get: () => direction
@@ -67,6 +67,10 @@ function createPlayer() {
         get: () => size.radius
     });
 
+    Object.defineProperty(that, 'worldCordinates', {
+        get: () => worldCordinates
+    });
+
     //------------------------------------------------------------------
     //
     // Moves the player forward based on how long it has been since the
@@ -78,9 +82,41 @@ function createPlayer() {
         let vectorX = Math.cos(direction);
         let vectorY = Math.sin(direction);
 
-        position.x += (vectorX * elapsedTime * speed);
-        position.y += (vectorY * elapsedTime * speed);
+        // position.x += (vectorX * elapsedTime * speed);
+        // position.y += (vectorY * elapsedTime * speed);
+        // worldCordinates.x += (vectorX * elapsedTime * speed);
+        // worldCordinates.y += (vectorY * elapsedTime * speed);
     };
+
+    that.moveUp = function(elapsedTime) {
+        let move = (moveRate / 1000) * elapsedTime;
+        if (map.isValid(worldCordinates.y - move, worldCordinates.x)){
+            worldCordinates.y -= move;
+        }
+    };
+
+    that.moveDown = function(elapsedTime) {
+        let move = (moveRate / 1000) * elapsedTime;
+        if (MyGame.map.isValid(worldCordinates.y + move, worldCordinates.x)){
+            worldCordinates.y += move;
+        }
+    };
+
+    that.moveLeft = function(elapsedTime) {
+        let move = (moveRate / 1000) * elapsedTime;
+        if (MyGame.map.isValid(worldCordinates.y, worldCordinates.x - move)){
+            worldCordinates.x -= move;
+        }
+    };
+
+    that.moveRight = function(elapsedTime) {
+        let move = (moveRate / 1000) * elapsedTime;
+        if (MyGame.map.isValid(worldCordinates.y, worldCordinates.x + move)){
+            worldCordinates.x += move;
+        }
+    };
+
+    
 
     //------------------------------------------------------------------
     //
@@ -115,4 +151,4 @@ function createPlayer() {
     return that;
 }
 
-module.exports.create = () => createPlayer();
+module.exports.create = mapLogic => createPlayer(mapLogic);
