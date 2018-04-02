@@ -25,6 +25,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
         socket = io(),
         networkQueue = Queue.create();
 
+        viewPort.mapWidth = map.mapWidth;
+        viewPort.mapHeight = map.mapHeight;
+
     
     socket.on(NetworkIds.CONNECT_ACK, data => {
         networkQueue.enqueue({

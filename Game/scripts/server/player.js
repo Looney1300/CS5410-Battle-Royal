@@ -97,21 +97,21 @@ function createPlayer(mapLogic) {
 
     that.moveDown = function(elapsedTime) {
         let move = (moveRate / 1000) * elapsedTime;
-        if (MyGame.map.isValid(worldCordinates.y + move, worldCordinates.x)){
+        if (map.isValid(worldCordinates.y + move, worldCordinates.x)){
             worldCordinates.y += move;
         }
     };
 
     that.moveLeft = function(elapsedTime) {
         let move = (moveRate / 1000) * elapsedTime;
-        if (MyGame.map.isValid(worldCordinates.y, worldCordinates.x - move)){
+        if (map.isValid(worldCordinates.y, worldCordinates.x - move)){
             worldCordinates.x -= move;
         }
     };
 
     that.moveRight = function(elapsedTime) {
         let move = (moveRate / 1000) * elapsedTime;
-        if (MyGame.map.isValid(worldCordinates.y, worldCordinates.x + move)){
+        if (map.isValid(worldCordinates.y, worldCordinates.x + move)){
             worldCordinates.x += move;
         }
     };
