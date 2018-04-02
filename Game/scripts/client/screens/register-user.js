@@ -34,7 +34,6 @@ MyGame.screens['register-user'] = (function() {
 				else{
 					window.alert("Error Invalid Credentials! Password must be between 8 and 15 characters. \nUsername must be unique and must contain at least 5 characters.");
 				}
-				clearFields();
              });
 
         document.getElementById('id-register-user-back').addEventListener(

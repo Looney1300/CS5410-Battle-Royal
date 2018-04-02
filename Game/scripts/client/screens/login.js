@@ -4,20 +4,23 @@ MyGame.screens['login'] = (function() {
 
 	let socket = MyGame.main.socket;
 
+
 	function initialize() {
+
 		socket.on(NetworkIds.VALID_USER, data =>{
 			MyGame.pregame.showScreen('main-menu');
 		});
 
 		socket.on(NetworkIds.INVALID_USER, data =>{
 			window.alert("Error Invalid Credentials! Username or password incorrect!");
+			clearFields();
 		});
 
         document.getElementById('id-login-user').addEventListener(
             'click',
             function(){
-                var name = document.getElementById('newUserName');
-                var password = document.getElementById('newUserPassword');
+                var name = document.getElementById('userName');
+                var password = document.getElementById('userPassword');
 				socket.emit(NetworkIds.VALID_USER, {
 					name: name.value,
 					password: password.value
@@ -42,6 +45,7 @@ MyGame.screens['login'] = (function() {
 
 	function run() {
 		console.log('running login screen');
+		clearFields();
 	}
 
 	return {
