@@ -22,10 +22,7 @@ function createPlayer(mapLogic) {
         y: 0.5
     };
 
-    let worldCordinates = {
-        x: random.nextMapCord(map.mapWidth),
-        y: random.nextMapCord(map.mapHeight)
-    }
+    let worldCordinates = random.getRandomMapCords(map, map.mapHeight, map.mapWidth);
 
     let size = {
         width: 0.01,
@@ -84,11 +81,10 @@ function createPlayer(mapLogic) {
 
         // position.x += (vectorX * elapsedTime * speed);
         // position.y += (vectorY * elapsedTime * speed);
-        // worldCordinates.x += (vectorX * elapsedTime * speed);
-        // worldCordinates.y += (vectorY * elapsedTime * speed);
     };
 
     that.moveUp = function(elapsedTime) {
+        // reportUpdate = true;
         let move = (moveRate / 1000) * elapsedTime;
         if (map.isValid(worldCordinates.y - move, worldCordinates.x)){
             worldCordinates.y -= move;
@@ -96,6 +92,7 @@ function createPlayer(mapLogic) {
     };
 
     that.moveDown = function(elapsedTime) {
+        // reportUpdate = true;
         let move = (moveRate / 1000) * elapsedTime;
         if (map.isValid(worldCordinates.y + move, worldCordinates.x)){
             worldCordinates.y += move;
@@ -103,6 +100,7 @@ function createPlayer(mapLogic) {
     };
 
     that.moveLeft = function(elapsedTime) {
+        // reportUpdate = true;
         let move = (moveRate / 1000) * elapsedTime;
         if (map.isValid(worldCordinates.y, worldCordinates.x - move)){
             worldCordinates.x -= move;
@@ -110,6 +108,7 @@ function createPlayer(mapLogic) {
     };
 
     that.moveRight = function(elapsedTime) {
+        // reportUpdate = true;
         let move = (moveRate / 1000) * elapsedTime;
         if (map.isValid(worldCordinates.y, worldCordinates.x + move)){
             worldCordinates.x += move;

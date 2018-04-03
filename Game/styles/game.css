@@ -21,10 +21,10 @@ body {
 	grid-area: center;
 }
 
-#canvas-main{
+/* #canvas-main{
 	width: 100%;
 	height: 100%;
-}
+} */
 
 #game .screen {
 	grid-area: center;

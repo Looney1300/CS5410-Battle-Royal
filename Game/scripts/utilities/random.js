@@ -20,10 +20,22 @@ function nextDouble() {
 
 // ------------------------------------------------------------------
 //
-// Generate a random cordinate in map. if limit == 10 it would return random 0-9
+// Get a valid x and y cordinate on the map
 //
 // ------------------------------------------------------------------ 
-function nextMapCord(limit){
+function getRandomMapCords(map, rowLimit, colLimit){
+    let cords = {
+        x: Math.floor(Math.random() * colLimit),
+        y: Math.floor(Math.random() * rowLimit)
+    }
+    let tileRow, tileCol;
+    while(true){
+        tileRow = Math.floor(cords.x / map.tileWidth);
+        tileCol = Math.floor(cords.y / map.tileHeight);
+        if (map.map[tileRow][tileCol] == 1){
+            return cords;
+        }
+    }
     return Math.floor(Math.random() * limit);
 }
 
@@ -95,4 +107,4 @@ module.exports.nextDouble = nextDouble;
 module.exports.nextRange = nextRange;
 module.exports.nextCircleVector = nextCircleVector;
 module.exports.nextGaussian = nextGaussian;
-module.exports.nextMapCord = nextMapCord;
+module.exports.getRandomMapCords = getRandomMapCords;

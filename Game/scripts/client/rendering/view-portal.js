@@ -7,9 +7,9 @@ MyGame.renderer.ViewPortal = (function(graphics) {
   'use strict';
   let that = {};
 
-  that.render = function(viewPortal) {
+  that.render = function() {
     graphics.saveContext();
-    graphics.drawMapPortion(viewPortal);
+    graphics.drawMapPortion();
     graphics.restoreContext();
   };
 

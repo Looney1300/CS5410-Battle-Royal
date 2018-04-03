@@ -7,10 +7,10 @@ MyGame.main = (function(graphics, renderer, input, components) {
     'use strict';
 
     let lastTimeStamp = performance.now(),
-        map = Map.create(),
         myKeyboard = input.Keyboard(),
+        map = Map.create(),
         smallMap = SmallMap.create();
-        map.setMap(smallMap.data);
+    map.setMap(smallMap.data);
     let playerSelf = {
             model: components.Player(map),
             texture: MyGame.assets['player-self']
@@ -21,12 +21,12 @@ MyGame.main = (function(graphics, renderer, input, components) {
         messageHistory = Queue.create(),
         messageId = 1,
         nextExplosionId = 1,
-        viewPort = components.ViewPortal(),
+        viewPort = graphics.viewPort,
         socket = io(),
         networkQueue = Queue.create();
 
-        viewPort.mapWidth = map.mapWidth;
-        viewPort.mapHeight = map.mapHeight;
+        // viewPort.mapWidth = map.mapWidth;
+        // viewPort.mapHeight = map.mapHeight;
 
     
     socket.on(NetworkIds.CONNECT_ACK, data => {
@@ -277,7 +277,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //
     //------------------------------------------------------------------
     function update(elapsedTime) {
-        playerSelf.model.update(elapsedTime);
+        viewPort.update(graphics, playerSelf.model.worldCordinates);
+        playerSelf.model.update(elapsedTime, viewPort);
         for (let id in playerOthers) {
             playerOthers[id].model.update(elapsedTime);
         }
@@ -298,7 +299,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 delete explosions[id];
             }
         }
-        viewPort.update(graphics, playerSelf.model.worldCordinates);
+        // graphics.updateCanvas();
     }
 
     //------------------------------------------------------------------
@@ -308,7 +309,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //------------------------------------------------------------------
     function render() {
         graphics.clear();
-        renderer.ViewPortal.render(viewPort);
+        renderer.ViewPortal.render();
         renderer.Player.render(playerSelf.model, playerSelf.texture);
         for (let id in playerOthers) {
             let player = playerOthers[id];
@@ -413,6 +414,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
 
         //
         // Get the game loop started
+        graphics.updateCanvas();
         requestAnimationFrame(gameLoop);
     }
 

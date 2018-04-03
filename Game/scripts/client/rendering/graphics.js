@@ -8,13 +8,15 @@ MyGame.graphics = (function() {
 
     let canvas = document.getElementById('canvas-main');
     let context = canvas.getContext('2d');
-    canvas.width = document.body.clientWidth;
-    canvas.height = document.body.clientHeight;
+    
     let map = Map.create();
     let smallMap = SmallMap.create();
     map.setMap(smallMap.data);
     let image = new Image();
     image.src = map.mapFile.tilesets[1].image;
+    let viewPort = MyGame.components.ViewPortal();
+    viewPort.mapWidth = map.mapWidth;
+    viewPort.mapHeight = map.mapHeight;
 
 
     //------------------------------------------------------------------
@@ -36,6 +38,14 @@ MyGame.graphics = (function() {
 
     function getClientHeight(){
         return document.body.clientHeight;
+    }
+
+    function getCanvasWidth(){
+        return canvas.clientWidth;
+    }
+
+    function getCanvasHeight() {
+        return canvas.clientHeight;
     }
 
     //------------------------------------------------------------------
@@ -65,6 +75,11 @@ MyGame.graphics = (function() {
         context.restore();
     }
 
+    function updateCanvas() {
+        canvas.width = 700;
+        canvas.height = 700;
+    }
+
     //------------------------------------------------------------------
     //
     // Rotate the canvas to prepare it for rendering of a rotated object.
@@ -81,7 +96,7 @@ MyGame.graphics = (function() {
     // Draw a portion of the map on screen with given view portal's center.
     //
     //------------------------------------------------------------------
-    function drawMapPortion(viewPort) {
+    function drawMapPortion() {
         let clipX = 0;
         let clipY = 0;
         let cornerX = viewPort.center.x - (viewPort.width/2);
@@ -126,12 +141,12 @@ MyGame.graphics = (function() {
     //------------------------------------------------------------------
     function drawImage(texture, center, size) {
         let localCenter = {
-            x: center.x * canvas.width,
-            y: center.y * canvas.width
+            x: center.x * viewPort.width,
+            y: center.y * viewPort.height
         };
         let localSize = {
-            width: size.width * canvas.width,
-            height: size.height * canvas.height
+            width: size.width * viewPort.width,
+            height: size.height * viewPort.height
         };
 
         context.drawImage(texture,
@@ -360,6 +375,10 @@ MyGame.graphics = (function() {
     return {
         getClientWidth : getClientWidth,
         getClientHeight : getClientHeight,
+        getCanvasHeight : getCanvasHeight,
+        getCanvasWidth : getCanvasWidth,
+        updateCanvas: updateCanvas,
+        viewPort : viewPort,
         clear: clear,
         saveContext: saveContext,
         restoreContext: restoreContext,

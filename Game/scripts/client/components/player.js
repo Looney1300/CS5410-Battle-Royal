@@ -120,7 +120,25 @@ MyGame.components.Player = function(mapLogic) {
         direction -= (rotateRate * elapsedTime);
     };
 
-    that.update = function(elapsedTime) {
+    that.update = function(elapsedTime, viewPort) {
+        if(worldCordinates.x == viewPort.center.x &&
+            worldCordinates.y == viewPort.center.y) {
+                return;
+        }
+        let diffX = (Math.abs(viewPort.center.x - worldCordinates.x))/viewPort.width;
+        let diffY = (Math.abs(viewPort.center.y - worldCordinates.y))/viewPort.height;
+        if (worldCordinates.x < viewPort.center.x){
+            position.x = 0.5 - diffX;
+        }
+        else {
+            position.x = 0.5 + diffX;
+        }
+        if (worldCordinates.y < viewPort.center.y) {
+            position.y = 0.5 - diffY;
+        }
+        else {
+            position.y = 0.5 + diffY;
+        }
     };
 
     return that;
