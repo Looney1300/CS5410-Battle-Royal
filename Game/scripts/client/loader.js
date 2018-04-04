@@ -1,3 +1,4 @@
+
 MyGame = {
     input: {},
     components: {},
@@ -6,6 +7,12 @@ MyGame = {
     assets: {},
     screens: {}
 };
+mapFile = null;
+map = [];
+tileWidth = 0;
+tileHeight = 0;
+mapWidth = 0;
+mapHeight = 0;
 
 //------------------------------------------------------------------
 //
@@ -29,12 +36,22 @@ MyGame.loader = (function() {
             onComplete: null,
         }, 
         {
+            scripts: ['../shared/maps/SmallMap'],
+            message: 'Small Map loaded',
+            onComplete: null
+        },
+        {
+            scripts: ['../shared/map'],
+            message: 'Map logic loaded',
+            onComplete: null
+        },
+        {
             scripts: ['input'],
             message: 'Input loaded',
             onComplete: null
         }, 
         {
-            scripts: ['components/player', 'components/player-remote', 'components/missile', 'components/animated-sprite'],
+            scripts: ['components/player', 'components/player-remote', 'components/missile', 'components/animated-sprite', 'components/view-portal'],
             message: 'Player models loaded',
             onComplete: null
         }, 
@@ -44,7 +61,7 @@ MyGame.loader = (function() {
             onComplete: null
         }, 
         {
-            scripts: ['rendering/player', 'rendering/player-remote', 'rendering/missile', 'rendering/animated-sprite'],
+            scripts: ['rendering/player', 'rendering/player-remote', 'rendering/missile', 'rendering/animated-sprite', 'rendering/view-portal'],
             message: 'Renderers loaded',
             onComplete: null
         }, 

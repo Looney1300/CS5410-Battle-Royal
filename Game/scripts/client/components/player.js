@@ -1,12 +1,19 @@
-//------------------------------------------------------------------
+
+// let mapFile = require('../../shared/map');
+//------------------------------------- -----------------------------
 //
 // Model for each player in the game.
 //
 //------------------------------------------------------------------
-MyGame.components.Player = function() {
+MyGame.components.Player = function(mapLogic) {
     'use strict';
     let that = {};
+    let map = mapLogic;
     let position = {
+        x: 0,
+        y: 0
+    };
+    let worldCordinates = {
         x: 0,
         y: 0
     };
@@ -17,6 +24,9 @@ MyGame.components.Player = function() {
     let direction = 0;
     let rotateRate = 0;
     let speed = 0;
+    let moveRate = 200;
+    let height = 600;
+    let width = 600;
 
     Object.defineProperty(that, 'direction', {
         get: () => direction,
@@ -37,6 +47,14 @@ MyGame.components.Player = function() {
         get: () => position
     });
 
+    Object.defineProperty(that, 'worldCordinates', {
+        get: () => worldCordinates,
+        set: cords => {
+            worldCordinates.x = cords.x;
+            worldCordinates.y = cords.y;
+        }
+    });
+
     Object.defineProperty(that, 'size', {
         get: () => size
     });
@@ -50,8 +68,34 @@ MyGame.components.Player = function() {
         let vectorX = Math.cos(direction);
         let vectorY = Math.sin(direction);
 
-        position.x += (vectorX * elapsedTime * speed);
-        position.y += (vectorY * elapsedTime * speed);
+    };
+
+    that.moveUp = function(elapsedTime) {
+        let move = speed * elapsedTime;
+        if (map.isValid(worldCordinates.y - move, worldCordinates.x)){
+            worldCordinates.y -= move;
+        }
+    };
+
+    that.moveDown = function(elapsedTime) {
+        let move = speed * elapsedTime;
+        if (map.isValid(worldCordinates.y + move, worldCordinates.x)){
+            worldCordinates.y += move;
+        }
+    };
+
+    that.moveLeft = function(elapsedTime) {
+        let move = speed * elapsedTime;
+        if (map.isValid(worldCordinates.y, worldCordinates.x - move)){
+            worldCordinates.x -= move;
+        }
+    };
+
+    that.moveRight = function(elapsedTime) {
+        let move = speed * elapsedTime;
+        if (map.isValid(worldCordinates.y, worldCordinates.x + move)){
+            worldCordinates.x += move;
+        }
     };
 
     //------------------------------------------------------------------
@@ -72,7 +116,21 @@ MyGame.components.Player = function() {
         direction -= (rotateRate * elapsedTime);
     };
 
-    that.update = function(elapsedTime) {
+    that.update = function(elapsedTime, viewPort) {
+        let diffX = (Math.abs(viewPort.center.x - worldCordinates.x))/viewPort.width;
+        let diffY = (Math.abs(viewPort.center.y - worldCordinates.y))/viewPort.height;
+        if (worldCordinates.x < viewPort.center.x){
+            position.x = 0.5 - diffX;
+        }
+        else {
+            position.x = 0.5 + diffX;
+        }
+        if (worldCordinates.y < viewPort.center.y) {
+            position.y = 0.5 - diffY;
+        }
+        else {
+            position.y = 0.5 + diffY;
+        }
     };
 
     return that;

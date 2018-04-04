@@ -7,7 +7,17 @@ MyGame.graphics = (function() {
     'use strict';
 
     let canvas = document.getElementById('canvas-main');
-    let context = canvas.getContext('2d')
+    let context = canvas.getContext('2d');
+    
+    let map = Map.create();
+    let smallMap = SmallMap.create();
+    map.setMap(smallMap.data);
+    let image = new Image();
+    image.src = map.mapFile.tilesets[1].image;
+    let viewPort = MyGame.components.ViewPortal();
+    viewPort.mapWidth = map.mapWidth;
+    viewPort.mapHeight = map.mapHeight;
+
 
     //------------------------------------------------------------------
     //
@@ -21,6 +31,22 @@ MyGame.graphics = (function() {
         this.clearRect(0, 0, canvas.width, canvas.height);
         this.restore();
     };
+
+    function getClientWidth(){
+        return document.body.clientWidth;
+    }
+
+    function getClientHeight(){
+        return document.body.clientHeight;
+    }
+
+    function getCanvasWidth(){
+        return canvas.clientWidth;
+    }
+
+    function getCanvasHeight() {
+        return canvas.clientHeight;
+    }
 
     //------------------------------------------------------------------
     //
@@ -49,6 +75,11 @@ MyGame.graphics = (function() {
         context.restore();
     }
 
+    function updateCanvas() {
+        canvas.width = 700;
+        canvas.height = 700;
+    }
+
     //------------------------------------------------------------------
     //
     // Rotate the canvas to prepare it for rendering of a rotated object.
@@ -62,17 +93,60 @@ MyGame.graphics = (function() {
 
     //------------------------------------------------------------------
     //
+    // Draw a portion of the map on screen with given view portal's center.
+    //
+    //------------------------------------------------------------------
+    function drawMapPortion() {
+        let clipX = 0;
+        let clipY = 0;
+        let cornerX = viewPort.center.x - (viewPort.width/2);
+        let cornerY = viewPort.center.y - (viewPort.height/2);
+        let topIndexCol = Math.max(Math.floor(cornerX/map.tileWidth),0);
+        let topIndexRow = Math.max(Math.floor(cornerY/map.tileHeight),0);
+        let botIndexCol = Math.min(Math.floor((viewPort.center.x + (viewPort.width/2))/map.tileWidth),map.mapFile.width) + 10;
+        let botIndexRow = Math.min(Math.floor((viewPort.center.y + (viewPort.height/2))/map.tileHeight),map.mapFile.height) + 10;
+        let tileXCordinate = topIndexCol * map.tileWidth;
+        let tileYCordinate = topIndexRow * map.tileHeight;
+        let startX = Math.min((tileXCordinate - cornerX),0);
+        let curX = startX;
+        let curY = Math.min((tileYCordinate - cornerY),0);
+        for (let i = topIndexRow; i < botIndexRow; i++){
+            if (i < map.mapFile.height){ 
+                for (let j = topIndexCol; j < botIndexCol; j++){
+                    if (j < map.mapFile.width){
+                        clipX = ((map.map[i][j] % map.mapFile.tilesets[1].columns) - 1 ) * map.mapFile.tilesets[1].tilewidth;
+                        clipY = Math.floor(map.map[i][j] / map.mapFile.tilesets[1].columns) * map.mapFile.tilesets[1].tileheight;
+                        context.drawImage(
+                            image,
+                            clipX, clipY,
+                            map.mapFile.tilesets[1].tilewidth,
+                            map.mapFile.tilesets[1].tileheight,
+                            curX, curY,
+                            map.mapFile.tilesets[1].tilewidth,
+                            map.mapFile.tilesets[1].tileheight
+                        );
+                        curX += map.mapFile.tilesets[1].tilewidth;
+                    }
+                }
+                curX = startX;
+                curY += map.mapFile.tilesets[1].tileheight;
+            }
+        }
+    }
+
+    //------------------------------------------------------------------
+    //
     // Draw an image into the local canvas coordinate system.
     //
     //------------------------------------------------------------------
     function drawImage(texture, center, size) {
         let localCenter = {
-            x: center.x * canvas.width,
-            y: center.y * canvas.width
+            x: center.x * viewPort.width,
+            y: center.y * viewPort.height
         };
         let localSize = {
-            width: size.width * canvas.width,
-            height: size.height * canvas.height
+            width: size.width * viewPort.width,
+            height: size.height * viewPort.height
         };
 
         context.drawImage(texture,
@@ -299,10 +373,17 @@ MyGame.graphics = (function() {
     }
 
     return {
+        getClientWidth : getClientWidth,
+        getClientHeight : getClientHeight,
+        getCanvasHeight : getCanvasHeight,
+        getCanvasWidth : getCanvasWidth,
+        updateCanvas: updateCanvas,
+        viewPort : viewPort,
         clear: clear,
         saveContext: saveContext,
         restoreContext: restoreContext,
         rotateCanvas: rotateCanvas,
+        drawMapPortion: drawMapPortion,
         drawImage: drawImage,
         drawImageSpriteSheet: drawImageSpriteSheet,
         drawCircle: drawCircle,

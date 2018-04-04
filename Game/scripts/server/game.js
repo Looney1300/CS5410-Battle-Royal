@@ -10,11 +10,13 @@ let Player = require('./player');
 let Missile = require('./missile');
 let NetworkIds = require('../shared/network-ids');
 let Queue = require('../shared/queue.js');
+let mapLogic = require('../shared/map');
+let mapFile = require('../shared/maps/SmallMap');
 let CryptoJS = require('crypto-js');
 let fs = require('fs');
 
 const SIMULATION_UPDATE_RATE_MS = 50;
-const STATE_UPDATE_RATE_MS = 100;
+const STATE_UPDATE_RATE_MS = 20;
 let lastUpdate = 0;
 let quit = false;
 let activeClients = {};
@@ -23,6 +25,8 @@ let activeMissiles = [];
 let hits = [];
 let inputQueue = Queue.create();
 let nextMissileId = 1;
+let map = mapLogic.create();
+map.setMap(mapFile);
 let salt = 'xnBZngGg*+FhQz??V6FMjfd9G4m5w^z8P*6';
 
 //------------------------------------------------------------------
@@ -63,8 +67,17 @@ function processInput(elapsedTime) {
         let client = activeClients[input.clientId];
         client.lastMessageId = input.message.id;
         switch (input.message.type) {
-            case NetworkIds.INPUT_MOVE:
-                client.player.move(input.message.elapsedTime);
+            case NetworkIds.INPUT_MOVE_UP:
+                client.player.moveUp(input.message.elapsedTime);
+                break;
+            case NetworkIds.INPUT_MOVE_LEFT:
+                client.player.moveLeft(input.message.elapsedTime);
+                break;
+            case NetworkIds.INPUT_MOVE_RIGHT:
+                client.player.moveRight(input.message.elapsedTime);
+                break;
+            case NetworkIds.INPUT_MOVE_DOWN:
+                client.player.moveDown(input.message.elapsedTime);
                 break;
             case NetworkIds.INPUT_ROTATE_LEFT:
                 client.player.rotateLeft(input.message.elapsedTime);
@@ -131,7 +144,7 @@ function update(elapsedTime, currentTime) {
                     hits.push({
                         clientId: clientId,
                         missileId: activeMissiles[missile].id,
-                        position: activeClients[clientId].player.position
+                        //position: activeClients[clientId].player.position
                     });
                 }
             }
@@ -188,7 +201,8 @@ function updateClients(elapsedTime) {
             clientId: clientId,
             lastMessageId: client.lastMessageId,
             direction: client.player.direction,
-            position: client.player.position,
+            worldCordinates: client.player.worldCordinates,
+            speed: client.player.speed,
             updateWindow: lastUpdate
         };
         if (client.player.reportUpdate) {
@@ -273,7 +287,7 @@ function initializeSocketIO(httpServer) {
                 client.socket.emit(NetworkIds.CONNECT_OTHER, {
                     clientId: newPlayer.clientId,
                     direction: newPlayer.direction,
-                    position: newPlayer.position,
+                    worldCordinates: newPlayer.worldCordinates,
                     rotateRate: newPlayer.rotateRate,
                     speed: newPlayer.speed,
                     size: newPlayer.size
@@ -284,7 +298,7 @@ function initializeSocketIO(httpServer) {
                 socket.emit(NetworkIds.CONNECT_OTHER, {
                     clientId: client.player.clientId,
                     direction: client.player.direction,
-                    position: client.player.position,
+                    worldCordinates: client.player.worldCordinates,
                     rotateRate: client.player.rotateRate,
                     speed: client.player.speed,
                     size: client.player.size
@@ -316,7 +330,7 @@ function initializeSocketIO(httpServer) {
         console.log('Connection established: ', socket.id);
         //
         // Create an entry in our list of connected clients
-        let newPlayer = Player.create()
+        let newPlayer = Player.create(map);
         newPlayer.clientId = socket.id;
         activeClients[socket.id] = {
             socket: socket,
@@ -324,7 +338,7 @@ function initializeSocketIO(httpServer) {
         };
         socket.emit(NetworkIds.CONNECT_ACK, {
             direction: newPlayer.direction,
-            position: newPlayer.position,
+            worldCordinates: newPlayer.worldCordinates,
             size: newPlayer.size,
             rotateRate: newPlayer.rotateRate,
             speed: newPlayer.speed
