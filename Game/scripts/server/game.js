@@ -199,6 +199,7 @@ function updateClients(elapsedTime) {
             lastMessageId: client.lastMessageId,
             direction: client.player.direction,
             worldCordinates: client.player.worldCordinates,
+            speed: client.player.speed,
             updateWindow: lastUpdate
         };
         if (client.player.reportUpdate) {
@@ -294,7 +295,7 @@ function initializeSocketIO(httpServer) {
                 socket.emit(NetworkIds.CONNECT_OTHER, {
                     clientId: client.player.clientId,
                     direction: client.player.direction,
-                    worldCordinates: newPlayer.worldCordinates,
+                    worldCordinates: client.player.worldCordinates,
                     rotateRate: client.player.rotateRate,
                     speed: client.player.speed,
                     size: client.player.size

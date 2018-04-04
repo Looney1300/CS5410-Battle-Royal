@@ -68,35 +68,31 @@ MyGame.components.Player = function(mapLogic) {
         let vectorX = Math.cos(direction);
         let vectorY = Math.sin(direction);
 
-        // position.x += (vectorX * elapsedTime * speed);
-        // position.y += (vectorY * elapsedTime * speed);
-        // worldCordinates.x += (vectorX * elapsedTime * 2);
-        // worldCordinates.y += (vectorY * elapsedTime * 2);
     };
 
     that.moveUp = function(elapsedTime) {
-        let move = (moveRate / 1000) * elapsedTime;
+        let move = speed * elapsedTime;
         if (map.isValid(worldCordinates.y - move, worldCordinates.x)){
             worldCordinates.y -= move;
         }
     };
 
     that.moveDown = function(elapsedTime) {
-        let move = (moveRate / 1000) * elapsedTime;
+        let move = speed * elapsedTime;
         if (map.isValid(worldCordinates.y + move, worldCordinates.x)){
             worldCordinates.y += move;
         }
     };
 
     that.moveLeft = function(elapsedTime) {
-        let move = (moveRate / 1000) * elapsedTime;
+        let move = speed * elapsedTime;
         if (map.isValid(worldCordinates.y, worldCordinates.x - move)){
             worldCordinates.x -= move;
         }
     };
 
     that.moveRight = function(elapsedTime) {
-        let move = (moveRate / 1000) * elapsedTime;
+        let move = speed * elapsedTime;
         if (map.isValid(worldCordinates.y, worldCordinates.x + move)){
             worldCordinates.x += move;
         }
@@ -121,10 +117,6 @@ MyGame.components.Player = function(mapLogic) {
     };
 
     that.update = function(elapsedTime, viewPort) {
-        if(worldCordinates.x == viewPort.center.x &&
-            worldCordinates.y == viewPort.center.y) {
-                return;
-        }
         let diffX = (Math.abs(viewPort.center.x - worldCordinates.x))/viewPort.width;
         let diffY = (Math.abs(viewPort.center.y - worldCordinates.y))/viewPort.height;
         if (worldCordinates.x < viewPort.center.x){

@@ -30,8 +30,8 @@ function getRandomMapCords(map, rowLimit, colLimit){
     }
     let tileRow, tileCol;
     while(true){
-        tileRow = Math.floor(cords.x / map.tileWidth);
-        tileCol = Math.floor(cords.y / map.tileHeight);
+        tileCol = Math.floor(cords.x / map.tileWidth);
+        tileRow = Math.floor(cords.y / map.tileHeight);
         if (map.map[tileRow][tileCol] == 1){
             return cords;
         }

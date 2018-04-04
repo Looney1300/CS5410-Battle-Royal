@@ -12,7 +12,6 @@ MyGame.screens['about'] = (function() {
     }
   
     function run() {
-      console.log('about is running');
     }
   
     return {

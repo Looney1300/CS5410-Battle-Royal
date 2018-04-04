@@ -31,7 +31,7 @@ function createPlayer(mapLogic) {
     };
     let direction = random.nextDouble() * 2 * Math.PI;    // Angle in radians
     let rotateRate = Math.PI / 1000;    // radians per millisecond
-    let speed = 0.0002;                  // unit distance per millisecond
+    let speed = 0.2;                  // unit distance per millisecond
     let reportUpdate = false;    // Indicates if this model was updated during the last update
     let moveRate = 200;
 
@@ -79,13 +79,11 @@ function createPlayer(mapLogic) {
         let vectorX = Math.cos(direction);
         let vectorY = Math.sin(direction);
 
-        // position.x += (vectorX * elapsedTime * speed);
-        // position.y += (vectorY * elapsedTime * speed);
     };
 
     that.moveUp = function(elapsedTime) {
         reportUpdate = true;
-        let move = (moveRate / 1000) * elapsedTime;
+        let move = speed * elapsedTime;
         if (map.isValid(worldCordinates.y - move, worldCordinates.x)){
             worldCordinates.y -= move;
         }
@@ -93,7 +91,7 @@ function createPlayer(mapLogic) {
 
     that.moveDown = function(elapsedTime) {
         reportUpdate = true;
-        let move = (moveRate / 1000) * elapsedTime;
+        let move = speed * elapsedTime;
         if (map.isValid(worldCordinates.y + move, worldCordinates.x)){
             worldCordinates.y += move;
         }
@@ -101,7 +99,7 @@ function createPlayer(mapLogic) {
 
     that.moveLeft = function(elapsedTime) {
         reportUpdate = true;
-        let move = (moveRate / 1000) * elapsedTime;
+        let move = speed * elapsedTime;
         if (map.isValid(worldCordinates.y, worldCordinates.x - move)){
             worldCordinates.x -= move;
         }
@@ -109,7 +107,7 @@ function createPlayer(mapLogic) {
 
     that.moveRight = function(elapsedTime) {
         reportUpdate = true;
-        let move = (moveRate / 1000) * elapsedTime;
+        let move = speed * elapsedTime;
         if (map.isValid(worldCordinates.y, worldCordinates.x + move)){
             worldCordinates.x += move;
         }

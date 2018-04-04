@@ -57,7 +57,6 @@ MyGame.components.PlayerRemote = function() {
         let updateFraction = elapsedTime / goal.updateWindow;
 
         if (updateFraction > 0) {
-            // console.log('+++++ update fraction > 0');
             //
             // // update world cordinates.
             state.direction -= (state.direction - goal.direction) * updateFraction;
@@ -66,10 +65,6 @@ MyGame.components.PlayerRemote = function() {
             state.worldCordinates.y -= (state.worldCordinates.y - goal.worldCordinates.y) * updateFraction;
 
             // figure out where to put them on screen in relation to viewport
-            if(state.worldCordinates.x == viewPort.center.x &&
-                state.worldCordinates.y == viewPort.center.y) {
-                    return;
-            }
             let diffX = (Math.abs(viewPort.center.x - state.worldCordinates.x))/viewPort.width;
             let diffY = (Math.abs(viewPort.center.y - state.worldCordinates.y))/viewPort.height;
             if (state.worldCordinates.x < viewPort.center.x){

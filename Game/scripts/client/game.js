@@ -85,8 +85,6 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //
     //------------------------------------------------------------------
     function connectPlayerSelf(data) {
-        // playerSelf.model.position.x = data.position.x;
-        // playerSelf.model.position.y = data.position.y;
 
         playerSelf.model.worldCordinates = data.worldCordinates;
 
@@ -105,7 +103,6 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //
     //------------------------------------------------------------------
     function connectPlayerOther(data) {
-        console.log('===== connected other');
         let model = components.PlayerRemote();
         model.state.worldCordinates.x = data.worldCordinates.x;
         model.state.worldCordinates.y = data.worldCordinates.y;
@@ -115,7 +112,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         model.goal.worldCordinates.x = data.worldCordinates.x;
         model.goal.worldCordinates.y = data.worldCordinates.y;
         model.goal.direction = data.direction;
-        model.goal.updateWindow = 0;
+        model.goal.updateWindow = 21;
 
         model.size.x = data.size.x;
         model.size.y = data.size.y;
@@ -141,11 +138,11 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //
     //------------------------------------------------------------------
     function updatePlayerSelf(data) {
-        console.log('===== updated self');
         
         playerSelf.model.direction = data.direction;
         playerSelf.model.worldCordinates.x = data.worldCordinates.x;
         playerSelf.model.worldCordinates.y = data.worldCordinates.y;
+        playerSelf.model.speed = data.speed;
 
         //
         // Remove messages from the queue up through the last one identified
@@ -175,7 +172,6 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //
     //------------------------------------------------------------------
     function updatePlayerOther(data) {
-        console.log('===== updated other');
         if (playerOthers.hasOwnProperty(data.clientId)) {
             let model = playerOthers[data.clientId].model;
             model.goal.updateWindow = data.updateWindow;
