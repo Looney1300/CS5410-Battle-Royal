@@ -85,8 +85,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //
     //------------------------------------------------------------------
     function connectPlayerSelf(data) {
-        playerSelf.model.position.x = data.position.x;
-        playerSelf.model.position.y = data.position.y;
+        // playerSelf.model.position.x = data.position.x;
+        // playerSelf.model.position.y = data.position.y;
 
         playerSelf.model.worldCordinates = data.worldCordinates;
 
@@ -105,14 +105,15 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //
     //------------------------------------------------------------------
     function connectPlayerOther(data) {
+        console.log('===== connected other');
         let model = components.PlayerRemote();
-        model.state.position.x = data.position.x;
-        model.state.position.y = data.position.y;
+        model.state.worldCordinates.x = data.worldCordinates.x;
+        model.state.worldCordinates.y = data.worldCordinates.y;
         model.state.direction = data.direction;
         model.state.lastUpdate = performance.now();
 
-        model.goal.position.x = data.position.x;
-        model.goal.position.y = data.position.y;
+        model.goal.worldCordinates.x = data.worldCordinates.x;
+        model.goal.worldCordinates.y = data.worldCordinates.y;
         model.goal.direction = data.direction;
         model.goal.updateWindow = 0;
 
@@ -140,12 +141,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //
     //------------------------------------------------------------------
     function updatePlayerSelf(data) {
-        // playerSelf.model.position.x = data.position.x;
-        // playerSelf.model.position.y = data.position.y;
-        playerSelf.model.position.x = 0.5;
-        playerSelf.model.position.y = 0.5;
+        console.log('===== updated self');
+        
         playerSelf.model.direction = data.direction;
-
         playerSelf.model.worldCordinates.x = data.worldCordinates.x;
         playerSelf.model.worldCordinates.y = data.worldCordinates.y;
 
@@ -177,12 +175,13 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //
     //------------------------------------------------------------------
     function updatePlayerOther(data) {
+        console.log('===== updated other');
         if (playerOthers.hasOwnProperty(data.clientId)) {
             let model = playerOthers[data.clientId].model;
             model.goal.updateWindow = data.updateWindow;
 
-            model.goal.position.x = data.position.x;
-            model.goal.position.y = data.position.y
+            model.goal.worldCordinates.x = data.worldCordinates.x;
+            model.goal.worldCordinates.y = data.worldCordinates.y;
             model.goal.direction = data.direction;
         }
     }
@@ -280,7 +279,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         viewPort.update(graphics, playerSelf.model.worldCordinates);
         playerSelf.model.update(elapsedTime, viewPort);
         for (let id in playerOthers) {
-            playerOthers[id].model.update(elapsedTime);
+            playerOthers[id].model.update(elapsedTime, viewPort);
         }
 
         let removeMissiles = [];

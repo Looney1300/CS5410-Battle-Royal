@@ -84,7 +84,7 @@ function createPlayer(mapLogic) {
     };
 
     that.moveUp = function(elapsedTime) {
-        // reportUpdate = true;
+        reportUpdate = true;
         let move = (moveRate / 1000) * elapsedTime;
         if (map.isValid(worldCordinates.y - move, worldCordinates.x)){
             worldCordinates.y -= move;
@@ -92,7 +92,7 @@ function createPlayer(mapLogic) {
     };
 
     that.moveDown = function(elapsedTime) {
-        // reportUpdate = true;
+        reportUpdate = true;
         let move = (moveRate / 1000) * elapsedTime;
         if (map.isValid(worldCordinates.y + move, worldCordinates.x)){
             worldCordinates.y += move;
@@ -100,7 +100,7 @@ function createPlayer(mapLogic) {
     };
 
     that.moveLeft = function(elapsedTime) {
-        // reportUpdate = true;
+        reportUpdate = true;
         let move = (moveRate / 1000) * elapsedTime;
         if (map.isValid(worldCordinates.y, worldCordinates.x - move)){
             worldCordinates.x -= move;
@@ -108,7 +108,7 @@ function createPlayer(mapLogic) {
     };
 
     that.moveRight = function(elapsedTime) {
-        // reportUpdate = true;
+        reportUpdate = true;
         let move = (moveRate / 1000) * elapsedTime;
         if (map.isValid(worldCordinates.y, worldCordinates.x + move)){
             worldCordinates.x += move;

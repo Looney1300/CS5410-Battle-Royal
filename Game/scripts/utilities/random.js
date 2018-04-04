@@ -35,6 +35,10 @@ function getRandomMapCords(map, rowLimit, colLimit){
         if (map.map[tileRow][tileCol] == 1){
             return cords;
         }
+        cords = {
+            x: Math.floor(Math.random() * colLimit),
+            y: Math.floor(Math.random() * rowLimit)
+        }
     }
     return Math.floor(Math.random() * limit);
 }

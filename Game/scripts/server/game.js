@@ -14,7 +14,7 @@ let mapLogic = require('../shared/map');
 let mapFile = require('../shared/maps/SmallMap');
 
 const SIMULATION_UPDATE_RATE_MS = 50;
-const STATE_UPDATE_RATE_MS = 100;
+const STATE_UPDATE_RATE_MS = 20;
 let lastUpdate = 0;
 let quit = false;
 let activeClients = {};
@@ -141,7 +141,7 @@ function update(elapsedTime, currentTime) {
                     hits.push({
                         clientId: clientId,
                         missileId: activeMissiles[missile].id,
-                        position: activeClients[clientId].player.position
+                        //position: activeClients[clientId].player.position
                     });
                 }
             }
@@ -198,7 +198,7 @@ function updateClients(elapsedTime) {
             clientId: clientId,
             lastMessageId: client.lastMessageId,
             direction: client.player.direction,
-            position: client.player.position,
+            worldCordinates: client.player.worldCordinates,
             updateWindow: lastUpdate
         };
         if (client.player.reportUpdate) {
@@ -283,7 +283,7 @@ function initializeSocketIO(httpServer) {
                 client.socket.emit(NetworkIds.CONNECT_OTHER, {
                     clientId: newPlayer.clientId,
                     direction: newPlayer.direction,
-                    position: newPlayer.position,
+                    worldCordinates: newPlayer.worldCordinates,
                     rotateRate: newPlayer.rotateRate,
                     speed: newPlayer.speed,
                     size: newPlayer.size
@@ -294,7 +294,7 @@ function initializeSocketIO(httpServer) {
                 socket.emit(NetworkIds.CONNECT_OTHER, {
                     clientId: client.player.clientId,
                     direction: client.player.direction,
-                    position: client.player.position,
+                    worldCordinates: newPlayer.worldCordinates,
                     rotateRate: client.player.rotateRate,
                     speed: client.player.speed,
                     size: client.player.size
@@ -334,7 +334,6 @@ function initializeSocketIO(httpServer) {
         };
         socket.emit(NetworkIds.CONNECT_ACK, {
             direction: newPlayer.direction,
-            position: newPlayer.position,
             worldCordinates: newPlayer.worldCordinates,
             size: newPlayer.size,
             rotateRate: newPlayer.rotateRate,
