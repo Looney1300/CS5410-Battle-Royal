@@ -46,12 +46,14 @@ MyGame.pregame = (function(screens) {
 		}
 		
 		//
-		// Make the main-menu screen the active one
-		showScreen('main-menu');
+		// Make the login screen the active one
+		showScreen('startup');
 	}
+
+	MyGame.main 
 	
 	return {
 		initialize : initialize,
-		showScreen : showScreen
+		showScreen : showScreen,
 	};
 }(MyGame.screens));

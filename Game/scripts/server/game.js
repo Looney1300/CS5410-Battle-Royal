@@ -10,8 +10,13 @@ let Player = require('./player');
 let Missile = require('./missile');
 let NetworkIds = require('../shared/network-ids');
 let Queue = require('../shared/queue.js');
+<<<<<<< HEAD
 let mapLogic = require('../shared/map');
 let mapFile = require('../shared/maps/SmallMap');
+=======
+let CryptoJS = require('crypto-js');
+let fs = require('fs');
+>>>>>>> master
 
 const SIMULATION_UPDATE_RATE_MS = 50;
 const STATE_UPDATE_RATE_MS = 20;
@@ -23,8 +28,12 @@ let activeMissiles = [];
 let hits = [];
 let inputQueue = Queue.create();
 let nextMissileId = 1;
+<<<<<<< HEAD
 let map = mapLogic.create();
 map.setMap(mapFile);
+=======
+let salt = 'xnBZngGg*+FhQz??V6FMjfd9G4m5w^z8P*6';
+>>>>>>> master
 
 //------------------------------------------------------------------
 //
@@ -415,22 +424,40 @@ function initializeSocketIO(httpServer) {
             io.sockets.emit('newmsg', data);
          });
 
+         socket.on(NetworkIds.HIGH_SCORES, data => {
+            console.log("Got a high scores request from the user!");
+            var fs = require('fs');
+            var obj;
+            fs.readFile('../Game/data/highscores.json', 'utf8', function (err, fileData) {
+            if (err){
+                console.log(err);
+                throw err;
+            }
+            socket.emit(NetworkIds.HIGH_SCORES,JSON.parse(fileData));
+            });
+         });
 
+         socket.on(NetworkIds.VALID_USER, data => {
+             console.log("Got a login users request");
+             console.log(data.name,data.password);
+             if (validUser(data.name,data.password)){
+                socket.emit(NetworkIds.VALID_USER, null);
+             }
+             else{
+                 socket.emit(NetworkIds.INVALID_USER,null);
+             }
+         });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+         socket.on(NetworkIds.VALID_CREATE_USER, data => {
+             console.log("Got a create users request");
+             if(validCreateUser(data.name,data.password)){
+                 socket.emit(NetworkIds.VALID_CREATE_USER,null);
+             }
+             else {
+                 socket.emit(NetworkIds.INVALID_CREATE_USER, null);
+             }
+         })
+         
 
 
 
@@ -448,6 +475,35 @@ function initializeSocketIO(httpServer) {
 function initialize(httpServer) {
     initializeSocketIO(httpServer);
     gameLoop(present(), 0);
+}
+
+function validUser(uName,uPassword){
+    var obj = JSON.parse(fs.readFileSync('../Game/data/users.json', 'utf8'));
+    for (var i = 0; i < obj.length; ++i){
+        console.log(CryptoJS.AES.decrypt(obj[i].password, salt).toString(CryptoJS.enc.Utf8));
+        if (obj[i].name == uName && CryptoJS.AES.decrypt(obj[i].password, salt).toString(CryptoJS.enc.Utf8) == uPassword){
+            return true;
+        }
+    }
+    return false;
+}
+
+function validCreateUser(uName,uPassword){ 
+    console.log('checking for valid create user');
+    var obj = JSON.parse(fs.readFileSync('../Game/data/users.json', 'utf8'));
+    for (var i = 0; i < obj.length; ++i){
+        if (obj[i].name == uName){
+            return false;
+        }
+    }
+
+    obj.push({
+        name: uName,
+        password: CryptoJS.AES.encrypt(uPassword,salt).toString()
+    });
+    fs.writeFileSync('../Game/data/users.json',JSON.stringify(obj));
+
+    return true;
 }
 
 //------------------------------------------------------------------
