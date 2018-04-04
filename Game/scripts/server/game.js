@@ -10,13 +10,10 @@ let Player = require('./player');
 let Missile = require('./missile');
 let NetworkIds = require('../shared/network-ids');
 let Queue = require('../shared/queue.js');
-<<<<<<< HEAD
 let mapLogic = require('../shared/map');
 let mapFile = require('../shared/maps/SmallMap');
-=======
 let CryptoJS = require('crypto-js');
 let fs = require('fs');
->>>>>>> master
 
 const SIMULATION_UPDATE_RATE_MS = 50;
 const STATE_UPDATE_RATE_MS = 20;
@@ -28,12 +25,9 @@ let activeMissiles = [];
 let hits = [];
 let inputQueue = Queue.create();
 let nextMissileId = 1;
-<<<<<<< HEAD
 let map = mapLogic.create();
 map.setMap(mapFile);
-=======
 let salt = 'xnBZngGg*+FhQz??V6FMjfd9G4m5w^z8P*6';
->>>>>>> master
 
 //------------------------------------------------------------------
 //
