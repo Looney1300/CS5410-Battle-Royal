@@ -64,6 +64,23 @@
             value: 'high-scores',
             writeable: false
         },
+        'VALID_USER' : {
+            value: 'valid-user',
+            writable: false
+        },
+        'INVALID_USER' : {
+            value: 'invalid-user',
+            writable: false
+        },
+        'INVALID_CREATE_USER' : {
+            value: 'invalid-create-user',
+            writeable: false
+        },
+        'VALID_CREATE_USER' : {
+            value: 'valid-create-user',
+            writable: false
+        },
+        
     });
 
 })(typeof exports === 'undefined' ? this['NetworkIds'] = {} : exports);

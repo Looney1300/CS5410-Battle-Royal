@@ -60,6 +60,21 @@ MyGame.loader = (function() {
             onComplete: null,
         },
         {
+            scripts: ['./screens/startup'],
+            message: ['startup screen loaded'],
+            onComplete: null,
+        },
+        {
+            scripts: ['./screens/register-user'],
+            message: ['register user screen loaded'],
+            onComplete: null,
+        },
+        {
+            scripts: ['./screens/login'],
+            message: 'login screen loaded',
+            onComplete: null,
+        },
+        {
             scripts: ['./screens/credits'],
             message: 'credits screen loaded',
             onComplete: null,
