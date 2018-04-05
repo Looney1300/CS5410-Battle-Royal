@@ -419,7 +419,6 @@ function initializeSocketIO(httpServer) {
          });
 
          socket.on(NetworkIds.HIGH_SCORES, data => {
-            console.log("Got a high scores request from the user!");
             var fs = require('fs');
             var obj;
             fs.readFile('../Game/data/highscores.json', 'utf8', function (err, fileData) {
@@ -432,8 +431,6 @@ function initializeSocketIO(httpServer) {
          });
 
          socket.on(NetworkIds.VALID_USER, data => {
-             console.log("Got a login users request");
-             console.log(data.name,data.password);
              if (validUser(data.name,data.password)){
                 socket.emit(NetworkIds.VALID_USER, null);
              }
@@ -443,7 +440,6 @@ function initializeSocketIO(httpServer) {
          });
 
          socket.on(NetworkIds.VALID_CREATE_USER, data => {
-             console.log("Got a create users request");
              if(validCreateUser(data.name,data.password)){
                  socket.emit(NetworkIds.VALID_CREATE_USER,null);
              }
@@ -474,7 +470,6 @@ function initialize(httpServer) {
 function validUser(uName,uPassword){
     var obj = JSON.parse(fs.readFileSync('../Game/data/users.json', 'utf8'));
     for (var i = 0; i < obj.length; ++i){
-        console.log(CryptoJS.AES.decrypt(obj[i].password, salt).toString(CryptoJS.enc.Utf8));
         if (obj[i].name == uName && CryptoJS.AES.decrypt(obj[i].password, salt).toString(CryptoJS.enc.Utf8) == uPassword){
             return true;
         }
@@ -483,7 +478,6 @@ function validUser(uName,uPassword){
 }
 
 function validCreateUser(uName,uPassword){ 
-    console.log('checking for valid create user');
     var obj = JSON.parse(fs.readFileSync('../Game/data/users.json', 'utf8'));
     for (var i = 0; i < obj.length; ++i){
         if (obj[i].name == uName){

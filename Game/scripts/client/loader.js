@@ -198,6 +198,14 @@ MyGame.loader = (function() {
         {
             key: 'weaponPowerup',
             source: 'assets/Powerups/weapon_powerup.png'
+        },
+        {
+            key: 'client',
+            source: 'assets/client_idle.png'
+        },
+        {
+            key: 'enemy',
+            source: 'assets/enemy_idle.png'
         }
     ];
 

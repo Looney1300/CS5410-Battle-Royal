@@ -13,7 +13,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
     map.setMap(smallMap.data);
     let playerSelf = {
             model: components.Player(map),
-            texture: MyGame.assets['player-self']
+            texture: MyGame.assets['client']
         },
         playerOthers = {},
         missiles = {},
@@ -118,7 +118,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
 
         playerOthers[data.clientId] = {
             model: model,
-            texture: MyGame.assets['player-other']
+            texture: MyGame.assets['enemy']
         };
     }
 
