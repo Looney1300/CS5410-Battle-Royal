@@ -146,6 +146,58 @@ MyGame.loader = (function() {
         {
             key: 'explosion',
             source: 'assets/explosion.png'
+        },
+        {
+            key: 'clientIdleNoGun',
+            source: 'assets/Character_Sprites/user_idle_flashlight_large.png'
+        },
+        {
+            key: 'clientIdleGun',
+            source: 'assets/Character_Sprites/user_idle_rifle_large.png'
+        },
+        {
+            key: 'clientMoveNoGun',
+            source: 'assets/Character_Sprites/user_move_flashlight_large.png'
+        },
+        {
+            key: 'clientMoveGun',
+            source: 'assets/Character_Sprites/user_move_rifle_large.png'
+        },
+        {
+            key: 'enemyIdleNoGun',
+            source: 'assets/Character_Sprites/enemy_idle_flashlight_large.png'
+        },
+        {
+            key: 'enemyIdleGun',
+            source: 'assets/Character_Sprites/enemy_idle_rifle_large.png'
+        },
+        {
+            key: 'enemyMoveNoGun',
+            source: 'assets/Character_Sprites/enemy_move_flashlight_large.png'
+        },
+        {
+            key: 'enemyMoveGun',
+            source: 'assets/Character_Sprites/enemy_move_rifle_large.png'
+        },
+        {
+            key: 'ammoPowerup',
+            source: 'assets/Powerups/ammo.png'
+        },
+        {
+            key: 'healthPowerup',
+            source: 'assets/Powerups/health_powerup.png'
+        },
+        {
+            key: 'increasedFireRatePowerup',
+            source: 'assets/Powerups/increased_fire_rate.png'
+        },
+        {
+            key: 'increasedRangePowerup',
+            source: 'assets/Powerups/incrased_range.png'
+        },
+        {
+            key: 'weaponPowerup',
+            source: 'assets/Powerups/weapon_powerup.png'
         }
     ];
 
