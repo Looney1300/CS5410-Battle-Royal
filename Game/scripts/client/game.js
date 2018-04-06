@@ -13,7 +13,17 @@ MyGame.main = (function(graphics, renderer, input, components) {
     map.setMap(smallMap.data);
     let playerSelf = {
             model: components.Player(map),
-            texture: MyGame.assets['client']
+            texture: components.AnimatedSprite({
+                spriteSheet: MyGame.assets['clientMoveGun'],
+                spriteSize: { width: 0.11, height: 0.11 },
+                //this really needs to be bound to the model center x and y and then when drawn it gets converted to actual coordinates on the canvas? I think?
+                spriteCenter: {
+                    x: 0.5,
+                    y: 0.5
+                },
+                spriteCount: 20,
+                spriteTime: [ 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15]
+            })
         },
         playerOthers = {},
         missiles = {},
@@ -93,6 +103,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.model.direction = data.direction;
         playerSelf.model.speed = data.speed;
         playerSelf.model.rotateRate = data.rotateRate;
+        playerSelf.texture.center = data.position;
+        //console.log("Center",playerSelf.model.worldCordinates);
     }
 
     //------------------------------------------------------------------
@@ -118,7 +130,16 @@ MyGame.main = (function(graphics, renderer, input, components) {
 
         playerOthers[data.clientId] = {
             model: model,
-            texture: MyGame.assets['enemy']
+            texture: components.AnimatedSprite({
+                spriteSheet: MyGame.assets['enemyMoveGun'],
+                spriteSize: { width: 0.07, height: 0.07 },
+                spriteCenter: {
+                    x: data.worldCordinates.x,
+                    y: data.worldCordinates.y
+                },
+                spriteCount: 20,
+                spriteTime: [ 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15]
+            })
         };
     }
 
@@ -142,6 +163,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.model.worldCordinates.x = data.worldCordinates.x;
         playerSelf.model.worldCordinates.y = data.worldCordinates.y;
         playerSelf.model.speed = data.speed;
+        playerSelf.model.position = data.position;
+        playerSelf.texture.center = data.position;
 
         //
         // Remove messages from the queue up through the last one identified
@@ -273,8 +296,12 @@ MyGame.main = (function(graphics, renderer, input, components) {
     function update(elapsedTime) {
         viewPort.update(graphics, playerSelf.model.worldCordinates);
         playerSelf.model.update(elapsedTime, viewPort);
+        playerSelf.texture.update(elapsedTime);
         for (let id in playerOthers) {
             playerOthers[id].model.update(elapsedTime, viewPort);
+            playerOthers[id].texture.center.x = playerOthers[id].model.state.worldCordinates.x;
+            playerOthers[id].texture.center.y = playerOthers[id].model.state.worldCordinates.y;
+            playerOthers[id].texture.update(elapsedTime);
         }
 
         let removeMissiles = [];

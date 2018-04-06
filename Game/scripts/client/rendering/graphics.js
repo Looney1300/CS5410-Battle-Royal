@@ -163,19 +163,18 @@ MyGame.graphics = (function() {
     //------------------------------------------------------------------
     function drawImageSpriteSheet(spriteSheet, spriteSize, sprite, center, size) {
         let localCenter = {
-            x: center.x * canvas.width,
-            y: center.y * canvas.width
+            x: center.x * viewPort.width,
+            y: center.y * viewPort.width
         };
         let localSize = {
-            width: size.width * canvas.width,
-            height: size.height * canvas.height
+            width: size.width * viewPort.width,
+            height: size.height * viewPort.height
         };
-
         context.drawImage(spriteSheet,
             sprite * spriteSize.width, 0,                 // which sprite to render
             spriteSize.width, spriteSize.height,    // size in the spritesheet
-            localCenter.x - localSize.width / 2,
-            localCenter.y - localSize.height / 2,
+            300,
+            300,
             localSize.width, localSize.height);
     }
 

@@ -12,10 +12,15 @@ MyGame.renderer.Player = (function(graphics) {
     // Renders a Player model.
     //
     // ------------------------------------------------------------------
-    that.render = function(model, texture) {
+    that.render = function(model, sprite) {
         graphics.saveContext();
         graphics.rotateCanvas(model.position, model.direction);
-        graphics.drawImage(texture, model.position, model.size);
+        //this should just change to render the sprite
+        graphics.drawImageSpriteSheet( sprite.spriteSheet,
+            { width: sprite.pixelWidth, height: sprite.pixelHeight },
+            sprite.sprite,
+            { x: sprite.center, y: sprite.center },
+            { width: sprite.width, height: sprite.height });
         graphics.restoreContext();
     };
 

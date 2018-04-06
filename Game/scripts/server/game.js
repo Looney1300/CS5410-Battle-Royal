@@ -203,7 +203,8 @@ function updateClients(elapsedTime) {
             direction: client.player.direction,
             worldCordinates: client.player.worldCordinates,
             speed: client.player.speed,
-            updateWindow: lastUpdate
+            updateWindow: lastUpdate,
+            position: client.player.position,
         };
         if (client.player.reportUpdate) {
             client.socket.emit(NetworkIds.UPDATE_SELF, update);
@@ -290,7 +291,8 @@ function initializeSocketIO(httpServer) {
                     worldCordinates: newPlayer.worldCordinates,
                     rotateRate: newPlayer.rotateRate,
                     speed: newPlayer.speed,
-                    size: newPlayer.size
+                    size: newPlayer.size,
+                    position: newPlayer.position,
                 });
 
                 //
@@ -301,7 +303,8 @@ function initializeSocketIO(httpServer) {
                     worldCordinates: client.player.worldCordinates,
                     rotateRate: client.player.rotateRate,
                     speed: client.player.speed,
-                    size: client.player.size
+                    size: client.player.size,
+                    position: newPlayer.position,
                 });
             }
         }
@@ -341,7 +344,8 @@ function initializeSocketIO(httpServer) {
             worldCordinates: newPlayer.worldCordinates,
             size: newPlayer.size,
             rotateRate: newPlayer.rotateRate,
-            speed: newPlayer.speed
+            speed: newPlayer.speed,
+            position: newPlayer.position
         });
 
         socket.on(NetworkIds.INPUT, data => {

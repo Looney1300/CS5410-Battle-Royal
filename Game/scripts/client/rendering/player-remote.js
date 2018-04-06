@@ -12,10 +12,14 @@ MyGame.renderer.PlayerRemote = (function(graphics) {
     // Renders a PlayerRemote model.
     //
     // ------------------------------------------------------------------
-    that.render = function(model, texture) {
+    that.render = function(model, sprite) {
         graphics.saveContext();
         graphics.rotateCanvas(model.state.position, model.state.direction);
-        graphics.drawImage(texture, model.state.position, model.size);
+        graphics.drawImageSpriteSheet(sprite.spriteSheet,
+            { width: sprite.pixelWidth, height: sprite.pixelHeight },
+            sprite.sprite,
+            { x: sprite.center.x, y: sprite.center.y },
+            { width: sprite.width, height: sprite.height });
         graphics.restoreContext();
     };
 

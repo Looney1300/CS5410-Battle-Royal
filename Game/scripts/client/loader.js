@@ -193,7 +193,7 @@ MyGame.loader = (function() {
         },
         {
             key: 'increasedRangePowerup',
-            source: 'assets/Powerups/incrased_range.png'
+            source: 'assets/Powerups/increased_range.png'
         },
         {
             key: 'weaponPowerup',
