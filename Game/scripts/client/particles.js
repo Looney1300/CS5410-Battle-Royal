@@ -1,25 +1,26 @@
 /*
 EXAMPLE spec object:
-    let particleSpec3 = {
-        drawUsing: MyGame.graphics.Rectangle,
-        x: 625,
-        y: 100,
-        // xMax: 850,
-        // yMax: 550,
-        particlesPerSec: 20,
-        fill: color.green,
-        lineWidth: 1,
-        stroke: color.green,
-        imageSrc: 'bubble1b.png',
-        rotationMax: 1,
-        lifetime: {mean: 500, std: 100},
-        speed: {mean: 200, std: 10},
-        size: {mean: 50, std: 1},
-        gravity: 1,
-        onTop: true,
-        disappear: true,
-        duration: 10000,
-    }
+ let particleSpec3 = {
+     drawUsing: MyGame.graphics.Rectangle,
+     x: 625,
+     y: 100,
+     // xMax: 850,
+     // yMax: 550,
+     particlesPerSec: 20,
+     fill: Color.green,
+     lineWidth: 1,
+     stroke: Color.green,
+     imageSrc: 'bubble1b.png',
+     rotationMax: 1,
+     lifetime: {mean: 500, std: 100},
+     speed: {mean: 200, std: 10},
+     size: {mean: 50, std: 1},
+     specifyDirection: {angle: Math.PI/3, std: .1},
+     gravity: 1,
+     onTop: true,
+     disappear: true,
+     duration: 10000,
+ }
 */
 MyGame.particleSystem = (function(graphics){
 
@@ -76,8 +77,7 @@ MyGame.particleSystem = (function(graphics){
         let time = 1001/spec.particlesPerSec;
         let effectDuration = 0.0;
         let hasDuration = spec.hasOwnProperty('duration');
-        let hasLimitY = spec.hasOwnProperty('limitY');
-        let hasLimitX = spec.hasOwnProperty('limitX');
+        let hasLimitDirection = spec.hasOwnProperty('specifyDirection');
         let hasDissappear = spec.hasOwnProperty('disappear');
         let hasRotationMax = spec.hasOwnProperty('rotationMax');
         let hasGravity = spec.hasOwnProperty('gravity');
@@ -100,40 +100,22 @@ MyGame.particleSystem = (function(graphics){
             for (time; time > (1000/spec.particlesPerSec); time -= (1000/spec.particlesPerSec) ){
                 let p = {
                     graphicsFunction: spec.drawUsing,
-                    direction: Random.nextCircleVector(),
-                    speed: Math.abs(Random.nextGaussian(spec.speed.mean/1000, spec.speed.std/1000)),	// pixels per millisecond
+                    speed: Math.abs(nextGaussian(spec.speed.mean/1000, spec.speed.std/1000)),	// pixels per millisecond
                     rotation: 0,
-                    lifetime: Math.abs(Random.nextGaussian(spec.lifetime.mean, spec.lifetime.std)),	// milliseconds
+                    lifetime: Math.abs(nextGaussian(spec.lifetime.mean, spec.lifetime.std)),	// milliseconds
                     alive: 0,
-                    size: Random.nextGaussian(spec.size.mean, spec.size.std),
+                    size: nextGaussian(spec.size.mean, spec.size.std),
                 };
-                if (hasLimitY){
-                    if (spec.limitY > 0){
-                        p.direction.y = Math.abs(p.direction.y);
-                    }
-                    else if (spec.limitY < 0){
-                        p.direction.y = -1 * Math.abs(p.direction.y);
-                    }else{
-                        p.direction.x += Math.abs(p.direction.y);
-                        p.direction.y = 0;
-                    }
-                }
-                if (hasLimitX){
-                    if (spec.limitX > 0){
-                        p.direction.x = Math.abs(p.direction.x);
-                    }
-                    else if (spec.limitX < 0){
-                        p.direction.x = -1 * Math.abs(p.direction.x);
-                    }else{
-                        p.direction.y += Math.abs(p.direction.x);
-                        p.direction.x = 0;
-                    }
+                if (hasLimitDirection){
+                    p.direction = nextCircleVectorAround(1, spec.specifyDirection.angle, spec.specifyDirection.std);
+                }else{
+                    p.direction = nextCircleVector(1);
                 }
                 if (hasDissappear){
                     p.disappear = spec.disappear;
                 }
                 if (hasRotationMax){
-                    p.rotationRate = Random.nextGaussian(0, spec.rotationMax);
+                    p.rotationRate = nextGaussian(0, spec.rotationMax);
                 }
                 if (hasGravity){
                     p.gravity = spec.gravity;
@@ -151,7 +133,7 @@ MyGame.particleSystem = (function(graphics){
                     p.imageSrc = spec.imageSrc;
                 }
                 if (hasXMax && hasYMax){
-                    p.position = { x: Random.nextRange(spec.x, spec.xMax), y: Random.nextRange(spec.y, spec.yMax)};
+                    p.position = { x: nextRange(spec.x, spec.xMax), y: nextRange(spec.y, spec.yMax)};
                 }else{
                     p.position = {x: spec.x, y: spec.y};
                 }
@@ -177,14 +159,15 @@ MyGame.particleSystem = (function(graphics){
             particles[particle].direction.y += (elapsedTime * particles[particle].gravity/1000);
             particles[particle].x += (elapsedTime * particles[particle].speed * particles[particle].direction.x);
             particles[particle].y += (elapsedTime * particles[particle].speed * particles[particle].direction.y);
+            // console.log(particles[0]);
             
             if (particles[particle].disappear){
                 let transparency = 1-(particles[particle].alive/particles[particle].lifetime);
                 if (particles[particle].hasOwnProperty('stroke')){
-                    particles[particle].strokeStyle = color.addAlpha(particles[particle].stroke, transparency);
+                    particles[particle].strokeStyle = Color.addAlpha(particles[particle].stroke, transparency);
                 }
                 if (particles[particle].hasOwnProperty('fill')){
-                    particles[particle].fillStyle = color.addAlpha(particles[particle].fill, transparency);
+                    particles[particle].fillStyle = Color.addAlpha(particles[particle].fill, transparency);
                 }
             }
             if (particles[particle].hasOwnProperty('rotationRate')){
@@ -212,7 +195,115 @@ MyGame.particleSystem = (function(graphics){
     return {
         ParticleEffect: ParticleEffect,
         update: updateParticles,
-        draw: renderParticleSystem
+        render: renderParticleSystem
     };
 
 }(MyGame.graphics));
+
+// --------------------------------------------------------
+//
+//          Game specific particle effects
+//
+// Just call these functions with the correct location when
+// one of these effects is needed.
+//
+// --------------------------------------------------------
+MyGame.particleSystem.clientEliminated = function(location){
+    let particleSpec = {
+        drawUsing: MyGame.graphics.Rectangle,
+        x: location.x,
+        y: location.y,
+        xMax: location.x + 10,
+        yMax: location.y + 10,
+        particlesPerSec: 20,
+        // imageSrc: 'bubble1b.png',
+        fill: Color.green,
+        stroke: Color.brown,
+        lineWidth: 2,
+        rotationMax: 1,
+        lifetime: {mean: 500, std: 100},
+        speed: {mean: 200, std: 10},
+        size: {mean: 50, std: 1},
+        onTop: true,
+        disappear: true,
+        duration: 1500,
+    }
+
+    MyGame.particleSystem.ParticleEffect(particleSpec);
+};
+
+MyGame.particleSystem.enemyEliminated = function(location){
+    let particleSpec = {
+        drawUsing: MyGame.graphics.Rectangle,
+        x: location.x,
+        y: location.y,
+        xMax: location.x + 10,
+        yMax: location.y + 10,
+        particlesPerSec: 20,
+        // imageSrc: 'bubble1b.png',
+        fill: Color.red,
+        stroke: Color.brown,
+        lineWidth: 2,
+        rotationMax: 1,
+        lifetime: {mean: 500, std: 100},
+        speed: {mean: 200, std: 10},
+        size: {mean: 50, std: 1},
+        onTop: true,
+        disappear: true,
+        duration: 1500,
+    }
+
+    MyGame.particleSystem.ParticleEffect(particleSpec);
+};
+
+MyGame.particleSystem.shotSmoke = function(location, direction){
+    let smokeDirection = direction;
+    while (smokeDirection > 2*Math.PI){
+        smokeDirection -= 2*Math.PI;
+    }
+    while (smokeDirection < -2*Math.PI){
+        smokeDirection += 2*Math.PI;
+    }
+    let particleSpec = {
+        drawUsing: MyGame.graphics.Rectangle,
+        x: location.x,
+        y: location.y,
+        particlesPerSec: 60,
+        // imageSrc: 'bubble1b.png',
+        fill: Color.grey,
+        stroke: Color.grey,
+        lineWidth: 2,
+        rotationMax: 1,
+        lifetime: {mean: 300, std: 100},
+        speed: {mean: .1, std: 0},
+        size: {mean: .005, std: .001},
+        specifyDirection: {angle: smokeDirection, std: .5},
+        onTop: true,
+        gravity: 0,
+        disappear: true,
+        duration: 100,
+    }
+
+    MyGame.particleSystem.ParticleEffect(particleSpec);
+};
+
+MyGame.particleSystem.shieldSparks = function(center, radius){
+    SPARKSPERCIRCUMFRANCEUNIT = 2;
+    for (let i=0; i<radius*3.14159*SPARKSPERCIRCUMFRANCEUNIT; ++i){
+        let cvec = random.nextCircleVector(radius);
+        let particleSpec = {
+            drawUsing: MyGame.graphics.Rectangle,
+            x: center.x + cvec.x,
+            y: center.y + cvec.y,
+            particlesPerSec: 2,
+            // imageSrc: 'bubble1b.png',
+            fill: Color.blue,
+            rotationMax: 1,
+            lifetime: {mean: 200, std: 70},
+            speed: {mean: 400, std: 50},
+            size: {mean: 20, std: 1},
+            onTop: true,
+        }
+        MyGame.particleSystem.ParticleEffect(particleSpec);
+    }
+};

@@ -1,6 +1,6 @@
 //Colors for the Game to be defined here and used exclusively throughout the game code.
 //  To add transparency to a color: 
-//      color.addAlpha(color.blue, .7);
+//      Color.addAlpha(Color.blue, .7);
 let Color = {
     addAlpha: function(clr, alpha){
         if (clr.indexOf('a') === -1){
@@ -21,5 +21,6 @@ let Color = {
     violet: 'rgb(128, 0, 255)',
     white: 'rgb(255, 255, 255)',
     black: 'rgb(0, 0, 0)',
+    grey: 'rgb(200, 200, 200)',
 
 }

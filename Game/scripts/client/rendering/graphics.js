@@ -133,7 +133,7 @@ MyGame.graphics = (function() {
         let that = {};
         that.draw = function(){
             context.beginPath();
-            context.arc(spec.centerX, spec.centerY, spec.radius, 0, 2*3.14159265);
+            context.arc(spec.centerX * canvas.width, spec.centerY * canvas.width, spec.radius * canvas.width, 2 * Math.PI, false);
             context.closePath();
             context.strokeStyle = spec.strokeStyle;
             context.stroke();
@@ -170,21 +170,21 @@ MyGame.graphics = (function() {
             //Rotating a shape
             //1. Translate (0,0) of canvas to center of shape
             context.save();
-            context.translate(spec.x + spec.width/2, spec.y + spec.height/2);
+            context.translate((spec.x + spec.width/2) * canvas.width, (spec.y + spec.height/2) * canvas.height);
             //2. Rotate canvas
             context.rotate(spec.rotation);
-            context.translate(-(spec.x + spec.width/2), -(spec.y + spec.height/2));
+            context.translate(-(spec.x + spec.width/2) * canvas.width, -(spec.y + spec.height/2) * canvas.height);
             //3. Draw shape at original coordinates
             if (hasFillStyle){
                 context.fillStyle = spec.fillStyle;
-                context.fillRect(spec.x, spec.y, spec.width, spec.height);
+                context.fillRect(spec.x * canvas.width, spec.y * canvas.height, spec.width * canvas.width, spec.height * canvas.height);
             }
             if (hasLineWidth){
                 context.lineWidth = spec.lineWidth;
             }
             if (hasStrokeStyle){
                 context.strokeStyle = spec.strokeStyle;
-                context.strokeRect(spec.x, spec.y, spec.width, spec.height);
+                context.strokeRect(spec.x * canvas.width, spec.y * canvas.height, spec.width * canvas.width, spec.height * canvas.height);
             }
             //4. Undo translations and rotations of canvas.
             context.restore();
@@ -223,15 +223,16 @@ MyGame.graphics = (function() {
         that.draw = function(){
             if (ready){
                 context.save();
-                context.translate(spec.x, spec.y);
+                context.translate(spec.x * canvas.width, spec.y * canvas.height);
                 context.rotate(spec.rotation);
-                context.translate(-spec.x, -spec.y);
+                context.translate(-spec.x * canvas.width, -spec.y * canvas.height);
 
                 context.drawImage(
                     image,
-                    spec.x - spec.width/2,
-                    spec.y -spec.height/2,
-                    spec.width, spec.height);
+                    (spec.x - spec.width/2) * canvas.width,
+                    (spec.y -spec.height/2) * canvas.height,
+                    spec.width * canvas.width, 
+                    spec.height * canvas.height);
 
                 context.restore();   
             }
@@ -287,11 +288,11 @@ MyGame.graphics = (function() {
             }
             if (spec.hasOwnProperty('fillStyle')){
                 context.fillStyle = spec.fillStyle;
-                context.fillText(spec.text, spec.x, spec.y);
+                context.fillText(spec.text, spec.x * canvas.width, spec.y * canvas.height);
             }
             if (spec.hasOwnProperty('strokeStyle')){
                 context.strokeStyle = spec.strokeStyle;
-                context.strokeText(spec.text, spec.x, spec.y);
+                context.strokeText(spec.text, spec.x * canvas.width, spec.y * canvas.height);
             }
         }
 

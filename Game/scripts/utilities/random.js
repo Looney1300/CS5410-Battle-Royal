@@ -82,7 +82,23 @@ function nextGaussian(mean, stdDev) {
     return mean + y1 * stdDev;
 }
 
+
+// ------------------------------------------------------------------
+//
+// Generate a normally distributed vector (x,y) around the angle 
+// in a unit circle: angle in radians, deviation in standard deviations.
+//
+// ------------------------------------------------------------------
+function nextCircleVectorAround(scale, angle, deviation) {
+    let angle1 = nextGaussian(angle, deviation);
+    return {
+        x: Math.cos(angle1) * scale,
+        y: Math.sin(angle1) * scale
+    };
+}
+
 module.exports.nextDouble = nextDouble;
 module.exports.nextRange = nextRange;
 module.exports.nextCircleVector = nextCircleVector;
 module.exports.nextGaussian = nextGaussian;
+module.exports.nextCircleVectorAround = nextCircleVectorAround;

@@ -3,7 +3,7 @@
 // This function provides the "game" code.
 //
 //------------------------------------------------------------------
-MyGame.main = (function(graphics, renderer, input, components) {
+MyGame.main = (function(graphics, renderer, input, components, particles) {
     'use strict';
 
     let lastTimeStamp = performance.now(),
@@ -189,6 +189,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
             },
             timeRemaining: data.timeRemaining
         });
+        particles.shotSmoke(data.position, data.direction);        
     }
 
     //------------------------------------------------------------------
@@ -262,6 +263,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //
     //------------------------------------------------------------------
     function update(elapsedTime) {
+        particles.update(elapsedTime);
+        
         playerSelf.model.update(elapsedTime);
         for (let id in playerOthers) {
             playerOthers[id].model.update(elapsedTime);
@@ -292,6 +295,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //------------------------------------------------------------------
     function render() {
         graphics.clear();
+        
+        particles.render();
         renderer.Player.render(playerSelf.model, playerSelf.texture);
         for (let id in playerOthers) {
             let player = playerOthers[id];
@@ -391,4 +396,4 @@ MyGame.main = (function(graphics, renderer, input, components) {
         socket: socket,
     };
  
-}(MyGame.graphics, MyGame.renderer, MyGame.input, MyGame.components));
+}(MyGame.graphics, MyGame.renderer, MyGame.input, MyGame.components, MyGame.particleSystem));

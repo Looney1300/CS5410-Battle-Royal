@@ -49,6 +49,21 @@ MyGame.loader = (function() {
             onComplete: null
         }, 
         {
+            scripts: ['../utilities/colors'],
+            message: 'Colors loaded',
+            onComplete: null
+        },
+        {
+            scripts: ['../utilities/random'],
+            message: 'Random loaded',
+            onComplete: null
+        },
+        {
+            scripts: ['particles'],
+            message: 'Particle System loaded',
+            onComplete: null
+        },
+        {
             scripts: ['game'],
             message: 'Gameplay model loaded',
             onComplete: null
