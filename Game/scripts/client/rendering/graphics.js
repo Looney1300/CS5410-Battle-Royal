@@ -185,7 +185,7 @@ MyGame.graphics = (function() {
     //
     //------------------------------------------------------------------
     function drawCircle(center, radius, color) {
-        console.log(center);
+        //console.log(center);
         context.beginPath();
         context.arc(center.x * canvas.width, center.y * canvas.width, 2 * radius * canvas.width, 2 * Math.PI, false);
         context.closePath();

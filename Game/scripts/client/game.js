@@ -279,7 +279,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
 
         let removeMissiles = [];
         for (let missile in missiles) {
-            if (!missiles[missile].update(elapsedTime)) {
+            if (!missiles[missile].update(elapsedTime, viewPort)) {
                 removeMissiles.push(missiles[missile]);
             }
         }
