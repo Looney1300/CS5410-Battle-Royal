@@ -38,9 +38,9 @@ function createMissile(clientId, playerModel) {
     let missile = Missile.create({
         id: nextMissileId++,
         clientId: clientId,
-        position: {
-            x: playerModel.position.x,
-            y: playerModel.position.y
+        worldCordinates: {
+            x: playerModel.worldCordinates.x,
+            y: playerModel.worldCordinates.y
         },
         direction: playerModel.direction,
         speed: playerModel.speed
@@ -99,7 +99,8 @@ function processInput(elapsedTime) {
 //
 //------------------------------------------------------------------
 function collided(obj1, obj2) {
-    let distance = Math.sqrt(Math.pow(obj1.position.x - obj2.position.x, 2) + Math.pow(obj1.position.y - obj2.position.y, 2));
+    let distance = Math.sqrt(Math.pow(obj1.worldCordinates.x - obj2.worldCordinates.x, 2) 
+    + Math.pow(obj1.worldCordinates.y - obj2.worldCordinates.y, 2));
     let radii = obj1.radius + obj2.radius;
 
     return distance <= radii;
@@ -178,9 +179,9 @@ function updateClients(elapsedTime) {
         missileMessages.push({
             id: missile.id,
             direction: missile.direction,
-            position: {
-                x: missile.position.x,
-                y: missile.position.y
+            worldCordinates: {
+                x: missile.worldCordinates.x,
+                y: missile.worldCordinates.y
             },
             radius: missile.radius,
             speed: missile.speed,
@@ -419,7 +420,7 @@ function initializeSocketIO(httpServer) {
          });
 
          socket.on(NetworkIds.HIGH_SCORES, data => {
-            console.log("Got a high scores request from the user!");
+            //console.log("Got a high scores request from the user!");
             var fs = require('fs');
             var obj;
             fs.readFile('../Game/data/highscores.json', 'utf8', function (err, fileData) {
@@ -432,7 +433,7 @@ function initializeSocketIO(httpServer) {
          });
 
          socket.on(NetworkIds.VALID_USER, data => {
-             console.log("Got a login users request");
+             //console.log("Got a login users request");
              console.log(data.name,data.password);
              if (validUser(data.name,data.password)){
                 socket.emit(NetworkIds.VALID_USER, null);
@@ -443,7 +444,7 @@ function initializeSocketIO(httpServer) {
          });
 
          socket.on(NetworkIds.VALID_CREATE_USER, data => {
-             console.log("Got a create users request");
+             //console.log("Got a create users request");
              if(validCreateUser(data.name,data.password)){
                  socket.emit(NetworkIds.VALID_CREATE_USER,null);
              }

@@ -29,8 +29,8 @@ function createMissile(spec) {
         get: () => spec.direction
     });
 
-    Object.defineProperty(that, 'position', {
-        get: () => spec.position
+    Object.defineProperty(that, 'worldCordinates', {
+        get: () => spec.worldCordinates
     });
 
     Object.defineProperty(that, 'radius', {
@@ -54,8 +54,8 @@ function createMissile(spec) {
         let vectorX = Math.cos(spec.direction);
         let vectorY = Math.sin(spec.direction);
 
-        spec.position.x += (vectorX * elapsedTime * speed);
-        spec.position.y += (vectorY * elapsedTime * speed);
+        spec.worldCordinates.x += (vectorX * elapsedTime * speed);
+        spec.worldCordinates.y += (vectorY * elapsedTime * speed);
 
         timeRemaining -= elapsedTime;
 

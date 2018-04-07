@@ -192,9 +192,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
             radius: data.radius,
             speed: data.speed,
             direction: data.direction,
-            position: {
-                x: data.position.x,
-                y: data.position.y
+            worldCordinates: {
+                x: data.worldCordinates.x,
+                y: data.worldCordinates.y
             },
             timeRemaining: data.timeRemaining
         });

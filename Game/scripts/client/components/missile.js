@@ -7,8 +7,8 @@ MyGame.components.Missile = function(spec) {
     'use strict';
     let that = {};
 
-    Object.defineProperty(that, 'position', {
-        get: () => spec.position
+    Object.defineProperty(that, 'worldCordinates', {
+        get: () => spec.worldCordinates
     });
 
     Object.defineProperty(that, 'radius', {
@@ -30,8 +30,8 @@ MyGame.components.Missile = function(spec) {
         let vectorX = Math.cos(spec.direction);
         let vectorY = Math.sin(spec.direction);
 
-        spec.position.x += (vectorX * elapsedTime * spec.speed);
-        spec.position.y += (vectorY * elapsedTime * spec.speed);
+        spec.worldCordinates.x += (vectorX * elapsedTime * spec.speed);
+        spec.worldCordinates.y += (vectorY * elapsedTime * spec.speed);
 
         spec.timeRemaining -= elapsedTime;
 
