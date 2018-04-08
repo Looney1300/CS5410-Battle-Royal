@@ -161,10 +161,12 @@ MyGame.graphics = (function() {
     // Draw an image out of a spritesheet into the local canvas coordinate system.
     //
     //------------------------------------------------------------------
-    function drawImageSpriteSheet(spriteSheet, spriteSize, sprite, center, size) {
+    function drawImageSpriteSheet(spriteSheet, spriteSize, sprite, printCenter, size) {
+        // center is still the world coords.
+        // center needs to be where the player can see.
         let localCenter = {
-            x: center.x * canvas.width,
-            y: center.y * canvas.width
+            x: printCenter.x * canvas.width,
+            y: printCenter.y * canvas.width
         };
         let localSize = {
             width: size.width * canvas.width,

@@ -14,6 +14,7 @@ function createMissile(spec) {
     let that = {};
 
     let radius = 0.0025;
+    let collision_radius = 5;
     let speed = spec.speed + 0.0002;    // unit distance per millisecond
     let timeRemaining = 1500;   // milliseconds
 
@@ -35,6 +36,10 @@ function createMissile(spec) {
 
     Object.defineProperty(that, 'radius', {
         get: () => radius
+    });
+
+    Object.defineProperty(that, 'collision_radius', {
+        get: () => collision_radius
     });
 
     Object.defineProperty(that, 'speed', {

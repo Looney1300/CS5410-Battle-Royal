@@ -8,11 +8,12 @@ MyGame.renderer.AnimatedSprite = (function(graphics) {
     let that = {};
 
     that.render = function(sprite) {
+        // right now center is the world coords
         graphics.drawImageSpriteSheet(
             sprite.spriteSheet,
             { width: sprite.pixelWidth, height: sprite.pixelHeight },
             sprite.sprite,
-            { x: sprite.center.x, y: sprite.center.y },
+            { x: sprite.printCenter.x, y: sprite.printCenter.y },
             { width: sprite.width, height: sprite.height }
         );
     };

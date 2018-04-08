@@ -101,8 +101,8 @@ function processInput(elapsedTime) {
 function collided(obj1, obj2) {
     let distance = Math.sqrt(Math.pow(obj1.worldCordinates.x - obj2.worldCordinates.x, 2) 
     + Math.pow(obj1.worldCordinates.y - obj2.worldCordinates.y, 2));
-    let radii = obj1.radius + obj2.radius;
-    console.log('carnage is being detected -->',distance, ' sum:' ,radii);
+    let radii = obj1.collision_radius + obj2.collision_radius;
+    //console.log('carnage is being detected -->',distance, ' sum:' ,radii);
 
     return distance <= radii;
 }
@@ -142,12 +142,12 @@ function update(elapsedTime, currentTime) {
             // Don't allow a missile to hit the player it was fired from.
             if (clientId !== activeMissiles[missile].clientId) {
                 if (collided(activeMissiles[missile], activeClients[clientId].player)) {
-                   
+                   console.log('something was hit!');
                     hit = true;
                     hits.push({
                         clientId: clientId,
                         missileId: activeMissiles[missile].id,
-                        //position: activeClients[clientId].player.position
+                        hit_location: activeClients[clientId].player.worldCordinates
                     });
                 }
             }

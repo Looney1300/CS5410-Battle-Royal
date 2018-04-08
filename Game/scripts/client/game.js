@@ -206,11 +206,12 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //
     //------------------------------------------------------------------
     function missileHit(data) {
+        // data is the hits array
         explosions[nextExplosionId] = components.AnimatedSprite({
             id: nextExplosionId++,
             spriteSheet: MyGame.assets['explosion'],
             spriteSize: { width: 0.07, height: 0.07 },
-            spriteCenter: data.position,
+            spriteCenter: data.hit_location,
             spriteCount: 16,
             spriteTime: [ 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
         });
@@ -289,7 +290,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         }
 
         for (let id in explosions) {
-            if (!explosions[id].update(elapsedTime)) {
+            if (!explosions[id].update(elapsedTime, viewPort)) {
                 delete explosions[id];
             }
         }

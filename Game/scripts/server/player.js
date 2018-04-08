@@ -29,6 +29,7 @@ function createPlayer(mapLogic) {
         height: 0.01,
         radius: 0.02
     };
+    let collision_radius = 15;
     let direction = random.nextDouble() * 2 * Math.PI;    // Angle in radians
     let rotateRate = Math.PI / 1000;    // radians per millisecond
     let speed = 0.2;                  // unit distance per millisecond
@@ -62,6 +63,10 @@ function createPlayer(mapLogic) {
 
     Object.defineProperty(that, 'radius', {
         get: () => size.radius
+    });
+
+    Object.defineProperty(that, 'collision_radius', {
+        get: () => collision_radius
     });
 
     Object.defineProperty(that, 'worldCordinates', {
