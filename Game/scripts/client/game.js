@@ -340,6 +340,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         requestAnimationFrame(gameLoop);
     };
 
+
     //------------------------------------------------------------------
     //
     // Public function used to get the game initialized and then up
@@ -412,7 +413,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
             MyGame.input.KeyEvent.fire, false);
 
         myMouse.registerHandler('mousemove', function(e) {
-            let mouseWC = playerSelf.model.worldCordinatesFromMouse(e.clientX, e.clientY, viewPort);
+            let mouseWC = playerSelf.model.worldCordinatesFromMouse(e.clientX - 20, e.clientY - 20, viewPort);
             let message = {
                 id: messageId++,
                 viewPort: viewPort,

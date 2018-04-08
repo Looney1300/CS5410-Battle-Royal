@@ -40,19 +40,19 @@ MyGame.components.ViewPortal = function() {
   that.update = function(graphics, playerWC) { //player world cordinates
     width = graphics.getCanvasWidth();
     height = graphics.getCanvasHeight();
-    center.x = playerWC.x;
-    center.y = playerWC.y;
-    if (center.x < width/2){
-      center.x = width/2;
+    this.center.x = playerWC.x;
+    this.center.y = playerWC.y;
+    if (this.center.x < width/2){
+      this.center.x = width/2;
     }
-    if (center.y < height/2){
-      center.y = height/2;
+    if (this.center.y < height/2){
+      this.center.y = height/2;
     }
-    if (center.x > mapWidth - width/2){
-      center.x = mapWidth - width/2;
+    if (this.center.x > mapWidth - width/2){
+      this.center.x = mapWidth - width/2;
     }
-    if (center.y > mapHeight - height/2){
-      center.y = mapHeight - height/2;
+    if (this.center.y > mapHeight - height/2){
+      this.center.y = mapHeight - height/2;
     }
   };
 

@@ -65,34 +65,34 @@ MyGame.components.Player = function(mapLogic) {
     //------------------------------------------------------------------
     that.changeDirection = function(x, y, viewPort) {
         // direction = Math.atan2(y - (position.y * viewPort.height), x - (position.x * viewPort.width));
-        direction = Math.atan2(y - worldCordinates.y, x - worldCordinates.x);
+        this.direction = Math.atan2(y - this.worldCordinates.y, x - this.worldCordinates.x);
     };
 
     that.moveUp = function(elapsedTime) {
         let move = speed * elapsedTime;
-        if (map.isValid(worldCordinates.y - move, worldCordinates.x)){
-            worldCordinates.y -= move;
+        if (map.isValid(this.worldCordinates.y - move, this.worldCordinates.x)){
+            this.worldCordinates.y -= move;
         }
     };
 
     that.moveDown = function(elapsedTime) {
         let move = speed * elapsedTime;
-        if (map.isValid(worldCordinates.y + move, worldCordinates.x)){
-            worldCordinates.y += move;
+        if (map.isValid(this.worldCordinates.y + move, this.worldCordinates.x)){
+            this.worldCordinates.y += move;
         }
     };
 
     that.moveLeft = function(elapsedTime) {
         let move = speed * elapsedTime;
-        if (map.isValid(worldCordinates.y, worldCordinates.x - move)){
-            worldCordinates.x -= move;
+        if (map.isValid(this.worldCordinates.y, this.worldCordinates.x - move)){
+            this.worldCordinates.x -= move;
         }
     };
 
     that.moveRight = function(elapsedTime) {
         let move = speed * elapsedTime;
-        if (map.isValid(worldCordinates.y, worldCordinates.x + move)){
-            worldCordinates.x += move;
+        if (map.isValid(this.worldCordinates.y, this.worldCordinates.x + move)){
+            this.worldCordinates.x += move;
         }
     };
 
@@ -115,19 +115,19 @@ MyGame.components.Player = function(mapLogic) {
     };
 
     that.update = function(elapsedTime, viewPort) {
-        let diffX = (Math.abs(viewPort.center.x - worldCordinates.x))/viewPort.width;
-        let diffY = (Math.abs(viewPort.center.y - worldCordinates.y))/viewPort.height;
-        if (worldCordinates.x < viewPort.center.x){
-            position.x = 0.5 - diffX;
+        let diffX = (Math.abs(viewPort.center.x - this.worldCordinates.x))/viewPort.width;
+        let diffY = (Math.abs(viewPort.center.y - this.worldCordinates.y))/viewPort.height;
+        if (this.worldCordinates.x < viewPort.center.x){
+            this.position.x = 0.5 - diffX;
         }
         else {
-            position.x = 0.5 + diffX;
+            this.position.x = 0.5 + diffX;
         }
-        if (worldCordinates.y < viewPort.center.y) {
-            position.y = 0.5 - diffY;
+        if (this.worldCordinates.y < viewPort.center.y) {
+            this.position.y = 0.5 - diffY;
         }
         else {
-            position.y = 0.5 + diffY;
+            this.position.y = 0.5 + diffY;
         }
     };
 
@@ -139,22 +139,22 @@ MyGame.components.Player = function(mapLogic) {
     that.worldCordinatesFromMouse = function(mouseX, mouseY, viewPort) {
         let cords = {x: 0, y: 0};
         let positionWC = {
-            x: position.x * viewPort.width, 
-            y: position.y * viewPort.height
+            x: this.position.x * viewPort.width, 
+            y: this.position.y * viewPort.height
         };
         let diffX = Math.abs(mouseX - positionWC.x);
         let diffY = Math.abs(mouseY - positionWC.y);
         if (mouseX < positionWC.x){
-            cords.x = worldCordinates.x - diffX;
+            cords.x = this.worldCordinates.x - diffX;
         }
         else {
-            cords.x = worldCordinates.x + diffX;
+            cords.x = this.worldCordinates.x + diffX;
         }
         if (mouseY < positionWC.y){
-            cords.y = worldCordinates.y - diffY;
+            cords.y = this.worldCordinates.y - diffY;
         }
         else {
-            cords.y = worldCordinates.y + diffY;
+            cords.y = this.worldCordinates.y + diffY;
         }
 
         return cords;
