@@ -48,6 +48,10 @@
             value: 'fire',
             writable: false
         },
+        'MOUSE_MOVE': {
+            value: 'mouse-move',
+            writable: false
+        },
         'CONNECT_ACK': {
             value: 'connect-ack',
             writable: false

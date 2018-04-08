@@ -8,6 +8,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
 
     let lastTimeStamp = performance.now(),
         myKeyboard = input.Keyboard(),
+        myMouse = input.Mouse(),
         map = Map.create(),
         smallMap = SmallMap.create();
     map.setMap(smallMap.data);
@@ -15,6 +16,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
             model: components.Player(map),
             texture: MyGame.assets['player-self']
         },
+        fov = components.FOV(),
         playerOthers = {},
         missiles = {},
         explosions = {},
@@ -231,6 +233,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         // Start with the keyboard updates so those messages can get in transit
         // while the local updating of received network messages are processed.
         myKeyboard.update(elapsedTime);
+        myMouse.update(elapsedTime);
 
         //
         // Double buffering on the queue so we don't asynchronously receive messages
@@ -273,6 +276,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
     function update(elapsedTime) {
         viewPort.update(graphics, playerSelf.model.worldCordinates);
         playerSelf.model.update(elapsedTime, viewPort);
+        fov.update(playerSelf.model);
         for (let id in playerOthers) {
             playerOthers[id].model.update(elapsedTime, viewPort);
         }
@@ -304,6 +308,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
     function render() {
         graphics.clear();
         renderer.ViewPortal.render();
+        renderer.FOV.render(fov);
         renderer.Player.render(playerSelf.model, playerSelf.texture);
         for (let id in playerOthers) {
             let player = playerOthers[id];
@@ -405,6 +410,19 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 socket.emit(NetworkIds.INPUT, message);
             },
             MyGame.input.KeyEvent.fire, false);
+
+        myMouse.registerHandler('mousemove', function(e) {
+            let mouseWC = playerSelf.model.worldCordinatesFromMouse(e.clientX, e.clientY, viewPort);
+            let message = {
+                id: messageId++,
+                viewPort: viewPort,
+                x: mouseWC.x,
+                y: mouseWC.y,
+                type: NetworkIds.MOUSE_MOVE
+            };
+            socket.emit(NetworkIds.INPUT, message);
+            playerSelf.model.changeDirection(mouseWC.x, mouseWC.y, viewPort);
+        });
 
         //
         // Get the game loop started

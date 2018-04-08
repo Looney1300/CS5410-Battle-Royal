@@ -1,5 +1,4 @@
 
-// let mapFile = require('../../shared/map');
 //------------------------------------- -----------------------------
 //
 // Model for each player in the game.
@@ -61,13 +60,12 @@ MyGame.components.Player = function(mapLogic) {
 
     //------------------------------------------------------------------
     //
-    // Public function that moves the player in the current direction.
+    // Public function that moves the player's current direction.
     //
     //------------------------------------------------------------------
-    that.move = function(elapsedTime) {
-        let vectorX = Math.cos(direction);
-        let vectorY = Math.sin(direction);
-
+    that.changeDirection = function(x, y, viewPort) {
+        // direction = Math.atan2(y - (position.y * viewPort.height), x - (position.x * viewPort.width));
+        direction = Math.atan2(y - worldCordinates.y, x - worldCordinates.x);
     };
 
     that.moveUp = function(elapsedTime) {
@@ -132,6 +130,35 @@ MyGame.components.Player = function(mapLogic) {
             position.y = 0.5 + diffY;
         }
     };
+
+    //------------------------------------------------------------------
+    //
+    // Public function that gets the mouse position and converts it to world cordinates.
+    //
+    //------------------------------------------------------------------
+    that.worldCordinatesFromMouse = function(mouseX, mouseY, viewPort) {
+        let cords = {x: 0, y: 0};
+        let positionWC = {
+            x: position.x * viewPort.width, 
+            y: position.y * viewPort.height
+        };
+        let diffX = Math.abs(mouseX - positionWC.x);
+        let diffY = Math.abs(mouseY - positionWC.y);
+        if (mouseX < positionWC.x){
+            cords.x = worldCordinates.x - diffX;
+        }
+        else {
+            cords.x = worldCordinates.x + diffX;
+        }
+        if (mouseY < positionWC.y){
+            cords.y = worldCordinates.y - diffY;
+        }
+        else {
+            cords.y = worldCordinates.y + diffY;
+        }
+
+        return cords;
+    }
 
     return that;
 };

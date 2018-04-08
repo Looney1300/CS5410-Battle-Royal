@@ -81,6 +81,10 @@ function createPlayer(mapLogic) {
 
     };
 
+    that.changeDirection = function(x, y, viewPort) {
+        direction = Math.atan2(y - worldCordinates.y, x - worldCordinates.x);
+    };
+
     that.moveUp = function(elapsedTime) {
         reportUpdate = true;
         let move = speed * elapsedTime;
