@@ -142,7 +142,9 @@ function update(elapsedTime, currentTime) {
             // Don't allow a missile to hit the player it was fired from.
             if (clientId !== activeMissiles[missile].clientId) {
                 if (collided(activeMissiles[missile], activeClients[clientId].player)) {
-                   console.log('something was hit!');
+                    // This is player who was hit.
+                    activeClients[clientId].player.wasHit();
+                    activeClients[activeMissiles[missile].clientId].player.scoredAHit();
                     hit = true;
                     hits.push({
                         clientId: clientId,
@@ -206,6 +208,9 @@ function updateClients(elapsedTime) {
             direction: client.player.direction,
             worldCordinates: client.player.worldCordinates,
             speed: client.player.speed,
+            score: client.player.score,
+            life_remaining: client.player.life_remaining,
+            is_alive: client.player.is_alive,
             updateWindow: lastUpdate
         };
         if (client.player.reportUpdate) {

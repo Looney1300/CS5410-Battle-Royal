@@ -28,6 +28,33 @@ MyGame.components.Player = function(mapLogic) {
     let height = 600;
     let width = 600;
 
+
+
+    let score = 0;
+    let life_remaining = 0;
+    let is_alive = true;
+
+
+
+
+    Object.defineProperty(that, 'score', {
+        get: () => score,
+        set: (value) => { score = value }
+    });
+
+
+    Object.defineProperty(that, 'life_remaining', {
+        get: () => life_remaining,
+        set: (value) => { life_remaining = value }
+    });
+
+
+    Object.defineProperty(that, 'is_alive', {
+        get: () => is_alive,
+        set: (value) => { is_alive = value }
+    });
+
+
     Object.defineProperty(that, 'direction', {
         get: () => direction,
         set: (value) => { direction = value }

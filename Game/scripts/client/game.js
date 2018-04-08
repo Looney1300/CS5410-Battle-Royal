@@ -143,6 +143,10 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.model.worldCordinates.y = data.worldCordinates.y;
         playerSelf.model.speed = data.speed;
 
+        playerSelf.model.score = data.score;
+        playerSelf.model.life_remaining = data.life_remaining;
+        playerSelf.is_alive = data.is_alive;
+
         //
         // Remove messages from the queue up through the last one identified
         // by the server as having been processed.
@@ -257,6 +261,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
                     updatePlayerOther(message.data);
                     break;
                 case NetworkIds.MISSILE_NEW:
+                    console.log('My Score is: ', 
+                    playerSelf.model.score, ' My Life is at: ', playerSelf.model.life_remaining);
                     missileNew(message.data);
                     break;
                 case NetworkIds.MISSILE_HIT:
