@@ -136,6 +136,22 @@ MyGame.graphics = (function() {
 
     //------------------------------------------------------------------
     //
+    // Draw the field of view for the playerSelf
+    //
+    //------------------------------------------------------------------
+    function drawFOV(fov) {
+        context.beginPath();
+        context.moveTo(fov.center.x * viewPort.width, fov.center.y * viewPort.height);
+        context.lineTo(fov.center.x * viewPort.width + (fov.length * Math.cos(fov.direction - fov.width)), fov.center.y * viewPort.height + (fov.length * Math.sin(fov.direction - fov.width)));
+        context.lineTo(fov.center.x * viewPort.width + (fov.length * Math.cos(fov.direction + fov.width)), fov.center.y * viewPort.height + (fov.length * Math.sin(fov.direction + fov.width)));
+        context.closePath();
+        context.lineWidth = 2;
+        context.strokeStyle = '#666666';
+        context.stroke();
+    }
+
+    //------------------------------------------------------------------
+    //
     // Draw an image into the local canvas coordinate system.
     //
     //------------------------------------------------------------------
@@ -161,10 +177,12 @@ MyGame.graphics = (function() {
     // Draw an image out of a spritesheet into the local canvas coordinate system.
     //
     //------------------------------------------------------------------
-    function drawImageSpriteSheet(spriteSheet, spriteSize, sprite, center, size) {
+    function drawImageSpriteSheet(spriteSheet, spriteSize, sprite, printCenter, size) {
+        // center is still the world coords.
+        // center needs to be where the player can see.
         let localCenter = {
-            x: center.x * viewPort.width,
-            y: center.y * viewPort.width
+            x: printCenter.x * canvas.width,
+            y: printCenter.y * canvas.width
         };
         let localSize = {
             width: size.width * viewPort.width,
@@ -184,6 +202,7 @@ MyGame.graphics = (function() {
     //
     //------------------------------------------------------------------
     function drawCircle(center, radius, color) {
+        //console.log(center);
         context.beginPath();
         context.arc(center.x * canvas.width, center.y * canvas.width, 2 * radius * canvas.width, 2 * Math.PI, false);
         context.closePath();
@@ -383,6 +402,7 @@ MyGame.graphics = (function() {
         restoreContext: restoreContext,
         rotateCanvas: rotateCanvas,
         drawMapPortion: drawMapPortion,
+        drawFOV : drawFOV,
         drawImage: drawImage,
         drawImageSpriteSheet: drawImageSpriteSheet,
         drawCircle: drawCircle,

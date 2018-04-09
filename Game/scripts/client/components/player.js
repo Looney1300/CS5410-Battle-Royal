@@ -1,5 +1,4 @@
 
-// let mapFile = require('../../shared/map');
 //------------------------------------- -----------------------------
 //
 // Model for each player in the game.
@@ -27,6 +26,33 @@ MyGame.components.Player = function(mapLogic) {
     let moveRate = 200;
     let height = 600;
     let width = 600;
+
+
+
+    let score = 0;
+    let life_remaining = 0;
+    let is_alive = true;
+
+
+
+
+    Object.defineProperty(that, 'score', {
+        get: () => score,
+        set: (value) => { score = value }
+    });
+
+
+    Object.defineProperty(that, 'life_remaining', {
+        get: () => life_remaining,
+        set: (value) => { life_remaining = value }
+    });
+
+
+    Object.defineProperty(that, 'is_alive', {
+        get: () => is_alive,
+        set: (value) => { is_alive = value }
+    });
+
 
     Object.defineProperty(that, 'direction', {
         get: () => direction,
@@ -62,40 +88,39 @@ MyGame.components.Player = function(mapLogic) {
 
     //------------------------------------------------------------------
     //
-    // Public function that moves the player in the current direction.
+    // Public function that moves the player's current direction.
     //
     //------------------------------------------------------------------
-    that.move = function(elapsedTime) {
-        let vectorX = Math.cos(direction);
-        let vectorY = Math.sin(direction);
-
+    that.changeDirection = function(x, y, viewPort) {
+        // direction = Math.atan2(y - (position.y * viewPort.height), x - (position.x * viewPort.width));
+        this.direction = Math.atan2(y - this.worldCordinates.y, x - this.worldCordinates.x);
     };
 
     that.moveUp = function(elapsedTime) {
         let move = speed * elapsedTime;
-        if (map.isValid(worldCordinates.y - move, worldCordinates.x)){
-            worldCordinates.y -= move;
+        if (map.isValid(this.worldCordinates.y - move, this.worldCordinates.x)){
+            this.worldCordinates.y -= move;
         }
     };
 
     that.moveDown = function(elapsedTime) {
         let move = speed * elapsedTime;
-        if (map.isValid(worldCordinates.y + move, worldCordinates.x)){
-            worldCordinates.y += move;
+        if (map.isValid(this.worldCordinates.y + move, this.worldCordinates.x)){
+            this.worldCordinates.y += move;
         }
     };
 
     that.moveLeft = function(elapsedTime) {
         let move = speed * elapsedTime;
-        if (map.isValid(worldCordinates.y, worldCordinates.x - move)){
-            worldCordinates.x -= move;
+        if (map.isValid(this.worldCordinates.y, this.worldCordinates.x - move)){
+            this.worldCordinates.x -= move;
         }
     };
 
     that.moveRight = function(elapsedTime) {
         let move = speed * elapsedTime;
-        if (map.isValid(worldCordinates.y, worldCordinates.x + move)){
-            worldCordinates.x += move;
+        if (map.isValid(this.worldCordinates.y, this.worldCordinates.x + move)){
+            this.worldCordinates.x += move;
         }
     };
 
@@ -118,21 +143,50 @@ MyGame.components.Player = function(mapLogic) {
     };
 
     that.update = function(elapsedTime, viewPort) {
-        let diffX = (Math.abs(viewPort.center.x - worldCordinates.x))/viewPort.width;
-        let diffY = (Math.abs(viewPort.center.y - worldCordinates.y))/viewPort.height;
-        if (worldCordinates.x < viewPort.center.x){
-            position.x = 0.5 - diffX;
+        let diffX = (Math.abs(viewPort.center.x - this.worldCordinates.x))/viewPort.width;
+        let diffY = (Math.abs(viewPort.center.y - this.worldCordinates.y))/viewPort.height;
+        if (this.worldCordinates.x < viewPort.center.x){
+            this.position.x = 0.5 - diffX;
         }
         else {
-            position.x = 0.5 + diffX;
+            this.position.x = 0.5 + diffX;
         }
-        if (worldCordinates.y < viewPort.center.y) {
-            position.y = 0.5 - diffY;
+        if (this.worldCordinates.y < viewPort.center.y) {
+            this.position.y = 0.5 - diffY;
         }
         else {
-            position.y = 0.5 + diffY;
+            this.position.y = 0.5 + diffY;
         }
     };
+
+    //------------------------------------------------------------------
+    //
+    // Public function that gets the mouse position and converts it to world cordinates.
+    //
+    //------------------------------------------------------------------
+    that.worldCordinatesFromMouse = function(mouseX, mouseY, viewPort) {
+        let cords = {x: 0, y: 0};
+        let positionWC = {
+            x: this.position.x * viewPort.width, 
+            y: this.position.y * viewPort.height
+        };
+        let diffX = Math.abs(mouseX - positionWC.x);
+        let diffY = Math.abs(mouseY - positionWC.y);
+        if (mouseX < positionWC.x){
+            cords.x = this.worldCordinates.x - diffX;
+        }
+        else {
+            cords.x = this.worldCordinates.x + diffX;
+        }
+        if (mouseY < positionWC.y){
+            cords.y = this.worldCordinates.y - diffY;
+        }
+        else {
+            cords.y = this.worldCordinates.y + diffY;
+        }
+
+        return cords;
+    }
 
     return that;
 };
