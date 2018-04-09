@@ -266,7 +266,6 @@ MyGame.particleSystem.shotSmoke = function(location, direction){
     while (smokeDirection < -2*Math.PI){
         smokeDirection += 2*Math.PI;
     }
-    console.log(MyGame.assets['explosion']);
     let particleSpec = {
         drawUsing: MyGame.graphics.Texture,
         x: location.x,
