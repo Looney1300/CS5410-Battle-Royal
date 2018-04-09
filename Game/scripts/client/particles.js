@@ -225,7 +225,7 @@ MyGame.particleSystem = (function(graphics){
 // --------------------------------------------------------
 MyGame.particleSystem.clientEliminated = function(location){
     let particleSpec = {
-        drawUsing: MyGame.graphics.Rectangle,
+        drawUsing: MyGame.graphics.Circle,
         x: location.x - .02,
         y: location.y - .02,
         xMax: location.x + .02,
@@ -250,7 +250,7 @@ MyGame.particleSystem.clientEliminated = function(location){
 
 MyGame.particleSystem.enemyEliminated = function(location){
     let particleSpec = {
-        drawUsing: MyGame.graphics.Rectangle,
+        drawUsing: MyGame.graphics.Circle,
         x: location.x - .02,
         y: location.y - .02,
         particlesPerSec: 40,

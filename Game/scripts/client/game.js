@@ -204,7 +204,11 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
             },
             timeRemaining: data.timeRemaining
         });
-        particles.shotSmoke(data.position, data.direction);        
+
+        // Update to have the missile compute its position, but with 
+        // zero elapsed time to not change position.
+        missiles[data.id].update(0, viewPort);
+        particles.shotSmoke(missiles[data.id].position, data.direction);        
     }
 
     //------------------------------------------------------------------
@@ -223,7 +227,10 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
             spriteTime: [ 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
         });
 
-        particles.enemyEliminated(data.position);
+        // Update to have the explosion compute its position, but with 
+        // zero elapsed time to not change position.
+        explosions[nextExplosionId-1].update(0, viewPort);
+        particles.enemyEliminated(explosions[nextExplosionId-1].printCenter);
 
         //
         // When we receive a hit notification, go ahead and remove the
