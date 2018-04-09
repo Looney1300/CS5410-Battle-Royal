@@ -284,15 +284,11 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
     //
     //------------------------------------------------------------------
     function update(elapsedTime) {
-<<<<<<< HEAD
         particles.update(elapsedTime);
         
-        playerSelf.model.update(elapsedTime);
-=======
         viewPort.update(graphics, playerSelf.model.worldCordinates);
         playerSelf.model.update(elapsedTime, viewPort);
         fov.update(playerSelf.model);
->>>>>>> master
         for (let id in playerOthers) {
             playerOthers[id].model.update(elapsedTime, viewPort);
         }
@@ -323,12 +319,8 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
     //------------------------------------------------------------------
     function render() {
         graphics.clear();
-<<<<<<< HEAD
-        
-=======
         renderer.ViewPortal.render();
         renderer.FOV.render(fov);
->>>>>>> master
         renderer.Player.render(playerSelf.model, playerSelf.texture);
         for (let id in playerOthers) {
             let player = playerOthers[id];
