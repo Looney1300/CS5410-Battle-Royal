@@ -156,6 +156,8 @@ MyGame.graphics = (function() {
     //
     //------------------------------------------------------------------
     function drawImage(texture, center, size) {
+        // center is model.position
+        // size is model.size
         let localCenter = {
             x: center.x * viewPort.width,
             y: center.y * viewPort.height
@@ -170,7 +172,47 @@ MyGame.graphics = (function() {
             localCenter.y - localSize.height / 2,
             localSize.width,
             localSize.height);
+            
     }
+
+    function drawHealth(texture, center, size, life_remaining){
+        let localCenter = {
+            x: center.x * viewPort.width,
+            y: center.y * viewPort.height
+        };
+        let localSize = {
+            width: size.width * viewPort.width,
+            height: size.height * viewPort.height
+        };
+
+
+        if(life_remaining > 0){
+            context.fillStyle="#FF0000";
+            context.fillRect((localCenter.x - (localSize.width / 2)),
+                (localCenter.y - localSize.height / 2) - (localSize.height/2),
+                localSize.width,
+                localSize.height/5);
+    
+            let life_bar_total = (localSize.width);
+            let life_bar_actual = life_bar_total*life_remaining/100;
+            context.fillStyle='#00FF00';
+            context.fillRect((localCenter.x - (localSize.width / 2)),
+            (localCenter.y - localSize.height / 2) - (localSize.height/2),
+            life_bar_actual,
+            localSize.height/5);
+        }
+        else{
+            context.fillStyle="#000000";
+            context.fillRect((localCenter.x - (localSize.width / 2)),
+                (localCenter.y - localSize.height / 2) - (localSize.height/2),
+                localSize.width,
+                localSize.height/5);
+            
+        }
+
+        
+
+    };
 
     //------------------------------------------------------------------
     //
@@ -405,6 +447,7 @@ MyGame.graphics = (function() {
         drawMapPortion: drawMapPortion,
         drawFOV : drawFOV,
         drawImage: drawImage,
+        drawHealth: drawHealth,
         drawImageSpriteSheet: drawImageSpriteSheet,
         drawCircle: drawCircle,
         Circle: Circle,

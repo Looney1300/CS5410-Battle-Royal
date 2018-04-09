@@ -15,8 +15,8 @@ let mapFile = require('../shared/maps/SmallMap');
 let CryptoJS = require('crypto-js');
 let fs = require('fs');
 
-const SIMULATION_UPDATE_RATE_MS = 50;
-const STATE_UPDATE_RATE_MS = 20;
+const SIMULATION_UPDATE_RATE_MS = 5;
+const STATE_UPDATE_RATE_MS = 2;
 let lastUpdate = 0;
 let quit = false;
 let activeClients = {};

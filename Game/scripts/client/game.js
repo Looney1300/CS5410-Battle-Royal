@@ -264,8 +264,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
                     updatePlayerOther(message.data);
                     break;
                 case NetworkIds.MISSILE_NEW:
-                    console.log('My Score is: ', 
-                    playerSelf.model.score, ' My Life is at: ', playerSelf.model.life_remaining);
+                    //console.log('My Score is: ', 
+                    //playerSelf.model.score, ' My Life is at: ', playerSelf.model.life_remaining);
                     missileNew(message.data);
                     break;
                 case NetworkIds.MISSILE_HIT:
