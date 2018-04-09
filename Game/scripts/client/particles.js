@@ -267,7 +267,7 @@ MyGame.particleSystem.shotSmoke = function(location, direction){
         smokeDirection += 2*Math.PI;
     }
     let particleSpec = {
-        drawUsing: MyGame.graphics.Texture,
+        drawUsing: MyGame.graphics.Circle,
         x: location.x,
         y: location.y,
         particlesPerSec: 60,
