@@ -208,6 +208,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
         });
 
         particles.enemyEliminated(data.position);
+        particles.shieldSparks(data.position, .4, 1000);
 
         //
         // When we receive a hit notification, go ahead and remove the

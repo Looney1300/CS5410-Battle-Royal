@@ -151,7 +151,7 @@ MyGame.particleSystem = (function(graphics){
         return that;
     }
 
-    //UpdateParticles updates the particles and removes them when dead, and their corresponding graphics.
+    // UpdateParticles updates the particles and removes them when dead, and their corresponding graphics.
     function updateParticles(elapsedTime){
         //Loop through particles
         for (let particle = (particles.length-1); particle >= 0; --particle) {
@@ -192,10 +192,25 @@ MyGame.particleSystem = (function(graphics){
         }
     }
 
+    // This only clears the Active particle Effects, meaning all particles still alive will continue
+    //  but any effects that are generating new particles will cease to produce new particles.
+    function clearParticleEffects(){
+        activeParticleEffects.length = 0;
+    }
+
+    // Clears all particles, associated graphics, and effects.
+    function clearAll(){
+        activeParticleEffects.length = 0;
+        particleGraphics.length = 0;
+        particles.length = 0;
+    }
+
     return {
         ParticleEffect: ParticleEffect,
         update: updateParticles,
-        render: renderParticleSystem
+        render: renderParticleSystem,
+        clearEffects: clearParticleEffects,
+        clearAll: clearAll
     };
 
 }(MyGame.graphics));
@@ -238,21 +253,19 @@ MyGame.particleSystem.enemyEliminated = function(location){
         drawUsing: MyGame.graphics.Rectangle,
         x: location.x - .02,
         y: location.y - .02,
-        xMax: location.x + .02,
-        yMax: location.y + .02,
         particlesPerSec: 40,
         // imageSrc: 'bubble1b.png',
         fill: Color.red,
-        stroke: Color.brown,
+        // stroke: Color.red,
         lineWidth: 2,
         rotationMax: 1,
-        lifetime: {mean: 1500, std: 100},
-        speed: {mean: .02, std: .01},
-        size: {mean: .01, std: .001},
+        lifetime: {mean: 500, std: 100},
+        speed: {mean: .1, std: .02},
+        size: {mean: .005, std: .001},
         onTop: true,
         gravity: 0,
         disappear: true,
-        duration: 500,
+        duration: 250,
     }
 
     MyGame.particleSystem.ParticleEffect(particleSpec);
@@ -277,7 +290,7 @@ MyGame.particleSystem.shotSmoke = function(location, direction){
         lineWidth: 2,
         rotationMax: 1,
         lifetime: {mean: 300, std: 100},
-        speed: {mean: .1, std: 0},
+        speed: {mean: .1, std: .01},
         size: {mean: .005, std: .001},
         specifyDirection: {angle: smokeDirection, std: .5},
         onTop: true,
@@ -289,22 +302,24 @@ MyGame.particleSystem.shotSmoke = function(location, direction){
     MyGame.particleSystem.ParticleEffect(particleSpec);
 };
 
-MyGame.particleSystem.shieldSparks = function(center, radius){
-    SPARKSPERCIRCUMFRANCEUNIT = 2;
-    for (let i=0; i<radius*3.14159*SPARKSPERCIRCUMFRANCEUNIT; ++i){
-        let cvec = random.nextCircleVector(radius);
+MyGame.particleSystem.shieldSparks = function(center, radius, duration){
+    let SPARKSPERCIRCUMFRANCEUNIT = 500;
+    for (let i=0; i<radius*Math.PI*SPARKSPERCIRCUMFRANCEUNIT; ++i){
+        let cvec = nextCircleVector(radius);
         let particleSpec = {
-            drawUsing: MyGame.graphics.Rectangle,
+            drawUsing: MyGame.graphics.Texture,
             x: center.x + cvec.x,
             y: center.y + cvec.y,
-            particlesPerSec: 2,
-            // imageSrc: 'bubble1b.png',
-            fill: Color.blue,
-            rotationMax: 1,
-            lifetime: {mean: 200, std: 70},
-            speed: {mean: 400, std: 50},
-            size: {mean: 20, std: 1},
+            particlesPerSec: 1,
+            imageSrc: 'assets/spark.png',
+            rotationMax: 4,
+            lifetime: {mean: 500, std: 500},
+            speed: {mean: .03, std: .01},
+            size: {mean: .005, std: .001},
+            specifyDirection: {angle: Math.atan2(cvec.y, cvec.x) + Math.PI, std: .5},
             onTop: true,
+            gravity: 0,
+            // duration: duration,
         }
         MyGame.particleSystem.ParticleEffect(particleSpec);
     }
