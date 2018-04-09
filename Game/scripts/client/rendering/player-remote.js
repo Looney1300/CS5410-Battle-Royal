@@ -18,7 +18,7 @@ MyGame.renderer.PlayerRemote = (function(graphics) {
         graphics.drawImageSpriteSheet(sprite.spriteSheet,
             { width: sprite.pixelWidth, height: sprite.pixelHeight },
             sprite.sprite,
-            { x: sprite.center.x, y: sprite.center.y },
+            {x: model.state.position.x, y: model.state.position.y},
             { width: sprite.width, height: sprite.height });
         graphics.restoreContext();
     };

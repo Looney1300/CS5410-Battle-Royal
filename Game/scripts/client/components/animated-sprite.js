@@ -40,8 +40,14 @@ MyGame.components.AnimatedSprite = function(spec) {
 	});
 
 	Object.defineProperty(that, 'worldCordinates', {
-		get: () => worldCordinates
+		get: () => worldCordinates,
+		set: cords => {
+			worldCordinates.x = cords.x;
+			worldCordinates.y = cords.y;
+		},
 	});
+
+
 	//
 	// Initialize the animation of the spritesheet
 	spec.sprite = 0;		// Which sprite to start with
@@ -60,11 +66,8 @@ MyGame.components.AnimatedSprite = function(spec) {
 		spec.elapsedTime += elapsedTime;
 		spec.lifetime -= elapsedTime;
 
-
-
-
         let diffX = (Math.abs(viewPort.center.x - this.worldCordinates.x))/viewPort.width;
-        let diffY = (Math.abs(viewPort.center.y - this.worldCordinates.y))/viewPort.height;
+		let diffY = (Math.abs(viewPort.center.y - this.worldCordinates.y))/viewPort.height;
         if (this.worldCordinates.x < viewPort.center.x){
             this.printCenter.x = 0.5 - diffX;
         }
@@ -78,7 +81,7 @@ MyGame.components.AnimatedSprite = function(spec) {
             this.printCenter.y = 0.5 + diffY;
         }
 
-
+		console.log("print center",this.printCenter);
 
 
 

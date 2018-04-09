@@ -181,8 +181,8 @@ MyGame.graphics = (function() {
         // center is still the world coords.
         // center needs to be where the player can see.
         let localCenter = {
-            x: printCenter.x * canvas.width,
-            y: printCenter.y * canvas.width
+            x: printCenter.x * viewPort.width,
+            y: printCenter.y * viewPort.width
         };
         let localSize = {
             width: size.width * viewPort.width,
@@ -191,8 +191,8 @@ MyGame.graphics = (function() {
         context.drawImage(spriteSheet,
             sprite * spriteSize.width, 0,                 // which sprite to render
             spriteSize.width, spriteSize.height,    // size in the spritesheet
-            300,
-            300,
+            localCenter.x,
+            localCenter.y,
             localSize.width, localSize.height);
     }
 
