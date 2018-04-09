@@ -12,7 +12,7 @@ MyGame.screens['credits'] = (function() {
     }
   
     function run() {
-      console.log('credits is running');
+
     }
   
     return {

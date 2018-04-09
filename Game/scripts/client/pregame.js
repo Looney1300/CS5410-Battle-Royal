@@ -16,7 +16,6 @@ MyGame.pregame = (function(screens) {
 	function showScreen(id) {
 		let screen = 0;
 		let active = null;
-		//console.log('we are here with id: ', id);
 		//
 		// Remove the active state from all screens.  There should only be one...
 		active = document.getElementsByClassName('active');
@@ -47,8 +46,8 @@ MyGame.pregame = (function(screens) {
 		}
 		
 		//
-		// Make the main-menu screen the active one
-		showScreen('main-menu');
+		// Make the login screen the active one
+		showScreen('startup');
 	}
 
 	MyGame.main 

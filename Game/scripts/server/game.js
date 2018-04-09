@@ -10,9 +10,13 @@ let Player = require('./player');
 let Missile = require('./missile');
 let NetworkIds = require('../shared/network-ids');
 let Queue = require('../shared/queue.js');
+let mapLogic = require('../shared/map');
+let mapFile = require('../shared/maps/SmallMap');
+let CryptoJS = require('crypto-js');
+let fs = require('fs');
 
 const SIMULATION_UPDATE_RATE_MS = 50;
-const STATE_UPDATE_RATE_MS = 100;
+const STATE_UPDATE_RATE_MS = 20;
 let lastUpdate = 0;
 let quit = false;
 let activeClients = {};
@@ -21,6 +25,9 @@ let activeMissiles = [];
 let hits = [];
 let inputQueue = Queue.create();
 let nextMissileId = 1;
+let map = mapLogic.create();
+map.setMap(mapFile);
+let salt = 'xnBZngGg*+FhQz??V6FMjfd9G4m5w^z8P*6';
 
 //------------------------------------------------------------------
 //
@@ -31,9 +38,9 @@ function createMissile(clientId, playerModel) {
     let missile = Missile.create({
         id: nextMissileId++,
         clientId: clientId,
-        position: {
-            x: playerModel.position.x,
-            y: playerModel.position.y
+        worldCordinates: {
+            x: playerModel.worldCordinates.x,
+            y: playerModel.worldCordinates.y
         },
         direction: playerModel.direction,
         speed: playerModel.speed
@@ -60,8 +67,17 @@ function processInput(elapsedTime) {
         let client = activeClients[input.clientId];
         client.lastMessageId = input.message.id;
         switch (input.message.type) {
-            case NetworkIds.INPUT_MOVE:
-                client.player.move(input.message.elapsedTime);
+            case NetworkIds.INPUT_MOVE_UP:
+                client.player.moveUp(input.message.elapsedTime);
+                break;
+            case NetworkIds.INPUT_MOVE_LEFT:
+                client.player.moveLeft(input.message.elapsedTime);
+                break;
+            case NetworkIds.INPUT_MOVE_RIGHT:
+                client.player.moveRight(input.message.elapsedTime);
+                break;
+            case NetworkIds.INPUT_MOVE_DOWN:
+                client.player.moveDown(input.message.elapsedTime);
                 break;
             case NetworkIds.INPUT_ROTATE_LEFT:
                 client.player.rotateLeft(input.message.elapsedTime);
@@ -71,6 +87,9 @@ function processInput(elapsedTime) {
                 break;
             case NetworkIds.INPUT_FIRE:
                 createMissile(input.clientId, client.player);
+                break;
+            case NetworkIds.MOUSE_MOVE:
+                client.player.changeDirection(input.message.x, input.message.y, input.message.viewPort);
                 break;
         }
     }
@@ -83,8 +102,10 @@ function processInput(elapsedTime) {
 //
 //------------------------------------------------------------------
 function collided(obj1, obj2) {
-    let distance = Math.sqrt(Math.pow(obj1.position.x - obj2.position.x, 2) + Math.pow(obj1.position.y - obj2.position.y, 2));
-    let radii = obj1.radius + obj2.radius;
+    let distance = Math.sqrt(Math.pow(obj1.worldCordinates.x - obj2.worldCordinates.x, 2) 
+    + Math.pow(obj1.worldCordinates.y - obj2.worldCordinates.y, 2));
+    let radii = obj1.collision_radius + obj2.collision_radius;
+    //console.log('carnage is being detected -->',distance, ' sum:' ,radii);
 
     return distance <= radii;
 }
@@ -124,11 +145,14 @@ function update(elapsedTime, currentTime) {
             // Don't allow a missile to hit the player it was fired from.
             if (clientId !== activeMissiles[missile].clientId) {
                 if (collided(activeMissiles[missile], activeClients[clientId].player)) {
+                    // This is player who was hit.
+                    activeClients[clientId].player.wasHit();
+                    activeClients[activeMissiles[missile].clientId].player.scoredAHit();
                     hit = true;
                     hits.push({
                         clientId: clientId,
                         missileId: activeMissiles[missile].id,
-                        position: activeClients[clientId].player.position
+                        hit_location: activeClients[clientId].player.worldCordinates
                     });
                 }
             }
@@ -162,9 +186,9 @@ function updateClients(elapsedTime) {
         missileMessages.push({
             id: missile.id,
             direction: missile.direction,
-            position: {
-                x: missile.position.x,
-                y: missile.position.y
+            worldCordinates: {
+                x: missile.worldCordinates.x,
+                y: missile.worldCordinates.y
             },
             radius: missile.radius,
             speed: missile.speed,
@@ -185,7 +209,11 @@ function updateClients(elapsedTime) {
             clientId: clientId,
             lastMessageId: client.lastMessageId,
             direction: client.player.direction,
-            position: client.player.position,
+            worldCordinates: client.player.worldCordinates,
+            speed: client.player.speed,
+            score: client.player.score,
+            life_remaining: client.player.life_remaining,
+            is_alive: client.player.is_alive,
             updateWindow: lastUpdate
         };
         if (client.player.reportUpdate) {
@@ -270,7 +298,7 @@ function initializeSocketIO(httpServer) {
                 client.socket.emit(NetworkIds.CONNECT_OTHER, {
                     clientId: newPlayer.clientId,
                     direction: newPlayer.direction,
-                    position: newPlayer.position,
+                    worldCordinates: newPlayer.worldCordinates,
                     rotateRate: newPlayer.rotateRate,
                     speed: newPlayer.speed,
                     size: newPlayer.size
@@ -281,7 +309,7 @@ function initializeSocketIO(httpServer) {
                 socket.emit(NetworkIds.CONNECT_OTHER, {
                     clientId: client.player.clientId,
                     direction: client.player.direction,
-                    position: client.player.position,
+                    worldCordinates: client.player.worldCordinates,
                     rotateRate: client.player.rotateRate,
                     speed: client.player.speed,
                     size: client.player.size
@@ -313,7 +341,7 @@ function initializeSocketIO(httpServer) {
         console.log('Connection established: ', socket.id);
         //
         // Create an entry in our list of connected clients
-        let newPlayer = Player.create()
+        let newPlayer = Player.create(map);
         newPlayer.clientId = socket.id;
         activeClients[socket.id] = {
             socket: socket,
@@ -321,7 +349,7 @@ function initializeSocketIO(httpServer) {
         };
         socket.emit(NetworkIds.CONNECT_ACK, {
             direction: newPlayer.direction,
-            position: newPlayer.position,
+            worldCordinates: newPlayer.worldCordinates,
             size: newPlayer.size,
             rotateRate: newPlayer.rotateRate,
             speed: newPlayer.speed
@@ -402,7 +430,7 @@ function initializeSocketIO(httpServer) {
          });
 
          socket.on(NetworkIds.HIGH_SCORES, data => {
-            console.log("Got a high scores request from the user!");
+            //console.log("Got a high scores request from the user!");
             var fs = require('fs');
             var obj;
             fs.readFile('../Game/data/highscores.json', 'utf8', function (err, fileData) {
@@ -412,25 +440,29 @@ function initializeSocketIO(httpServer) {
             }
             socket.emit(NetworkIds.HIGH_SCORES,JSON.parse(fileData));
             });
-
          });
 
+         socket.on(NetworkIds.VALID_USER, data => {
+             //console.log("Got a login users request");
+             console.log(data.name,data.password);
+             if (validUser(data.name,data.password)){
+                socket.emit(NetworkIds.VALID_USER, null);
+             }
+             else{
+                 socket.emit(NetworkIds.INVALID_USER,null);
+             }
+         });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+         socket.on(NetworkIds.VALID_CREATE_USER, data => {
+             //console.log("Got a create users request");
+             if(validCreateUser(data.name,data.password)){
+                 socket.emit(NetworkIds.VALID_CREATE_USER,null);
+             }
+             else {
+                 socket.emit(NetworkIds.INVALID_CREATE_USER, null);
+             }
+         })
+         
 
 
 
@@ -448,6 +480,35 @@ function initializeSocketIO(httpServer) {
 function initialize(httpServer) {
     initializeSocketIO(httpServer);
     gameLoop(present(), 0);
+}
+
+function validUser(uName,uPassword){
+    var obj = JSON.parse(fs.readFileSync('../Game/data/users.json', 'utf8'));
+    for (var i = 0; i < obj.length; ++i){
+        console.log(CryptoJS.AES.decrypt(obj[i].password, salt).toString(CryptoJS.enc.Utf8));
+        if (obj[i].name == uName && CryptoJS.AES.decrypt(obj[i].password, salt).toString(CryptoJS.enc.Utf8) == uPassword){
+            return true;
+        }
+    }
+    return false;
+}
+
+function validCreateUser(uName,uPassword){ 
+    console.log('checking for valid create user');
+    var obj = JSON.parse(fs.readFileSync('../Game/data/users.json', 'utf8'));
+    for (var i = 0; i < obj.length; ++i){
+        if (obj[i].name == uName){
+            return false;
+        }
+    }
+
+    obj.push({
+        name: uName,
+        password: CryptoJS.AES.encrypt(uPassword,salt).toString()
+    });
+    fs.writeFileSync('../Game/data/users.json',JSON.stringify(obj));
+
+    return true;
 }
 
 //------------------------------------------------------------------

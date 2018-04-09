@@ -3,12 +3,12 @@ body {
 }
 
 #game {
-	margin: 2vh auto;
+	margin: 20px;
 	width: 95vw;
 	height: 95vh;
 	background-color: rgb(239,239,251);
 	font-size: 40px;
-	display: grid;
+	/* display: grid; */
 	grid-template-columns: 1fr 32fr 1fr;
 	grid-template-rows: 1fr 32fr 1fr;
 	grid-template-areas: "blank blank blank" 
@@ -21,10 +21,10 @@ body {
 	grid-area: center;
 }
 
-#canvas-main{
+/* #canvas-main{
 	width: 100%;
 	height: 100%;
-}
+} */
 
 #game .screen {
 	grid-area: center;
@@ -118,4 +118,25 @@ ul.menu li button:active {
 
 #highScoresTable th {
 	text-align: left;
+}
+
+
+#new-user-data{
+	text-align: center;
+	margin: 10px;
+	font-size: 40px;
+}
+
+input[type="text"], input[type="password"] {
+	font-size:40px;
+	margin: 10px;
+}
+
+label{
+	margin: 10px;
+}
+
+.logo {
+    display: block;
+    margin: 0 auto;
 }

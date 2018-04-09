@@ -12,6 +12,10 @@ MyGame.components.PlayerRemote = function() {
     };
     let state = {
         direction: 0,
+        worldCordinates: {
+            x: 0,
+            y: 0
+        },
         position: {
             x: 0,
             y: 0
@@ -19,7 +23,7 @@ MyGame.components.PlayerRemote = function() {
     };
     let goal = {
         direction: 0,
-        position: {
+        worldCordinates: {
             x: 0,
             y: 0
         },
@@ -44,18 +48,38 @@ MyGame.components.PlayerRemote = function() {
     // from the previous state to the goal (new) state.
     //
     //------------------------------------------------------------------
-    that.update = function(elapsedTime) {
+    that.update = function(elapsedTime, viewPort) {
         // Protect agains divide by 0 before the first update from the server has been given
-        if (goal.updateWindow === 0) return;
+        if (goal.updateWindow === 0) {
+            return;
+        }
 
         let updateFraction = elapsedTime / goal.updateWindow;
+
         if (updateFraction > 0) {
             //
-            // Turn first, then move.
+            // // update world cordinates.
             state.direction -= (state.direction - goal.direction) * updateFraction;
 
-            state.position.x -= (state.position.x - goal.position.x) * updateFraction;
-            state.position.y -= (state.position.y - goal.position.y) * updateFraction;
+            state.worldCordinates.x -= (state.worldCordinates.x - goal.worldCordinates.x) * updateFraction;
+            state.worldCordinates.y -= (state.worldCordinates.y - goal.worldCordinates.y) * updateFraction;
+
+            // figure out where to put them on screen in relation to viewport
+            let diffX = (Math.abs(viewPort.center.x - state.worldCordinates.x))/viewPort.width;
+            let diffY = (Math.abs(viewPort.center.y - state.worldCordinates.y))/viewPort.height;
+            if (state.worldCordinates.x < viewPort.center.x){
+                state.position.x = 0.5 - diffX;
+            }
+            else {
+                state.position.x = 0.5 + diffX;
+            }
+            if (state.worldCordinates.y < viewPort.center.y) {
+                state.position.y = 0.5 - diffY;
+            }
+            else {
+                state.position.y = 0.5 + diffY;
+            }
+
         }
     };
 

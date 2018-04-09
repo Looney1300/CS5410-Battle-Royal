@@ -20,6 +20,31 @@ function nextDouble() {
 
 // ------------------------------------------------------------------
 //
+// Get a valid x and y cordinate on the map
+//
+// ------------------------------------------------------------------ 
+function getRandomMapCords(map, rowLimit, colLimit){
+    let cords = {
+        x: Math.floor(Math.random() * colLimit),
+        y: Math.floor(Math.random() * rowLimit)
+    }
+    let tileRow, tileCol;
+    while(true){
+        tileCol = Math.floor(cords.x / map.tileWidth);
+        tileRow = Math.floor(cords.y / map.tileHeight);
+        if (map.map[tileRow][tileCol] == 1){
+            return cords;
+        }
+        cords = {
+            x: Math.floor(Math.random() * colLimit),
+            y: Math.floor(Math.random() * rowLimit)
+        }
+    }
+    return Math.floor(Math.random() * limit);
+}
+
+// ------------------------------------------------------------------
+//
 // Generate a uniformly selected random 'integer' within the range [min, max].
 //
 // ------------------------------------------------------------------
@@ -114,3 +139,4 @@ module.exports.nextRangeFloat = nextRangeFloat;
 module.exports.nextCircleVector = nextCircleVector;
 module.exports.nextGaussian = nextGaussian;
 module.exports.nextCircleVectorAround = nextCircleVectorAround;
+module.exports.getRandomMapCords = getRandomMapCords;

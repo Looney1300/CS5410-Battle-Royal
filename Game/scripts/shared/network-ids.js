@@ -20,6 +20,22 @@
             value: 'move',
             writable: false
         },
+        'INPUT_MOVE_UP': {
+            value: 'move-up',
+            writable: false
+        },
+        'INPUT_MOVE_LEFT': {
+            value: 'move-left',
+            writable: false
+        },
+        'INPUT_MOVE_RIGHT': {
+            value: 'move-right',
+            writable: false
+        },
+        'INPUT_MOVE_DOWN': {
+            value: 'move-down',
+            writable: false
+        },
         'INPUT_ROTATE_LEFT': {
             value: 'rotate-left',
             writable: false
@@ -30,6 +46,10 @@
         },
         'INPUT_FIRE': {
             value: 'fire',
+            writable: false
+        },
+        'MOUSE_MOVE': {
+            value: 'mouse-move',
             writable: false
         },
         'CONNECT_ACK': {
@@ -64,6 +84,23 @@
             value: 'high-scores',
             writeable: false
         },
+        'VALID_USER' : {
+            value: 'valid-user',
+            writable: false
+        },
+        'INVALID_USER' : {
+            value: 'invalid-user',
+            writable: false
+        },
+        'INVALID_CREATE_USER' : {
+            value: 'invalid-create-user',
+            writeable: false
+        },
+        'VALID_CREATE_USER' : {
+            value: 'valid-create-user',
+            writable: false
+        },
+        
     });
 
 })(typeof exports === 'undefined' ? this['NetworkIds'] = {} : exports);
