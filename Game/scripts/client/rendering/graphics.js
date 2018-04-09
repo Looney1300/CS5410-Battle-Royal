@@ -136,6 +136,22 @@ MyGame.graphics = (function() {
 
     //------------------------------------------------------------------
     //
+    // Draw the field of view for the playerSelf
+    //
+    //------------------------------------------------------------------
+    function drawFOV(fov) {
+        context.beginPath();
+        context.moveTo(fov.center.x * viewPort.width, fov.center.y * viewPort.height);
+        context.lineTo(fov.center.x * viewPort.width + (fov.length * Math.cos(fov.direction - fov.width)), fov.center.y * viewPort.height + (fov.length * Math.sin(fov.direction - fov.width)));
+        context.lineTo(fov.center.x * viewPort.width + (fov.length * Math.cos(fov.direction + fov.width)), fov.center.y * viewPort.height + (fov.length * Math.sin(fov.direction + fov.width)));
+        context.closePath();
+        context.lineWidth = 2;
+        context.strokeStyle = '#666666';
+        context.stroke();
+    }
+
+    //------------------------------------------------------------------
+    //
     // Draw an image into the local canvas coordinate system.
     //
     //------------------------------------------------------------------
@@ -387,6 +403,7 @@ MyGame.graphics = (function() {
         restoreContext: restoreContext,
         rotateCanvas: rotateCanvas,
         drawMapPortion: drawMapPortion,
+        drawFOV : drawFOV,
         drawImage: drawImage,
         drawImageSpriteSheet: drawImageSpriteSheet,
         drawCircle: drawCircle,

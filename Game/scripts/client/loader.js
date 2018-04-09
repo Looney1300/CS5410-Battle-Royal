@@ -51,7 +51,7 @@ MyGame.loader = (function() {
             onComplete: null
         }, 
         {
-            scripts: ['components/player', 'components/player-remote', 'components/missile', 'components/animated-sprite', 'components/view-portal'],
+            scripts: ['components/player', 'components/player-remote', 'components/missile', 'components/animated-sprite', 'components/view-portal', 'components/fov'],
             message: 'Player models loaded',
             onComplete: null
         }, 
@@ -61,7 +61,7 @@ MyGame.loader = (function() {
             onComplete: null
         }, 
         {
-            scripts: ['rendering/player', 'rendering/player-remote', 'rendering/missile', 'rendering/animated-sprite', 'rendering/view-portal'],
+            scripts: ['rendering/player', 'rendering/player-remote', 'rendering/missile', 'rendering/animated-sprite', 'rendering/view-portal', 'rendering/fov'],
             message: 'Renderers loaded',
             onComplete: null
         }, 

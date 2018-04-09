@@ -104,35 +104,40 @@ function createPlayer(mapLogic) {
 
     };
 
+    that.changeDirection = function(x, y, viewPort) {
+        reportUpdate = true;
+        direction = Math.atan2(y - this.worldCordinates.y, x - this.worldCordinates.x);
+    };
+
     that.moveUp = function(elapsedTime) {
         reportUpdate = true;
         let move = speed * elapsedTime;
-        if (map.isValid(worldCordinates.y - move, worldCordinates.x)){
-            worldCordinates.y -= move;
+        if (map.isValid(this.worldCordinates.y - move, this.worldCordinates.x)){
+            this.worldCordinates.y -= move;
         }
     };
 
     that.moveDown = function(elapsedTime) {
         reportUpdate = true;
         let move = speed * elapsedTime;
-        if (map.isValid(worldCordinates.y + move, worldCordinates.x)){
-            worldCordinates.y += move;
+        if (map.isValid(this.worldCordinates.y + move, this.worldCordinates.x)){
+            this.worldCordinates.y += move;
         }
     };
 
     that.moveLeft = function(elapsedTime) {
         reportUpdate = true;
         let move = speed * elapsedTime;
-        if (map.isValid(worldCordinates.y, worldCordinates.x - move)){
-            worldCordinates.x -= move;
+        if (map.isValid(this.worldCordinates.y, this.worldCordinates.x - move)){
+            this.worldCordinates.x -= move;
         }
     };
 
     that.moveRight = function(elapsedTime) {
         reportUpdate = true;
         let move = speed * elapsedTime;
-        if (map.isValid(worldCordinates.y, worldCordinates.x + move)){
-            worldCordinates.x += move;
+        if (map.isValid(this.worldCordinates.y, this.worldCordinates.x + move)){
+            this.worldCordinates.x += move;
         }
     };
 

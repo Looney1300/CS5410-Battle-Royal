@@ -88,6 +88,9 @@ function processInput(elapsedTime) {
             case NetworkIds.INPUT_FIRE:
                 createMissile(input.clientId, client.player);
                 break;
+            case NetworkIds.MOUSE_MOVE:
+                client.player.changeDirection(input.message.x, input.message.y, input.message.viewPort);
+                break;
         }
     }
 }
