@@ -31,6 +31,17 @@ function nextRange(min, max) {
 
 // ------------------------------------------------------------------
 //
+// Generate a uniformly selected random floats within the range [min, max].
+//
+// ------------------------------------------------------------------
+function nextRangeFloat(min, max) {
+    let range = max - min;
+
+    return (Math.random() * range) + min;
+}
+
+// ------------------------------------------------------------------
+//
 // Generate a uniformly selected vector (x,y) around the circumference of a
 // unit circle.
 //
@@ -99,6 +110,7 @@ function nextCircleVectorAround(scale, angle, deviation) {
 
 module.exports.nextDouble = nextDouble;
 module.exports.nextRange = nextRange;
+module.exports.nextRangeFloat = nextRangeFloat;
 module.exports.nextCircleVector = nextCircleVector;
 module.exports.nextGaussian = nextGaussian;
 module.exports.nextCircleVectorAround = nextCircleVectorAround;

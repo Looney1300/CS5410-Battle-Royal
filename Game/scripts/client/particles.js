@@ -133,9 +133,11 @@ MyGame.particleSystem = (function(graphics){
                     p.imageSrc = spec.imageSrc;
                 }
                 if (hasXMax && hasYMax){
-                    p.position = { x: nextRange(spec.x, spec.xMax), y: nextRange(spec.y, spec.yMax)};
+                    p.position = { x: nextRangeFloat(spec.x, spec.xMax), y: nextRangeFloat(spec.y, spec.yMax)};
+                    console.log(p.position);
                 }else{
                     p.position = {x: spec.x, y: spec.y};
+                    console.log(p.position);
                 }
                 let index = Math.random()*100000 % particles.length;
                 if (hasOnTop){
@@ -213,8 +215,8 @@ MyGame.particleSystem.clientEliminated = function(location){
         drawUsing: MyGame.graphics.Rectangle,
         x: location.x,
         y: location.y,
-        xMax: location.x + 10,
-        yMax: location.y + 10,
+        xMax: location.x + .01,
+        yMax: location.y + .01,
         particlesPerSec: 20,
         // imageSrc: 'bubble1b.png',
         fill: Color.green,
@@ -225,6 +227,7 @@ MyGame.particleSystem.clientEliminated = function(location){
         speed: {mean: 200, std: 10},
         size: {mean: 50, std: 1},
         onTop: true,
+        gravity: 0,
         disappear: true,
         duration: 1500,
     }
@@ -235,22 +238,23 @@ MyGame.particleSystem.clientEliminated = function(location){
 MyGame.particleSystem.enemyEliminated = function(location){
     let particleSpec = {
         drawUsing: MyGame.graphics.Rectangle,
-        x: location.x,
-        y: location.y,
-        xMax: location.x + 10,
-        yMax: location.y + 10,
-        particlesPerSec: 20,
+        x: location.x - .02,
+        y: location.y - .02,
+        xMax: location.x + .02,
+        yMax: location.y + .02,
+        particlesPerSec: 40,
         // imageSrc: 'bubble1b.png',
         fill: Color.red,
         stroke: Color.brown,
         lineWidth: 2,
         rotationMax: 1,
-        lifetime: {mean: 500, std: 100},
-        speed: {mean: 200, std: 10},
-        size: {mean: 50, std: 1},
+        lifetime: {mean: 1500, std: 100},
+        speed: {mean: .02, std: .01},
+        size: {mean: .01, std: .001},
         onTop: true,
-        disappear: true,
-        duration: 1500,
+        gravity: 0,
+        // disappear: true,
+        duration: 500,
     }
 
     MyGame.particleSystem.ParticleEffect(particleSpec);

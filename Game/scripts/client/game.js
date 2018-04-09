@@ -207,6 +207,8 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
             spriteTime: [ 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
         });
 
+        particles.enemyEliminated(data.position);
+
         //
         // When we receive a hit notification, go ahead and remove the
         // associated missle from the client model.
@@ -296,17 +298,17 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
     function render() {
         graphics.clear();
         
-        particles.render();
         renderer.Player.render(playerSelf.model, playerSelf.texture);
         for (let id in playerOthers) {
             let player = playerOthers[id];
             renderer.PlayerRemote.render(player.model, player.texture);
         }
-
+        
         for (let missile in missiles) {
             renderer.Missile.render(missiles[missile]);
         }
-
+        
+        particles.render();
         for (let id in explosions) {
             renderer.AnimatedSprite.render(explosions[id]);
         }
