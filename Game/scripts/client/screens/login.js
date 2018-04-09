@@ -48,7 +48,9 @@ MyGame.screens['login'] = (function() {
 		clearFields();
 		//this is just temporary to make logging in faster.
 		var name = document.getElementById('userName');
-        var password = document.getElementById('userPassword');
+		var password = document.getElementById('userPassword');
+		name.value = "Testy";
+		password.value = "Testing1";
 	}
 
 	return {
