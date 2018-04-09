@@ -24,16 +24,35 @@ function createPlayer(mapLogic) {
 
     let worldCordinates = random.getRandomMapCords(map, map.mapHeight, map.mapWidth);
 
+
+    let score = 0;
+    let is_alive = true;
+    let life_remaining = 100;
+
+
     let size = {
         width: 0.01,
         height: 0.01,
         radius: 0.02
     };
+    let collision_radius = 15;
     let direction = random.nextDouble() * 2 * Math.PI;    // Angle in radians
     let rotateRate = Math.PI / 1000;    // radians per millisecond
     let speed = 0.2;                  // unit distance per millisecond
     let reportUpdate = false;    // Indicates if this model was updated during the last update
     let moveRate = 200;
+
+    Object.defineProperty(that, 'score', {
+        get: () => score
+    });
+
+    Object.defineProperty(that, 'is_alive', {
+        get: () => is_alive
+    });
+
+    Object.defineProperty(that, 'life_remaining', {
+        get: () => life_remaining
+    });
 
     Object.defineProperty(that, 'direction', {
         get: () => direction
@@ -64,6 +83,10 @@ function createPlayer(mapLogic) {
         get: () => size.radius
     });
 
+    Object.defineProperty(that, 'collision_radius', {
+        get: () => collision_radius
+    });
+
     Object.defineProperty(that, 'worldCordinates', {
         get: () => worldCordinates
     });
@@ -81,38 +104,60 @@ function createPlayer(mapLogic) {
 
     };
 
+    that.changeDirection = function(x, y, viewPort) {
+        reportUpdate = true;
+        direction = Math.atan2(y - this.worldCordinates.y, x - this.worldCordinates.x);
+    };
+
     that.moveUp = function(elapsedTime) {
         reportUpdate = true;
         let move = speed * elapsedTime;
-        if (map.isValid(worldCordinates.y - move, worldCordinates.x)){
-            worldCordinates.y -= move;
+        if (map.isValid(this.worldCordinates.y - move, this.worldCordinates.x)){
+            this.worldCordinates.y -= move;
         }
     };
 
     that.moveDown = function(elapsedTime) {
         reportUpdate = true;
         let move = speed * elapsedTime;
-        if (map.isValid(worldCordinates.y + move, worldCordinates.x)){
-            worldCordinates.y += move;
+        if (map.isValid(this.worldCordinates.y + move, this.worldCordinates.x)){
+            this.worldCordinates.y += move;
         }
     };
 
     that.moveLeft = function(elapsedTime) {
         reportUpdate = true;
         let move = speed * elapsedTime;
-        if (map.isValid(worldCordinates.y, worldCordinates.x - move)){
-            worldCordinates.x -= move;
+        if (map.isValid(this.worldCordinates.y, this.worldCordinates.x - move)){
+            this.worldCordinates.x -= move;
         }
     };
 
     that.moveRight = function(elapsedTime) {
         reportUpdate = true;
         let move = speed * elapsedTime;
-        if (map.isValid(worldCordinates.y, worldCordinates.x + move)){
-            worldCordinates.x += move;
+        if (map.isValid(this.worldCordinates.y, this.worldCordinates.x + move)){
+            this.worldCordinates.x += move;
         }
     };
 
+    that.scoredAHit = function(){
+        reportUpdate = true;
+        score += 1;
+
+    };
+
+    that.wasHit = function(){
+        reportUpdate = true;
+        life_remaining -= 10;
+        if(life_remaining <= 0){
+            is_alive = false;
+        }
+        if(!is_alive){
+            console.log('I am dead!');
+        }
+
+    };
     
 
     //------------------------------------------------------------------

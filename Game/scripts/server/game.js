@@ -38,9 +38,9 @@ function createMissile(clientId, playerModel) {
     let missile = Missile.create({
         id: nextMissileId++,
         clientId: clientId,
-        position: {
-            x: playerModel.position.x,
-            y: playerModel.position.y
+        worldCordinates: {
+            x: playerModel.worldCordinates.x,
+            y: playerModel.worldCordinates.y
         },
         direction: playerModel.direction,
         speed: playerModel.speed
@@ -88,6 +88,9 @@ function processInput(elapsedTime) {
             case NetworkIds.INPUT_FIRE:
                 createMissile(input.clientId, client.player);
                 break;
+            case NetworkIds.MOUSE_MOVE:
+                client.player.changeDirection(input.message.x, input.message.y, input.message.viewPort);
+                break;
         }
     }
 }
@@ -99,8 +102,10 @@ function processInput(elapsedTime) {
 //
 //------------------------------------------------------------------
 function collided(obj1, obj2) {
-    let distance = Math.sqrt(Math.pow(obj1.position.x - obj2.position.x, 2) + Math.pow(obj1.position.y - obj2.position.y, 2));
-    let radii = obj1.radius + obj2.radius;
+    let distance = Math.sqrt(Math.pow(obj1.worldCordinates.x - obj2.worldCordinates.x, 2) 
+    + Math.pow(obj1.worldCordinates.y - obj2.worldCordinates.y, 2));
+    let radii = obj1.collision_radius + obj2.collision_radius;
+    //console.log('carnage is being detected -->',distance, ' sum:' ,radii);
 
     return distance <= radii;
 }
@@ -140,11 +145,14 @@ function update(elapsedTime, currentTime) {
             // Don't allow a missile to hit the player it was fired from.
             if (clientId !== activeMissiles[missile].clientId) {
                 if (collided(activeMissiles[missile], activeClients[clientId].player)) {
+                    // This is player who was hit.
+                    activeClients[clientId].player.wasHit();
+                    activeClients[activeMissiles[missile].clientId].player.scoredAHit();
                     hit = true;
                     hits.push({
                         clientId: clientId,
                         missileId: activeMissiles[missile].id,
-                        //position: activeClients[clientId].player.position
+                        hit_location: activeClients[clientId].player.worldCordinates
                     });
                 }
             }
@@ -178,9 +186,9 @@ function updateClients(elapsedTime) {
         missileMessages.push({
             id: missile.id,
             direction: missile.direction,
-            position: {
-                x: missile.position.x,
-                y: missile.position.y
+            worldCordinates: {
+                x: missile.worldCordinates.x,
+                y: missile.worldCordinates.y
             },
             radius: missile.radius,
             speed: missile.speed,
@@ -203,6 +211,9 @@ function updateClients(elapsedTime) {
             direction: client.player.direction,
             worldCordinates: client.player.worldCordinates,
             speed: client.player.speed,
+            score: client.player.score,
+            life_remaining: client.player.life_remaining,
+            is_alive: client.player.is_alive,
             updateWindow: lastUpdate
         };
         if (client.player.reportUpdate) {
@@ -419,7 +430,7 @@ function initializeSocketIO(httpServer) {
          });
 
          socket.on(NetworkIds.HIGH_SCORES, data => {
-            console.log("Got a high scores request from the user!");
+            //console.log("Got a high scores request from the user!");
             var fs = require('fs');
             var obj;
             fs.readFile('../Game/data/highscores.json', 'utf8', function (err, fileData) {
@@ -432,7 +443,7 @@ function initializeSocketIO(httpServer) {
          });
 
          socket.on(NetworkIds.VALID_USER, data => {
-             console.log("Got a login users request");
+             //console.log("Got a login users request");
              console.log(data.name,data.password);
              if (validUser(data.name,data.password)){
                 socket.emit(NetworkIds.VALID_USER, null);
@@ -443,7 +454,7 @@ function initializeSocketIO(httpServer) {
          });
 
          socket.on(NetworkIds.VALID_CREATE_USER, data => {
-             console.log("Got a create users request");
+             //console.log("Got a create users request");
              if(validCreateUser(data.name,data.password)){
                  socket.emit(NetworkIds.VALID_CREATE_USER,null);
              }
