@@ -161,6 +161,14 @@ MyGame.loader = (function() {
         {
             key: 'explosion',
             source: 'assets/explosion.png'
+        },
+        {
+            key: 'blood',
+            source: 'assets/blood.png'
+        },
+        {
+            key: 'bloodsplosion',
+            source: 'assets/bloodsplosion.png'
         }
     ];
 

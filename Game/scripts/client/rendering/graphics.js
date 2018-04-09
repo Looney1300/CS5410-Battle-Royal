@@ -225,15 +225,25 @@ MyGame.graphics = (function() {
     //------------------------------------------------------------------
     function Circle(spec){
         let that = {};
+        let hasFillStyle = spec.hasOwnProperty('fillStyle');
+        let hasLineWidth = spec.hasOwnProperty('lineWidth');
+        let hasStrokeStyle = spec.hasOwnProperty('strokeStyle');
+
         that.draw = function(){
             context.beginPath();
             context.arc(spec.x * canvas.width, spec.y * canvas.width, spec.width/2 * canvas.width, 2 * Math.PI, false);
             context.closePath();
-            context.strokeStyle = spec.strokeStyle;
-            context.lineWidth = spec.lineWidth;
-            context.stroke();
-            context.fillStyle = spec.fillStyle;
-            context.fill();
+            if (hasLineWidth){
+                context.lineWidth = spec.lineWidth;
+            }
+            if (hasStrokeStyle){
+                context.strokeStyle = spec.strokeStyle;
+                context.stroke();
+            }
+            if (hasFillStyle){
+                context.fillStyle = spec.fillStyle;
+                context.fill();
+            }
         }
         return that;
     }

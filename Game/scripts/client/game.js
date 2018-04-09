@@ -220,11 +220,11 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
         // data is the hits array
         explosions[nextExplosionId] = components.AnimatedSprite({
             id: nextExplosionId++,
-            spriteSheet: MyGame.assets['explosion'],
-            spriteSize: { width: 0.07, height: 0.07 },
+            spriteSheet: MyGame.assets['bloodsplosion'],
+            spriteSize: { width: 0.04, height: 0.04 },
             spriteCenter: data.hit_location,
-            spriteCount: 16,
-            spriteTime: [ 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
+            spriteCount: 6,
+            spriteTime: [ 125, 100, 75, 75, 75, 3000]
         });
 
         // Update to have the explosion compute its position, but with 

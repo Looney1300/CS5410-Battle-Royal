@@ -251,21 +251,21 @@ MyGame.particleSystem.clientEliminated = function(location){
 MyGame.particleSystem.enemyEliminated = function(location){
     let particleSpec = {
         drawUsing: MyGame.graphics.Circle,
-        x: location.x - .02,
-        y: location.y - .02,
-        particlesPerSec: 40,
+        x: location.x,
+        y: location.y,
+        particlesPerSec: 100,
         // imageSrc: 'bubble1b.png',
-        fill: Color.red,
+        fill: Color.addAlpha(Color.red, .4),
         // stroke: Color.red,
-        lineWidth: 2,
+        lineWidth: 0,
         rotationMax: 1,
         lifetime: {mean: 500, std: 100},
-        speed: {mean: .1, std: .02},
-        size: {mean: .005, std: .001},
+        speed: {mean: .02, std: .001},
+        size: {mean: .003, std: .0005},
         onTop: true,
         gravity: 0,
         disappear: true,
-        duration: 250,
+        duration: 150,
     }
 
     MyGame.particleSystem.ParticleEffect(particleSpec);
