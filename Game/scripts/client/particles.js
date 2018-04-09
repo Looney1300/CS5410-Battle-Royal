@@ -134,10 +134,8 @@ MyGame.particleSystem = (function(graphics){
                 }
                 if (hasXMax && hasYMax){
                     p.position = { x: nextRangeFloat(spec.x, spec.xMax), y: nextRangeFloat(spec.y, spec.yMax)};
-                    console.log(p.position);
                 }else{
                     p.position = {x: spec.x, y: spec.y};
-                    console.log(p.position);
                 }
                 let index = Math.random()*100000 % particles.length;
                 if (hasOnTop){
@@ -213,23 +211,23 @@ MyGame.particleSystem = (function(graphics){
 MyGame.particleSystem.clientEliminated = function(location){
     let particleSpec = {
         drawUsing: MyGame.graphics.Rectangle,
-        x: location.x,
-        y: location.y,
-        xMax: location.x + .01,
-        yMax: location.y + .01,
-        particlesPerSec: 20,
+        x: location.x - .02,
+        y: location.y - .02,
+        xMax: location.x + .02,
+        yMax: location.y + .02,
+        particlesPerSec: 40,
         // imageSrc: 'bubble1b.png',
         fill: Color.green,
         stroke: Color.brown,
         lineWidth: 2,
         rotationMax: 1,
-        lifetime: {mean: 500, std: 100},
-        speed: {mean: 200, std: 10},
-        size: {mean: 50, std: 1},
+        lifetime: {mean: 1500, std: 100},
+        speed: {mean: .02, std: .01},
+        size: {mean: .01, std: .001},
         onTop: true,
         gravity: 0,
         disappear: true,
-        duration: 1500,
+        duration: 500,
     }
 
     MyGame.particleSystem.ParticleEffect(particleSpec);
@@ -253,7 +251,7 @@ MyGame.particleSystem.enemyEliminated = function(location){
         size: {mean: .01, std: .001},
         onTop: true,
         gravity: 0,
-        // disappear: true,
+        disappear: true,
         duration: 500,
     }
 
@@ -268,12 +266,13 @@ MyGame.particleSystem.shotSmoke = function(location, direction){
     while (smokeDirection < -2*Math.PI){
         smokeDirection += 2*Math.PI;
     }
+    console.log(MyGame.assets['explosion']);
     let particleSpec = {
-        drawUsing: MyGame.graphics.Rectangle,
+        drawUsing: MyGame.graphics.Texture,
         x: location.x,
         y: location.y,
         particlesPerSec: 60,
-        // imageSrc: 'bubble1b.png',
+        // imageSrc: 'assets/USU-Logo.png',
         fill: Color.grey,
         stroke: Color.grey,
         lineWidth: 2,
@@ -310,4 +309,29 @@ MyGame.particleSystem.shieldSparks = function(center, radius){
         }
         MyGame.particleSystem.ParticleEffect(particleSpec);
     }
+};
+
+MyGame.particleSystem.buildingHit = function(location){
+    let particleSpec = {
+        drawUsing: MyGame.graphics.Rectangle,
+        x: location.x - .02,
+        y: location.y - .02,
+        xMax: location.x + .02,
+        yMax: location.y + .02,
+        particlesPerSec: 40,
+        // imageSrc: 'bubble1b.png',
+        fill: Color.green,
+        stroke: Color.brown,
+        lineWidth: 2,
+        rotationMax: 1,
+        lifetime: {mean: 1500, std: 100},
+        speed: {mean: .02, std: .01},
+        size: {mean: .01, std: .001},
+        onTop: true,
+        gravity: 0,
+        disappear: true,
+        duration: 500,
+    }
+
+    MyGame.particleSystem.ParticleEffect(particleSpec);
 };

@@ -118,12 +118,13 @@ MyGame.graphics = (function() {
         context.fill();
     }
 
+    // Circle, Rectangle, and Texture, are made for use by particleSystem.
     //------------------------------------------------------------------
     /*
     Circle expects a spec with
-        center.x
-        center.y
-        radius
+        x
+        y
+        width
         fillStyle
         strokeStyle
         lineWidth
@@ -133,9 +134,10 @@ MyGame.graphics = (function() {
         let that = {};
         that.draw = function(){
             context.beginPath();
-            context.arc(spec.centerX * canvas.width, spec.centerY * canvas.width, spec.radius * canvas.width, 2 * Math.PI, false);
+            context.arc(spec.x * canvas.width, spec.y * canvas.width, spec.width/2 * canvas.width, 2 * Math.PI, false);
             context.closePath();
             context.strokeStyle = spec.strokeStyle;
+            context.lineWidth = spec.lineWidth;
             context.stroke();
             context.fillStyle = spec.fillStyle;
             context.fill();
@@ -198,8 +200,8 @@ MyGame.graphics = (function() {
     Texture function passed spec property expects
       spec.imageSrc
       spec.rotation
-      spec.center.x
-      spec.center.y
+      spec.x
+      spec.y
       spec.width
       spec.height
     Texture function 'has' the following properties
