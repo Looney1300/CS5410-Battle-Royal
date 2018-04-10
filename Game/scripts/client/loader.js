@@ -111,18 +111,11 @@ MyGame.loader = (function() {
             message: 'about screen loaded',
             onComplete: null,
         },
-        // ---------------- Options/Help -----------------
-        {
-            scripts: ['./input/miniCanvas'],
-            message: 'input renderer loaded',
-            onComplete: null,
-        },
         {
             scripts: ['./screens/options'],
             message: 'options screen loaded',
             onComplete: null,
         },
-        // -----------------------------------------------
         {
             scripts: ['./screens/high-scores'],
             message: 'high score screen loaded',

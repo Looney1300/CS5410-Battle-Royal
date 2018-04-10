@@ -95,28 +95,55 @@
 		</div>
 
 		<div id = "options" class = "screen">
-			<h1>Help</h1>
-			<canvas id="canvas-keybindings" width="500" height="400" style="width: 50%; height:40%; float: right;"></canvas>
+			<h1>Options</h1>
 			<p>Use the mouse to aim and click to fire</p>
 			<div class="keybinding">
 				<table>
 					<tr>
-						<th></th>
-						<th><button class="binding-buttons" id="moveUp">W</button></th>
-						<th></th>
-						<th></th>
-						<th><button class="binding-buttons" id="extendFOV">Q</button></th>
-						<th><button class="binding-buttons" id="shortenFOV">E</button></th>
+						<td></td>
+						<td></td>
+						<td>Up</td>
+						<td></td>
+						<td></td>
+						<th colspan="5">Field of View</th>
 					</tr>
 					<tr>
-						<th><button class="binding-buttons" id="moveLeft">A</button></th>
-						<th><button class="binding-buttons" id="moveDown">S</button></th>
-						<th><button class="binding-buttons" id="moveRight">D</button></th>
+						<td></td>
+						<td></td>
+						<td><button class="binding-buttons" id="moveUp">W</button></td>
+						<td></td>
+						<td>&nbsp;</td>
+						<td>Extend</td>
+						<td><button class="binding-buttons" id="extendFOV">Q</button></td>
+						<td></td>
+						<td>Widen</td>
+						<td><button class="binding-buttons" id="shortenFOV">E</button></td>
+					</tr>
+					<tr>
+						<td>Left</td>
+						<td><button class="binding-buttons" id="moveLeft">A</button></td>
+						<td><button class="binding-buttons" id="moveDown">S</button></td>
+						<td><button class="binding-buttons" id="moveRight">D</button></td>
+						<td>Right</td>
+					</tr>
+					<tr>
+						<td></td>
+						<td></td>
+						<td>Down</td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
 					</tr>
 				</table>
-				<button class="binding-buttons" id="rapidFire">SPACE</button>
+				<table>
+					<tr>
+						<td>Rapid Fire</td>
+						<td><button class="binding-buttons" id="rapidFire">SPACE</button></td>
+					</tr>
+				</table>
 			</div>
-			<p>Press esc to leave game</p>
+			<p>¿ Press esc to leave game ?</p>
+			<h5>Click a button and press a key to customize key mapping.</h3>			
 			<ul class = "menu">
 				<li><button id = "id-options-back">Back</button></li>
 			</ul>
