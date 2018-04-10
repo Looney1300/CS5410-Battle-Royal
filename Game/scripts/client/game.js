@@ -371,7 +371,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 messageHistory.enqueue(message);
                 playerSelf.model.moveUp(elapsedTime);
             },
-            MyGame.input.KeyEvent.moveUp, true);
+            input.KeyEvent.moveUp, true);
 
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
@@ -383,7 +383,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 messageHistory.enqueue(message);
                 playerSelf.model.moveRight(elapsedTime);
             },
-            MyGame.input.KeyEvent.moveRight, true);
+            input.KeyEvent.moveRight, true);
 
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
@@ -395,7 +395,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 messageHistory.enqueue(message);
                 playerSelf.model.moveLeft(elapsedTime);
             },
-            MyGame.input.KeyEvent.moveLeft, true);
+            input.KeyEvent.moveLeft, true);
 
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
@@ -407,7 +407,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 messageHistory.enqueue(message);
                 playerSelf.model.moveDown(elapsedTime);
             },
-            MyGame.input.KeyEvent.moveDown, true);
+            input.KeyEvent.moveDown, true);
 
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
@@ -417,7 +417,21 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 };
                 socket.emit(NetworkIds.INPUT, message);
             },
-            MyGame.input.KeyEvent.fire, false);
+            input.KeyEvent.rapidFire, true, 100);
+
+        myKeyboard.registerHandler(fov.widen, input.KeyEvent.shortenFOV, true);
+        myKeyboard.registerHandler(fov.thin, input.KeyEvent.extendFOV, true);
+        //TODO: are we letting the user exit anytime during the game?
+        myKeyboard.registerHandler(function(){console.log('exit game')}, input.KeyEvent.DOM_VK_ESCAPE, true);
+
+        myMouse.registerHandler('mousedown', elapsedTime => {
+                let message = {
+                    id: messageId++,
+                    elapsedTime: elapsedTime,
+                    type: NetworkIds.INPUT_FIRE
+                };
+                socket.emit(NetworkIds.INPUT, message);
+            });
 
         myMouse.registerHandler('mousemove', function(e) {
             let mouseWC = playerSelf.model.worldCordinatesFromMouse(e.clientX - 20, e.clientY - 20, viewPort);

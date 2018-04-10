@@ -58,7 +58,6 @@ MyGame.screens['options'] = (function(graphics, input) {
       //TODO: firing
       myMouse.registerHandler('mousedown', function(e){
           console.log('clicked');
-          
       });
 
       //This is for changing the background back of the keybinding buttons.
@@ -76,12 +75,16 @@ MyGame.screens['options'] = (function(graphics, input) {
       myKeyboard.registerHandler(myTexture.moveRight, input.KeyEvent.DOM_VK_D, true);
       myKeyboard.registerHandler(myfov.widen, input.KeyEvent.DOM_VK_E, true);
       myKeyboard.registerHandler(myfov.thin, input.KeyEvent.DOM_VK_Q, true);
+      myKeyboard.registerHandler(function(){}, input.KeyEvent.DOM_VK_SPACE, true);
       
       document.getElementById('moveLeft').name = input.KeyEvent.DOM_VK_A;
       document.getElementById('moveRight').name = input.KeyEvent.DOM_VK_D;
       document.getElementById('moveUp').name = input.KeyEvent.DOM_VK_W;
       document.getElementById('moveDown').name = input.KeyEvent.DOM_VK_S;
-
+      document.getElementById('extendFOV').name = input.KeyEvent.DOM_VK_Q;
+      document.getElementById('shortenFOV').name = input.KeyEvent.DOM_VK_E;
+      document.getElementById('rapidFire').name = input.KeyEvent.DOM_VK_SPACE;
+      
       document.getElementById('id-options-back').addEventListener(
           'click',
           function() { quit = true; MyGame.pregame.showScreen('main-menu'); }
@@ -91,6 +94,9 @@ MyGame.screens['options'] = (function(graphics, input) {
       assignKeyButton('moveRight', myTexture.moveRight);
       assignKeyButton('moveUp', myTexture.moveUp);
       assignKeyButton('moveDown', myTexture.moveDown);
+      assignKeyButton('extendFOV', myfov.thin);
+      assignKeyButton('shortenFOV', myfov.widen);
+      assignKeyButton('rapidFire', function(){});
 
   }
 
