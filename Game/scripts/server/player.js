@@ -22,6 +22,8 @@ function createPlayer(mapLogic) {
         y: 0.5
     };
 
+    let userName = '';
+
     let worldCordinates = random.getRandomMapCords(map, map.mapHeight, map.mapWidth);
 
 
@@ -41,6 +43,11 @@ function createPlayer(mapLogic) {
     let speed = 0.2;                  // unit distance per millisecond
     let reportUpdate = false;    // Indicates if this model was updated during the last update
     let moveRate = 200;
+
+    Object.defineProperty(that, 'userName', {
+        get: () => userName,
+        set: value => userName = value
+    });
 
     Object.defineProperty(that, 'score', {
         get: () => score

@@ -20,6 +20,9 @@ MyGame.components.Player = function(mapLogic) {
         width: 0.05,
         height: 0.05
     };
+
+    let userName = '';
+
     let direction = 0;
     let rotateRate = 0;
     let speed = 0;

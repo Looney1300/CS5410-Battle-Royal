@@ -145,6 +145,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.model.worldCordinates.y = data.worldCordinates.y;
         playerSelf.model.speed = data.speed;
 
+        playerSelf.model.userName = data.userName;
+
         playerSelf.model.score = data.score;
         playerSelf.model.life_remaining = data.life_remaining;
         playerSelf.is_alive = data.is_alive;
@@ -264,7 +266,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                     updatePlayerOther(message.data);
                     break;
                 case NetworkIds.MISSILE_NEW:
-                    //console.log('My Score is: ', 
+                    //console.log('I am: ',playerSelf.model.userName,' My Score is: ', 
                     //playerSelf.model.score, ' My Life is at: ', playerSelf.model.life_remaining);
                     missileNew(message.data);
                     break;

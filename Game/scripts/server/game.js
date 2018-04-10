@@ -214,7 +214,8 @@ function updateClients(elapsedTime) {
             score: client.player.score,
             life_remaining: client.player.life_remaining,
             is_alive: client.player.is_alive,
-            updateWindow: lastUpdate
+            updateWindow: lastUpdate,
+            userName: client.player.userName
         };
         if (client.player.reportUpdate) {
             client.socket.emit(NetworkIds.UPDATE_SELF, update);
@@ -446,6 +447,7 @@ function initializeSocketIO(httpServer) {
              //console.log("Got a login users request");
              console.log(data.name,data.password);
              if (validUser(data.name,data.password)){
+                newPlayer.userName = data.name;
                 socket.emit(NetworkIds.VALID_USER, null);
              }
              else{
@@ -456,10 +458,11 @@ function initializeSocketIO(httpServer) {
          socket.on(NetworkIds.VALID_CREATE_USER, data => {
              //console.log("Got a create users request");
              if(validCreateUser(data.name,data.password)){
-                 socket.emit(NetworkIds.VALID_CREATE_USER,null);
+                newPlayer.userName = data.name;
+                socket.emit(NetworkIds.VALID_CREATE_USER,null);
              }
              else {
-                 socket.emit(NetworkIds.INVALID_CREATE_USER, null);
+                socket.emit(NetworkIds.INVALID_CREATE_USER, null);
              }
          })
          
