@@ -229,9 +229,11 @@ MyGame.graphics = (function() {
         let hasLineWidth = spec.hasOwnProperty('lineWidth');
         let hasStrokeStyle = spec.hasOwnProperty('strokeStyle');
 
-        that.draw = function(){
+        that.draw = function(viewPort){
+            let posX = canvas.width/2 - (viewPort.center.x - spec.x);
+            let posY = canvas.height/2 - (viewPort.center.y - spec.y);
             context.beginPath();
-            context.arc(spec.x * canvas.width, spec.y * canvas.width, spec.width/2 * canvas.width, 2 * Math.PI, false);
+            context.arc(posX, posY, spec.width/2 * canvas.width, 2 * Math.PI, false);
             context.closePath();
             if (hasLineWidth){
                 context.lineWidth = spec.lineWidth;
@@ -244,6 +246,7 @@ MyGame.graphics = (function() {
                 context.fillStyle = spec.fillStyle;
                 context.fill();
             }
+            context.restore();
         }
         return that;
     }
@@ -271,25 +274,27 @@ MyGame.graphics = (function() {
             spec.rotation += angle;
         };
 
-        that.draw = function(){
+        that.draw = function(viewPort){
+            let posX = canvas.width/2 - (viewPort.center.x - spec.x);
+            let posY = canvas.height/2 - (viewPort.center.y - spec.y);
             //Rotating a shape
             //1. Translate (0,0) of canvas to center of shape
             context.save();
-            context.translate((spec.x + spec.width/2) * canvas.width, (spec.y + spec.height/2) * canvas.height);
+            context.translate(posX, posY);
             //2. Rotate canvas
             context.rotate(spec.rotation);
-            context.translate(-(spec.x + spec.width/2) * canvas.width, -(spec.y + spec.height/2) * canvas.height);
+            context.translate(posX, posY);
             //3. Draw shape at original coordinates
             if (hasFillStyle){
                 context.fillStyle = spec.fillStyle;
-                context.fillRect(spec.x * canvas.width, spec.y * canvas.height, spec.width * canvas.width, spec.height * canvas.height);
+                context.fillRect(posX, posY, spec.width * canvas.width, spec.height * canvas.height);
             }
             if (hasLineWidth){
                 context.lineWidth = spec.lineWidth;
             }
             if (hasStrokeStyle){
                 context.strokeStyle = spec.strokeStyle;
-                context.strokeRect(spec.x * canvas.width, spec.y * canvas.height, spec.width * canvas.width, spec.height * canvas.height);
+                context.strokeRect(posX, posY, spec.width * canvas.width, spec.height * canvas.height);
             }
             //4. Undo translations and rotations of canvas.
             context.restore();
@@ -325,17 +330,19 @@ MyGame.graphics = (function() {
             spec.rotation += angle;
         };
         
-        that.draw = function(){
+        that.draw = function(viewPort){
+            let posX = canvas.width/2 - (viewPort.center.x - spec.x);
+            let posY = canvas.height/2 - (viewPort.center.y - spec.y);
             if (ready){
                 context.save();
-                context.translate(spec.x * canvas.width, spec.y * canvas.height);
+                context.translate(posX, posY);
                 context.rotate(spec.rotation);
-                context.translate(-spec.x * canvas.width, -spec.y * canvas.height);
+                context.translate(posX, posY);
 
                 context.drawImage(
                     image,
-                    (spec.x - spec.width/2) * canvas.width,
-                    (spec.y -spec.height/2) * canvas.height,
+                    (posX - spec.width/2) * canvas.width,
+                    (posY -spec.height/2) * canvas.height,
                     spec.width * canvas.width, 
                     spec.height * canvas.height);
 

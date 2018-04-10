@@ -186,9 +186,9 @@ MyGame.particleSystem = (function(graphics){
         }
     }
 
-    function renderParticleSystem(){
+    function renderParticleSystem(viewPort){
         for (let i=0; i<particleGraphics.length; ++i){
-            particleGraphics[i].draw(particles[i].particles);
+            particleGraphics[i].draw(viewPort);
         }
     }
 
@@ -219,8 +219,8 @@ MyGame.particleSystem = (function(graphics){
 //
 //          Game specific particle effects
 //
-// Just call these functions with the correct location when
-// one of these effects is needed.
+// Just call these functions with the correct location in world coords when
+// one of these effects is needed, graphics functions take care of conversion.
 //
 // --------------------------------------------------------
 MyGame.particleSystem.clientEliminated = function(location){
@@ -248,14 +248,14 @@ MyGame.particleSystem.clientEliminated = function(location){
     MyGame.particleSystem.ParticleEffect(particleSpec);
 };
 
-MyGame.particleSystem.enemyEliminated = function(location){
+MyGame.particleSystem.enemyEliminated = function(location, viewPort){
+    
     let particleSpec = {
         drawUsing: MyGame.graphics.Circle,
         x: location.x,
         y: location.y,
         particlesPerSec: 100,
-        // imageSrc: 'bubble1b.png',
-        fill: Color.addAlpha(Color.red, .4),
+        fill: Color.red,
         // stroke: Color.red,
         lineWidth: 0,
         rotationMax: 1,

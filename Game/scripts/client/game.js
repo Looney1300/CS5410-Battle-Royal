@@ -205,10 +205,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
             timeRemaining: data.timeRemaining
         });
 
-        // Update to have the missile compute its position, but with 
-        // zero elapsed time to not change position.
-        missiles[data.id].update(0, viewPort);
-        particles.shotSmoke(missiles[data.id].position, data.direction);        
+        particles.shotSmoke(data.worldCordinates, data.direction);        
     }
 
     //------------------------------------------------------------------
@@ -224,13 +221,13 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
             spriteSize: { width: 0.04, height: 0.04 },
             spriteCenter: data.hit_location,
             spriteCount: 6,
-            spriteTime: [ 125, 100, 75, 75, 75, 3000]
+            spriteTime: [ 100, 75, 50, 50, 50, 100]
         });
 
         // Update to have the explosion compute its position, but with 
         // zero elapsed time to not change position.
-        explosions[nextExplosionId-1].update(0, viewPort);
-        particles.enemyEliminated(explosions[nextExplosionId-1].printCenter);
+        // explosions[nextExplosionId-1].update(0, viewPort);
+        particles.enemyEliminated(data.hit_location);
 
         //
         // When we receive a hit notification, go ahead and remove the
@@ -337,8 +334,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
         for (let missile in missiles) {
             renderer.Missile.render(missiles[missile]);
         }
-        
-        particles.render();
+        particles.render(viewPort);
         for (let id in explosions) {
             renderer.AnimatedSprite.render(explosions[id]);
         }
