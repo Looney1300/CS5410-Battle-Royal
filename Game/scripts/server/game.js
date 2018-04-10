@@ -338,23 +338,25 @@ function initializeSocketIO(httpServer) {
     
     let users = [];
     let minChatterSizeHasBeenReached = false;
+    let chatterBoxSize = 0;
     io.on('connection', function(socket) {
         console.log('Connection established: ', socket.id);
         //
         // Create an entry in our list of connected clients
-        let newPlayer = Player.create(map);
-        newPlayer.clientId = socket.id;
-        activeClients[socket.id] = {
-            socket: socket,
-            player: newPlayer
-        };
-        socket.emit(NetworkIds.CONNECT_ACK, {
-            direction: newPlayer.direction,
-            worldCordinates: newPlayer.worldCordinates,
-            size: newPlayer.size,
-            rotateRate: newPlayer.rotateRate,
-            speed: newPlayer.speed
-        });
+        let newPlayerName = '';
+        // let newPlayer = Player.create(map);
+        // newPlayer.clientId = socket.id;
+        // activeClients[socket.id] = {
+        //     socket: socket,
+        //     player: newPlayer
+        // };
+        // socket.emit(NetworkIds.CONNECT_ACK, {
+        //     direction: newPlayer.direction,
+        //     worldCordinates: newPlayer.worldCordinates,
+        //     size: newPlayer.size,
+        //     rotateRate: newPlayer.rotateRate,
+        //     speed: newPlayer.speed
+        // });
 
         socket.on(NetworkIds.INPUT, data => {
             inputQueue.enqueue({
@@ -363,35 +365,73 @@ function initializeSocketIO(httpServer) {
             });
         });
 
+        socket.on('readyplayerone',function(){
+            let newPlayer = Player.create(map);
+            newPlayer.clientId = socket.id;
+            newPlayer.userName = newPlayerName;
+            activeClients[socket.id] = {
+                socket: socket,
+                player: newPlayer
+            };
+            socket.emit(NetworkIds.CONNECT_ACK, {
+                direction: newPlayer.direction,
+                worldCordinates: newPlayer.worldCordinates,
+                size: newPlayer.size,
+                rotateRate: newPlayer.rotateRate,
+                speed: newPlayer.speed
+            });
+            notifyConnect(socket, newPlayer);
+        });
+
         socket.on('disconnect', function() {
             console.log('connection lost: ', socket.id);
             delete activeClients[socket.id];
             notifyDisconnect(socket.id);
         });
 
-        notifyConnect(socket, newPlayer);
+        socket.on('exitedchat', function(data) {
+            //Send message to everyone
+            //io.sockets.emit('newmsg', data);
+            chatterBoxSize--;
+            let index = users.indexOf(data);
+            if (index > -1) {
+                users.splice(index, 1);
+                console.log('we spliced!');
+            }
+            console.log(chatterBoxSize);
+         });
+        
+        
 
 
         socket.on('setUsername', function(data) {
+            console.log('This should happen !!!!!!!!');
+            chatterBoxSize += 1;
+            console.log(chatterBoxSize);
             //console.log(data);
-            let chatterBoxSize = 0;
+            //let chatterBoxSize = 0;
             
             if(users.indexOf(data) > -1) {
-               socket.emit('userExists', data + ' username is taken! Try some other username.');
+                console.log('if part: ', data);
+               //socket.emit('userExists', data + ' username is taken! Try some other username.');
+               socket.emit('userSet', {username: data});
             } else {
+                console.log('else part: ', data);
                users.push(data);
-               activeClients[socket.id].player.menuState = 'chatting';
+               //activeClients[socket.id].player.menuState = 'chatting';
                //console.log(activeClients[socket.id].player.state);
                socket.emit('userSet', {username: data});
+               
+               
             }
 
             if(!minChatterSizeHasBeenReached){
-                for (let clientId in activeClients) {
-                    if(activeClients[clientId].player.menuState == 'chatting'){
-                        chatterBoxSize++;
-                        console.log('we counted a chatter.');
-                    }
-                }
+                // for (let clientId in activeClients) {
+                //     if(activeClients[clientId].player.menuState == 'chatting'){
+                //         chatterBoxSize++;
+                //         console.log('we counted a chatter.');
+                //     }
+                // }
                 if(chatterBoxSize > 2){
                     console.log('The countdown has begun.');
                     minChatterSizeHasBeenReached = true;
@@ -416,7 +456,7 @@ function initializeSocketIO(httpServer) {
                     }, 1000);
                 }
                 else {
-                    chatterBoxSize = 0;
+                    //chatterBoxSize = 0;
                 }
             }
 
@@ -427,6 +467,7 @@ function initializeSocketIO(httpServer) {
          
          socket.on('msg', function(data) {
             //Send message to everyone
+            console.log(data);
             io.sockets.emit('newmsg', data);
          });
 
@@ -447,7 +488,8 @@ function initializeSocketIO(httpServer) {
              //console.log("Got a login users request");
              console.log(data.name,data.password);
              if (validUser(data.name,data.password)){
-                newPlayer.userName = data.name;
+                newPlayerName = data.name;
+                //newPlayer.userName = data.name;
                 socket.emit(NetworkIds.VALID_USER, null);
              }
              else{
@@ -458,7 +500,8 @@ function initializeSocketIO(httpServer) {
          socket.on(NetworkIds.VALID_CREATE_USER, data => {
              //console.log("Got a create users request");
              if(validCreateUser(data.name,data.password)){
-                newPlayer.userName = data.name;
+                 newPlayerName = data.name;
+                //newPlayer.userName = data.name;
                 socket.emit(NetworkIds.VALID_CREATE_USER,null);
              }
              else {
