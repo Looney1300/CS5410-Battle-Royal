@@ -248,24 +248,24 @@ MyGame.particleSystem.clientEliminated = function(location){
     MyGame.particleSystem.ParticleEffect(particleSpec);
 };
 
-MyGame.particleSystem.enemyEliminated = function(location, viewPort){
+MyGame.particleSystem.enemyHit = function(location){
     
     let particleSpec = {
         drawUsing: MyGame.graphics.Circle,
         x: location.x,
         y: location.y,
-        particlesPerSec: 100,
+        particlesPerSec: 200,
         fill: Color.red,
         // stroke: Color.red,
         lineWidth: 0,
         rotationMax: 1,
-        lifetime: {mean: 500, std: 100},
-        speed: {mean: .02, std: .001},
+        lifetime: {mean: 200, std: 50},
+        speed: {mean: 20, std: 10},
         size: {mean: .003, std: .0005},
         onTop: true,
         gravity: 0,
         disappear: true,
-        duration: 150,
+        duration: 80,
     }
 
     MyGame.particleSystem.ParticleEffect(particleSpec);
@@ -290,7 +290,7 @@ MyGame.particleSystem.shotSmoke = function(location, direction){
         lineWidth: 2,
         rotationMax: 1,
         lifetime: {mean: 300, std: 100},
-        speed: {mean: .1, std: .01},
+        speed: {mean: 100, std: 30},
         size: {mean: .005, std: .001},
         specifyDirection: {angle: smokeDirection, std: .5},
         onTop: true,
@@ -314,7 +314,7 @@ MyGame.particleSystem.shieldSparks = function(center, radius, duration){
             imageSrc: 'assets/spark.png',
             rotationMax: 4,
             lifetime: {mean: 500, std: 500},
-            speed: {mean: .03, std: .01},
+            speed: {mean: 30, std: 10},
             size: {mean: .005, std: .001},
             specifyDirection: {angle: Math.atan2(cvec.y, cvec.x) + Math.PI, std: .5},
             onTop: true,
@@ -339,7 +339,7 @@ MyGame.particleSystem.buildingHit = function(location){
         lineWidth: 2,
         rotationMax: 1,
         lifetime: {mean: 1500, std: 100},
-        speed: {mean: .02, std: .01},
+        speed: {mean: 20, std: 10},
         size: {mean: .01, std: .001},
         onTop: true,
         gravity: 0,
