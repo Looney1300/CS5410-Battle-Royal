@@ -276,34 +276,54 @@ MyGame.particleSystem.enemyHit = function(location){
 };
 
 MyGame.particleSystem.shotSmoke = function(location, direction){
-    let smokeDirection = direction;
-    while (smokeDirection > 2*Math.PI){
-        smokeDirection -= 2*Math.PI;
+    let shotDirection = direction;
+    while (shotDirection > 2*Math.PI){
+        shotDirection -= 2*Math.PI;
     }
-    while (smokeDirection < -2*Math.PI){
-        smokeDirection += 2*Math.PI;
+    while (shotDirection < -2*Math.PI){
+        shotDirection += 2*Math.PI;
     }
-    let particleSpec = {
-        drawUsing: MyGame.graphics.Texture,
-        imageSrc: 'assets/USU-Logo.png',
-        // fill: Color.grey,
-        // stroke: Color.grey,
+    let fireParticleSpec = {
+        drawUsing: MyGame.graphics.Rectangle,
+        // imageSrc: 'assets/USU-Logo.png',
+        fill: Color.yellow,
+        // stroke: Color.yellow,
         // lineWidth: 2,
-        size: {mean: .005, std: .001},
+        size: {mean: .004, std: 0},
+        x: location.x,
+        y: location.y,
+        particlesPerSec: 800,
+        rotationMax: 0,
+        lifetime: {mean: 50, std: 0},
+        speed: {mean: 400, std: 300},
+        specifyDirection: {angle: shotDirection, std: 0},
+        onTop: true,
+        gravity: 0,
+        disappear: true,
+        duration: 50,
+    }
+    let smokeParticleSpec = {
+        drawUsing: MyGame.graphics.Rectangle,
+        fill: Color.grey,
+        stroke: Color.grey,
+        lineWidth: 2,
+        size: {mean: .002, std: .0004},
         x: location.x,
         y: location.y,
         particlesPerSec: 60,
         rotationMax: 1,
-        lifetime: {mean: 300, std: 100},
-        speed: {mean: 100, std: 30},
-        specifyDirection: {angle: smokeDirection, std: .5},
+        lifetime: {mean: 200, std: 50},
+        speed: {mean: 50, std: 10},
+        specifyDirection: {angle: shotDirection, std: .3},
         onTop: true,
         gravity: 0,
         disappear: true,
         duration: 100,
     }
 
-    MyGame.particleSystem.ParticleEffect(particleSpec);
+    MyGame.particleSystem.ParticleEffect(fireParticleSpec);
+    MyGame.particleSystem.ParticleEffect(smokeParticleSpec);
+    
 };
 
 MyGame.particleSystem.shieldSparks = function(center, radius, duration){
