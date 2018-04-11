@@ -15,8 +15,6 @@ MyGame.renderer.Player = (function(graphics) {
     that.render = function(model, sprite) {
         graphics.saveContext();
         graphics.rotateCanvas(model.position, model.direction);
-        //this should just change to render the sprite
-        console.log("sprite center: ", sprite.printCenter);
         graphics.drawImageSpriteSheet( sprite.spriteSheet,
             { width: sprite.pixelWidth, height: sprite.pixelHeight },
             sprite.sprite,

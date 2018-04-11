@@ -23,8 +23,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
                     x: myModel.position.x,
                     y: myModel.position.y,
                 },
-                spriteCount: 20,
-                spriteTime: [ 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40]
+                spriteCount: 10,
+                spriteTime: [ 100, 100, 100, 100, 100, 100, 100, 100, 100, 100]
             })
         },
         fov = components.FOV(),
@@ -134,14 +134,14 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerOthers[data.clientId] = {
             model: model,
             texture: components.AnimatedSprite({
-                spriteSheet: MyGame.assets['enemyMoveGun'],
+                spriteSheet: MyGame.assets['enemyIdleGun'],
                 spriteSize: { width: 0.07, height: 0.07 },
                 spriteCenter: {
                     x: data.worldCordinates.x,
                     y: data.worldCordinates.y
                 },
                 spriteCount: 20,
-                spriteTime: [ 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40]
+                spriteTime: [ 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60]
             })
         };
     }
