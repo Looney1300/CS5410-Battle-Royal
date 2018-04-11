@@ -11,8 +11,8 @@ MyGame.renderer.PowerUp = (function(graphics) {
         //console.log(model);
         //graphics.saveContext();
         //graphics.rotateCanvas(model.position, model.direction);
-        graphics.drawCircle(model.position, model.radius, '#FFFFFF');
-        //graphics.drawImage(texture, model.position, model.size);
+        //graphics.drawCircle(model.position, model.radius, '#FFFFFF');
+        graphics.drawImage(texture, model.position, model.size);
         //graphics.restoreContext();
         //graphics.drawHealth(texture, model.position, model.size, model.life_remaining);
     };

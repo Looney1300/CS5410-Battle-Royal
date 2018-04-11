@@ -29,8 +29,8 @@ function createPowerUp(mapLogic, PowerUptype) {
 
     let collision_radius = 15;
 
-    Object.defineProperty(that, 'PowerUptype', {
-        get: () => PowerUptype
+    Object.defineProperty(that, 'type', {
+        get: () => type
     });
 
     Object.defineProperty(that, 'size', {

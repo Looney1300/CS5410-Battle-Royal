@@ -251,6 +251,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
     function powerUpdate(data){
         // If I created an array of all the datas that were coming into here,
         // and rendered them, and then deleted them, that could work.
+        //console.log(data.type);
         let tempPowerUp = components.PowerUp({
             worldCordinates: data.worldCordinates,
             type: data.type,
@@ -362,6 +363,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         }
 
         for(let power = 0; power<powerUps.length; power++){
+            //console.log(powerUps[power].type);
             renderer.PowerUp.render(powerUps[power],MyGame.assets[powerUps[power].type]);
         }
         powerUps.length = 0;
