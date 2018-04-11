@@ -395,6 +395,7 @@ function updateClients(elapsedTime) {
         // one piece at a time.
 
         for (let powerUp = 0; powerUp < powerUpArray.length; powerUp++){
+            powerUpArray[powerUp].indexId = powerUp;
             client.socket.emit(NetworkIds.POWER_UP_LOC, powerUpArray[powerUp]);
         }
 

@@ -258,7 +258,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
             type: data.type,
             radius: data.radius
         });
-        powerUps.push(tempPowerUp);
+        powerUps[data.indexId] = tempPowerUp;
 
     };
 
@@ -335,24 +335,24 @@ MyGame.main = (function(graphics, renderer, input, components) {
 
 
 
-        if(!(powerUps.toString() === printPowerUps.toString())){
-            // console.log('it worked!');
-            // set printPowerUps equal to powerUps
-            console.log('are we in here?');
-            printPowerUps.length = 0;
-            for(let power = 0; power<powerUps.length; power++){
-                printPowerUps.push(powerUps[power])
-            }
-            powerUps.length = 0;
+        // if(!(powerUps.toString() === printPowerUps.toString())){
+        //     // console.log('it worked!');
+        //     // set printPowerUps equal to powerUps
+        //     console.log('are we in here?');
+        //     printPowerUps.length = 0;
+        //     for(let power = 0; power<powerUps.length; power++){
+        //         printPowerUps.push(powerUps[power])
+        //     }
+        //     powerUps.length = 0;
            
-        }
+        // }
 
         
     
 
 
-        for(let power = 0; power<printPowerUps.length; power++){
-            printPowerUps[power].update(elapsedTime, viewPort);
+        for(let power = 0; power<powerUps.length; power++){
+            powerUps[power].update(elapsedTime, viewPort);
         }
 
         for (let missile = 0; missile < removeMissiles.length; missile++) {
@@ -382,9 +382,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
             renderer.PlayerRemote.render(player.model, player.texture);
         }
 
-        for(let power = 0; power<printPowerUps.length; power++){
+        for(let power = 0; power<powerUps.length; power++){
             //console.log(powerUps[power].type);
-            renderer.PowerUp.render(printPowerUps[power],MyGame.assets[printPowerUps[power].type]);
+            renderer.PowerUp.render(powerUps[power],MyGame.assets[powerUps[power].type]);
         }
         //powerUps.length = 0;
 
