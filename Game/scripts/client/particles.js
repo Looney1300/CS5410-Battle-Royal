@@ -105,6 +105,7 @@ MyGame.particleSystem = (function(graphics){
                     lifetime: Math.abs(nextGaussian(spec.lifetime.mean, spec.lifetime.std)),	// milliseconds
                     alive: 0,
                     size: nextGaussian(spec.size.mean, spec.size.std),
+                    o: 1,
                 };
                 if (hasLimitDirection){
                     p.direction = nextCircleVectorAround(1, spec.specifyDirection.angle, spec.specifyDirection.std);
@@ -168,6 +169,9 @@ MyGame.particleSystem = (function(graphics){
                 }
                 if (particles[particle].hasOwnProperty('fill')){
                     particles[particle].fillStyle = Color.addAlpha(particles[particle].fill, transparency);
+                }
+                if (particles[particle].hasOwnProperty('imageSrc')){
+                    particles[particle].o = transparency;
                 }
             }
             if (particles[particle].hasOwnProperty('rotationRate')){
@@ -280,18 +284,18 @@ MyGame.particleSystem.shotSmoke = function(location, direction){
         smokeDirection += 2*Math.PI;
     }
     let particleSpec = {
-        drawUsing: MyGame.graphics.Circle,
+        drawUsing: MyGame.graphics.Texture,
+        imageSrc: 'assets/USU-Logo.png',
+        // fill: Color.grey,
+        // stroke: Color.grey,
+        // lineWidth: 2,
+        size: {mean: .005, std: .001},
         x: location.x,
         y: location.y,
         particlesPerSec: 60,
-        // imageSrc: 'assets/USU-Logo.png',
-        fill: Color.grey,
-        stroke: Color.grey,
-        lineWidth: 2,
         rotationMax: 1,
         lifetime: {mean: 300, std: 100},
         speed: {mean: 100, std: 30},
-        size: {mean: .005, std: .001},
         specifyDirection: {angle: smokeDirection, std: .5},
         onTop: true,
         gravity: 0,

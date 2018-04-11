@@ -280,10 +280,10 @@ MyGame.graphics = (function() {
             //Rotating a shape
             //1. Translate (0,0) of canvas to center of shape
             context.save();
-            context.translate(posX, posY);
+            context.translate(posX + spec.width*canvas.width/2, posY + spec.height*canvas.height/2);
             //2. Rotate canvas
             context.rotate(spec.rotation);
-            context.translate(posX, posY);
+            context.translate(-(posX + spec.width*canvas.width/2), -(posY + spec.height*canvas.height/2));
             //3. Draw shape at original coordinates
             if (hasFillStyle){
                 context.fillStyle = spec.fillStyle;
@@ -335,14 +335,17 @@ MyGame.graphics = (function() {
             let posY = canvas.height/2 - (viewPort.center.y - spec.y);
             if (ready){
                 context.save();
-                context.translate(posX, posY);
+                context.translate(posX + spec.width*canvas.width/2, posY + spec.height*canvas.height/2);
                 context.rotate(spec.rotation);
-                context.translate(posX, posY);
+                context.translate(-(posX + spec.width*canvas.width/2), -(posY + spec.height*canvas.height/2));
+
+                //For fading textures
+                context.globalAlpha = spec.o;
 
                 context.drawImage(
                     image,
-                    (posX - spec.width/2) * canvas.width,
-                    (posY -spec.height/2) * canvas.height,
+                    (posX - spec.width/2),
+                    (posY - spec.height/2),
                     spec.width * canvas.width, 
                     spec.height * canvas.height);
 
