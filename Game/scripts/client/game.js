@@ -12,6 +12,13 @@ MyGame.main = (function(graphics, renderer, input, components) {
         map = Map.create(),
         smallMap = SmallMap.create();
     map.setMap(smallMap.data);
+    let powerUptextures = {
+        weapon: MyGame.assets['weapon'],
+        fire_rate: MyGame.assets['fire-rate'],
+        fire_range: MyGame.assets['fire-range'],
+        health: MyGame.assets['health'],
+        ammo: MyGame.assets['ammo']        
+    };
     let playerSelf = {
             model: components.Player(map),
             texture: MyGame.assets['player-self']
@@ -19,6 +26,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         fov = components.FOV(),
         playerOthers = {},
         missiles = {},
+        powerUps = [],
         explosions = {},
         messageHistory = Queue.create(),
         messageId = 1,
@@ -29,6 +37,16 @@ MyGame.main = (function(graphics, renderer, input, components) {
 
         // viewPort.mapWidth = map.mapWidth;
         // viewPort.mapHeight = map.mapHeight;
+
+
+        
+        
+    socket.on(NetworkIds.POWER_UP_LOC, data => {
+        networkQueue.enqueue({
+            type: NetworkIds.POWER_UP_LOC,
+            data: data
+        });
+    });
 
     
     socket.on(NetworkIds.CONNECT_ACK, data => {
@@ -230,6 +248,18 @@ MyGame.main = (function(graphics, renderer, input, components) {
         delete missiles[data.missileId];
     }
 
+    function powerUpdate(data){
+        // If I created an array of all the datas that were coming into here,
+        // and rendered them, and then deleted them, that could work.
+        let tempPowerUp = components.PowerUp({
+            worldCordinates: data.worldCordinates,
+            type: data.type,
+            radius: data.radius
+        });
+        powerUps.push(tempPowerUp);
+
+    };
+
     //------------------------------------------------------------------
     //
     // Process the registered input handlers here.
@@ -273,6 +303,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 case NetworkIds.MISSILE_HIT:
                     missileHit(message.data);
                     break;
+                case NetworkIds.POWER_UP_LOC:
+                    powerUpdate(message.data);
+                    break;
             }
         }
     }
@@ -295,6 +328,10 @@ MyGame.main = (function(graphics, renderer, input, components) {
             if (!missiles[missile].update(elapsedTime, viewPort)) {
                 removeMissiles.push(missiles[missile]);
             }
+        }
+
+        for(let power = 0; power<powerUps.length; power++){
+            powerUps[power].update(elapsedTime, viewPort);
         }
 
         for (let missile = 0; missile < removeMissiles.length; missile++) {
@@ -323,6 +360,11 @@ MyGame.main = (function(graphics, renderer, input, components) {
             let player = playerOthers[id];
             renderer.PlayerRemote.render(player.model, player.texture);
         }
+
+        for(let power = 0; power<powerUps.length; power++){
+            renderer.PowerUp.render(powerUps[power],MyGame.assets[powerUps[power].type]);
+        }
+        powerUps.length = 0;
 
         for (let missile in missiles) {
             renderer.Missile.render(missiles[missile]);

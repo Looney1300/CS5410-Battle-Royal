@@ -7,6 +7,7 @@
 
 let present = require('present');
 let Player = require('./player');
+let PowerUp = require('./powerup');
 let Missile = require('./missile');
 let NetworkIds = require('../shared/network-ids');
 let Queue = require('../shared/queue.js');
@@ -14,6 +15,17 @@ let mapLogic = require('../shared/map');
 let mapFile = require('../shared/maps/SmallMap');
 let CryptoJS = require('crypto-js');
 let fs = require('fs');
+
+
+
+let weaponPowerUps = [];
+let fire_ratePowerUps = [];
+let fire_rangePowerUps = [];
+let healthPowerUps = [];
+let ammoPowerUps = [];
+let pPerPlayer = 5;
+
+
 
 const SIMULATION_UPDATE_RATE_MS = 50;
 const STATE_UPDATE_RATE_MS = 20;
@@ -29,24 +41,67 @@ let map = mapLogic.create();
 map.setMap(mapFile);
 let salt = 'xnBZngGg*+FhQz??V6FMjfd9G4m5w^z8P*6';
 
+
+
+
+function createWeaponPowerUp(){
+    let tempwpu = PowerUp.create(map,'weapon');
+    weaponPowerUps.push(tempwpu);  
+};
+function createFireRatePowerUp(){
+    let tempfrpu = PowerUp.create(map,'fire-rate');
+    fire_ratePowerUps.push(tempfrpu);
+};
+function createFireRangePowerUp(){
+    let tempfrapu = PowerUp.create(map,'fire-range');
+    fire_rangePowerUps.push(tempfrapu);
+};
+function createHealthPowerUp(){
+    let temphpu = PowerUp.create(map,'health');
+    healthPowerUps.push(temphpu);
+};
+function createAmmoPowerUp(){
+    let tempapu = PowerUp.create(map,'ammo');
+    ammoPowerUps.push(tempapu);
+};
+
+function updatePowerUps(){
+    while(weaponPowerUps.length < pPerPlayer){
+        createWeaponPowerUp();
+    };
+    while(fire_ratePowerUps.length < pPerPlayer){
+        createFireRatePowerUp();
+    };
+    while(fire_rangePowerUps.length < pPerPlayer){
+        createFireRangePowerUp();
+    };
+    while(healthPowerUps.length < pPerPlayer){
+        createHealthPowerUp()
+    };
+    while(ammoPowerUps.length < pPerPlayer){
+        createAmmoPowerUp();
+    };
+};
+
 //------------------------------------------------------------------
 //
 // Used to create a missile in response to user input.
 //
 //------------------------------------------------------------------
 function createMissile(clientId, playerModel) {
-    let missile = Missile.create({
-        id: nextMissileId++,
-        clientId: clientId,
-        worldCordinates: {
-            x: playerModel.worldCordinates.x,
-            y: playerModel.worldCordinates.y
-        },
-        direction: playerModel.direction,
-        speed: playerModel.speed
-    });
-
-    newMissiles.push(missile);
+    if(playerModel.has_gun){
+        let missile = Missile.create({
+            id: nextMissileId++,
+            clientId: clientId,
+            worldCordinates: {
+                x: playerModel.worldCordinates.x,
+                y: playerModel.worldCordinates.y
+            },
+            direction: playerModel.direction,
+            speed: playerModel.speed
+        });
+        newMissiles.push(missile);
+    }
 }
 
 //------------------------------------------------------------------
@@ -116,6 +171,55 @@ function collided(obj1, obj2) {
 //
 //------------------------------------------------------------------
 function update(elapsedTime, currentTime) {
+
+
+    // In update we need to ensure we have pPerPlayer of each powerup
+
+    updatePowerUps();
+    // Powerups are created, now we need to do collision detection on them.
+    // need to check if any clients ran over the power ups.
+    // We need to check every client against every powerup.
+
+    for (let clientId in activeClients) {
+        //activeClients[clientId].player.update(currentTime);
+        for(let weapon = weaponPowerUps.length - 1; weapon >= 0; weapon-- ){
+            if(collided(activeClients[clientId].player,weaponPowerUps[weapon])){
+                // if they collided give the reward and remove the powerup from the player.
+                console.log('the player ran over a weapon!');
+            }
+        }
+
+        for(let fire_rate = fire_ratePowerUps.length - 1; fire_rate >= 0; fire_rate-- ){
+            if(collided(activeClients[clientId].player,fire_ratePowerUps[fire_rate])){
+                // if they collided give the reward and remove the powerup from the player.
+                console.log('the player ran over a fire-rate!');
+            }
+        }
+
+        for(let fire_range = fire_rangePowerUps.length - 1; fire_range >= 0; fire_range-- ){
+            if(collided(activeClients[clientId].player,fire_rangePowerUps[fire_range])){
+                // if they collided give the reward and remove the powerup from the player.
+                console.log('the player ran over a fire_range!');
+            }
+        }
+
+        for(let health = healthPowerUps.length - 1; health >= 0; health-- ){
+            if(collided(activeClients[clientId].player,healthPowerUps[health])){
+                // if they collided give the reward and remove the powerup from the player.
+                console.log('the player ran over a health!');
+            }
+        }
+
+        for(let ammo = ammoPowerUps.length - 1; ammo >= 0; ammo-- ){
+            if(collided(activeClients[clientId].player,ammoPowerUps[ammo])){
+                // if they collided give the reward and remove the powerup from the player.
+                console.log('the player ran over a ammo!');
+            }
+        }
+    }
+
+    // Now that we have checked every powerup against every player
+
     for (let clientId in activeClients) {
         activeClients[clientId].player.update(currentTime);
     }
@@ -235,6 +339,67 @@ function updateClients(elapsedTime) {
         for (let missile = 0; missile < missileMessages.length; missile++) {
             client.socket.emit(NetworkIds.MISSILE_NEW, missileMessages[missile]);
         }
+
+        // HERE SINCE WE ARE SCROLLING THROUGH EVERY CLIENT, LETS TELL EVERY CLIENT WHERE EVERY
+        // POWER UP IS EVERY UPDATE. What do we need to send to the client? Just the type... and
+        // its location.
+
+        let powerUpArray = [];
+
+        for(let weapon = weaponPowerUps.length - 1; weapon >= 0; weapon-- ){
+            let pUp = {
+                worldCordinates: weaponPowerUps[weapon].worldCordinates,
+                type: weaponPowerUps[weapon].type,
+                radius: weaponPowerUps[weapon].radius
+            }
+            powerUpArray.push(pUp);
+        }
+
+        for(let fire_rate = fire_ratePowerUps.length - 1; fire_rate >= 0; fire_rate-- ){
+            let pUp = {
+                worldCordinates: fire_ratePowerUps[fire_rate].worldCordinates,
+                type: fire_ratePowerUps[fire_rate].type,
+                radius: fire_ratePowerUps[fire_rate].radius
+            }
+            powerUpArray.push(pUp);
+        }
+
+        for(let fire_range = fire_rangePowerUps.length - 1; fire_range >= 0; fire_range-- ){
+            let pUp = {
+                worldCordinates: fire_rangePowerUps[fire_range].worldCordinates,
+                type: fire_rangePowerUps[fire_range].type,
+                radius: fire_rangePowerUps[fire_range].radius
+            }
+            powerUpArray.push(pUp);
+        }
+
+        for(let health = healthPowerUps.length - 1; health >= 0; health-- ){
+            let pUp = {
+                worldCordinates: healthPowerUps[health].worldCordinates,
+                type: healthPowerUps[health].type,
+                radius: healthPowerUps[health].radius
+            }
+            powerUpArray.push(pUp);
+        }
+
+        for(let ammo = ammoPowerUps.length - 1; ammo >= 0; ammo-- ){
+            let pUp = {
+                worldCordinates: ammoPowerUps[ammo].worldCordinates,
+                type: ammoPowerUps[ammo].type,
+                radius: ammoPowerUps[ammo].radius
+            }
+            powerUpArray.push(pUp);
+        }
+
+        // Now that we have built the powerup array we need to send it to the clients
+        // one piece at a time.
+
+        for (let powerUp = 0; powerUp < powerUpArray.length; powerUp++){
+            client.socket.emit(NetworkIds.POWER_UP_LOC, powerUpArray[powerUp]);
+        }
+
+        powerUpArray.length = 0;
+
 
         //
         // Report any missile hits to this client
@@ -367,6 +532,8 @@ function initializeSocketIO(httpServer) {
 
         socket.on('readyplayerone',function(){
             let newPlayer = Player.create(map);
+            //let newPowerUp = PowerUp.create(map,'ammo');
+            //console.log(newPowerUp);
             newPlayer.clientId = socket.id;
             newPlayer.userName = newPlayerName;
             activeClients[socket.id] = {

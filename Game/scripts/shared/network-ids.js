@@ -100,6 +100,10 @@
             value: 'valid-create-user',
             writable: false
         },
+        'POWER_UP_LOC' : {
+            value: 'power-up-location',
+            writable: false
+        },
         
     });
 
