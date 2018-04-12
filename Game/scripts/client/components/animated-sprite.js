@@ -85,8 +85,6 @@ MyGame.components.AnimatedSprite = function(spec) {
             this.printCenter.y = 0.5 + diffY;
 		}
 		
-		console.log(this.printCenter);
-
 		//
 		// Check to see if we should update the animation frame
 		if (spec.elapsedTime >= spec.spriteTime[spec.sprite]) {

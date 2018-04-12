@@ -16,14 +16,14 @@ MyGame.main = (function(graphics, renderer, input, components) {
     let playerSelf = {
             model: myModel,
             texture: components.AnimatedSprite({
-                spriteSheet: MyGame.assets['clientIdleNoGun'],
+                spriteSheet: MyGame.assets['clientIdleGun'],
                 spriteSize: { width: 0.07, height: 0.07 },
                 spriteCenter: {
                     x: 0.5,
                     y: 0.5,
                 },
                 spriteCount: 20,
-                spriteTime: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]
+                spriteTime: [60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60]
             })
         },
         fov = components.FOV(),
@@ -131,14 +131,14 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerOthers[data.clientId] = {
             model: model,
             texture: components.AnimatedSprite({
-                spriteSheet: MyGame.assets['enemyIdleNoGun'],
-                spriteSize: { width: 0.07, height: 0.07 },
+                spriteSheet: MyGame.assets['enemyIdleGun'],
+                spriteSize: { width: 0.07, height: 0.07},
                 spriteCenter: {
                     x: model.state.worldCordinates.x,
                     y: model.state.worldCordinates.y
                 },
                 spriteCount: 20,
-                spriteTime: [ 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]
+                spriteTime: [ 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60]
             })
         };
     }
@@ -307,7 +307,6 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.texture.worldCordinates.x = playerSelf.model.worldCordinates.x;
         playerSelf.texture.worldCordinates.y = playerSelf.model.worldCordinates.y;
         playerSelf.texture.update(elapsedTime,viewPort);
-        console.log("Game print center",playerSelf.texture.printCenter);
         fov.update(playerSelf.model);
         for (let id in playerOthers) {
             playerOthers[id].model.update(elapsedTime, viewPort);
@@ -351,7 +350,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         }
 
         for (let missile in missiles) {
-            renderer.Missile.render(missiles[missile]);
+            renderer.Missile.render(missiles[missile],playerSelf.texture);
         }
 
         for (let id in explosions) {

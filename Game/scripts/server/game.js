@@ -28,6 +28,8 @@ let nextMissileId = 1;
 let map = mapLogic.create();
 map.setMap(mapFile);
 let salt = 'xnBZngGg*+FhQz??V6FMjfd9G4m5w^z8P*6';
+//this is being hard coded for now until I figure out a better solution
+let playerSize = {width: 80, height: 80};
 
 //------------------------------------------------------------------
 //
@@ -35,12 +37,13 @@ let salt = 'xnBZngGg*+FhQz??V6FMjfd9G4m5w^z8P*6';
 //
 //------------------------------------------------------------------
 function createMissile(clientId, playerModel) {
+    let offset = calcXYBulletOffset(playerModel.direction,playerSize);
     let missile = Missile.create({
         id: nextMissileId++,
         clientId: clientId,
         worldCordinates: {
-            x: playerModel.worldCordinates.x,
-            y: playerModel.worldCordinates.y
+            x: playerModel.worldCordinates.x + offset.x,
+            y: playerModel.worldCordinates.y - offset.y
         },
         direction: playerModel.direction,
         speed: playerModel.speed
@@ -110,6 +113,28 @@ function collided(obj1, obj2) {
     return distance <= radii;
 }
 
+
+function calcXYBulletOffset(direction,imageSize){
+    let offsetX = null;
+    let offsetY = null;
+    //these are hard coded for now, essentially the 20 is 1/4 the actual size of the image, and the 8 is 1/10 the actual size of the image
+    if (direction < 0){
+        offsetX = (imageSize.width/4)*Math.cos(-direction) + (imageSize.width/10);
+    }
+    else{
+        offsetX = (imageSize.width/4)*Math.cos(-direction) - (imageSize.width/10);
+    }
+    if (Math.abs(direction) < (Math.PI/2)){
+        offsetY = (imageSize.height/4)*Math.sin(-direction) - (imageSize.height/10); //this value depends on the direction
+    }
+    else {
+        offsetY = (imageSize.height/4)*Math.sin(-direction) + (imageSize.height/10);
+    }
+    return {
+        x: offsetX,
+        y: offsetY
+    }
+}
 //------------------------------------------------------------------
 //
 // Update the simulation of the game.

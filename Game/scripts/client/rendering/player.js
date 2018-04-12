@@ -18,10 +18,12 @@ MyGame.renderer.Player = (function(graphics) {
         graphics.drawImageSpriteSheet( sprite.spriteSheet,
             { width: sprite.pixelWidth, height: sprite.pixelHeight },
             sprite.sprite,
-            {x: sprite.printCenter.x, y: sprite.printCenter.y},
+            {x: sprite.printCenter.x - (sprite.width/2), y: sprite.printCenter.y -(sprite.height/2)},
             { width: sprite.width, height: sprite.height });
         graphics.restoreContext();
     };
+
+        
 
     return that;
 
