@@ -53,11 +53,12 @@ MyGame.screens['options'] = (function(input) {
     document.getElementById('moveDown').name = input.KeyEvent.DOM_VK_S;
     document.getElementById('extendFOV').name = input.KeyEvent.DOM_VK_Q;
     document.getElementById('shortenFOV').name = input.KeyEvent.DOM_VK_E;
-    document.getElementById('rapidFire').name = input.KeyEvent.DOM_VK_SPACE;
+    document.getElementById('rapidFire').name = input.KeyEvent.DOM_VK_V;
+    document.getElementById('fire').name = input.KeyEvent.DOM_VK_SPACE;
     
     document.getElementById('id-options-back').addEventListener(
         'click',
-        function() { quit = true; MyGame.pregame.showScreen('main-menu'); }
+        function() { MyGame.pregame.showScreen('main-menu'); }
     );
 
     assignKeyButton('moveLeft');
@@ -67,6 +68,7 @@ MyGame.screens['options'] = (function(input) {
     assignKeyButton('extendFOV');
     assignKeyButton('shortenFOV');
     assignKeyButton('rapidFire');
+    assignKeyButton('fire');
 
   }
 

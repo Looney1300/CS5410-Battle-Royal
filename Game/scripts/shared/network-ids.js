@@ -48,6 +48,10 @@
             value: 'fire',
             writable: false
         },
+        'INPUT_RAPIDFIRE': {
+            value: 'rapid-fire',
+            writable: false
+        },
         'MOUSE_MOVE': {
             value: 'mouse-move',
             writable: false

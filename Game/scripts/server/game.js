@@ -49,6 +49,12 @@ function createMissile(clientId, playerModel) {
     newMissiles.push(missile);
 }
 
+function createRapidMissile(clientId, playerModel){
+    if(true){
+        createMissile(clientId, playerModel);
+    }
+}
+
 //------------------------------------------------------------------
 //
 // Process the network inputs we have received since the last time
@@ -87,6 +93,9 @@ function processInput(elapsedTime) {
                 break;
             case NetworkIds.INPUT_FIRE:
                 createMissile(input.clientId, client.player);
+                break;
+            case NetworkIds.INPUT_RAPIDFIRE:
+                createRapidMissile(input.clientId, client.player);
                 break;
             case NetworkIds.MOUSE_MOVE:
                 client.player.changeDirection(input.message.x, input.message.y, input.message.viewPort);

@@ -413,11 +413,21 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 let message = {
                     id: messageId++,
                     elapsedTime: elapsedTime,
+                    type: NetworkIds.INPUT_RAPIDFIRE
+                };
+                socket.emit(NetworkIds.INPUT, message);
+            },
+            input.KeyEvent.rapidFire, true, 80);
+
+        myKeyboard.registerHandler(elapsedTime => {
+                let message = {
+                    id: messageId++,
+                    elapsedTime: elapsedTime,
                     type: NetworkIds.INPUT_FIRE
                 };
                 socket.emit(NetworkIds.INPUT, message);
             },
-            input.KeyEvent.rapidFire, true, 100);
+            input.KeyEvent.fire, false);
 
         myKeyboard.registerHandler(fov.widen, input.KeyEvent.shortenFOV, true);
         myKeyboard.registerHandler(fov.thin, input.KeyEvent.extendFOV, true);
