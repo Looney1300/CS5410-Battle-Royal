@@ -90,17 +90,25 @@ function updatePowerUps(){
 //------------------------------------------------------------------
 function createMissile(clientId, playerModel) {
     if(playerModel.has_gun){
-        let missile = Missile.create({
-            id: nextMissileId++,
-            clientId: clientId,
-            worldCordinates: {
-                x: playerModel.worldCordinates.x,
-                y: playerModel.worldCordinates.y
-            },
-            direction: playerModel.direction,
-            speed: playerModel.speed
-        });
-        newMissiles.push(missile);
+        if(playerModel.firedAShot()){
+            let tempmistime = playerModel.missileTime;
+            if(playerModel.has_long_range){
+                tempmistime = 2*tempmistime;
+                //console.log('!!!!!!!!!');
+            }
+            let missile = Missile.create({
+                id: nextMissileId++,
+                clientId: clientId,
+                worldCordinates: {
+                    x: playerModel.worldCordinates.x,
+                    y: playerModel.worldCordinates.y
+                },
+                timeRemaining: tempmistime,
+                direction: playerModel.direction,
+                speed: playerModel.speed
+            });
+            newMissiles.push(missile);
+        }
     }
 }
 
@@ -195,6 +203,8 @@ function update(elapsedTime, currentTime) {
             if(collided(activeClients[clientId].player,weaponPowerUps[weapon])){
                 // if they collided give the reward and remove the powerup from the player.
                 console.log('the player ran over a weapon!');
+                activeClients[clientId].player.foundGun();
+                weaponPowerUps.splice(weapon,1);
             }
         }
 
@@ -202,6 +212,8 @@ function update(elapsedTime, currentTime) {
             if(collided(activeClients[clientId].player,fire_ratePowerUps[fire_rate])){
                 // if they collided give the reward and remove the powerup from the player.
                 console.log('the player ran over a fire-rate!');
+
+                fire_ratePowerUps.splice(fire_rate,1);
             }
         }
 
@@ -209,6 +221,8 @@ function update(elapsedTime, currentTime) {
             if(collided(activeClients[clientId].player,fire_rangePowerUps[fire_range])){
                 // if they collided give the reward and remove the powerup from the player.
                 console.log('the player ran over a fire_range!');
+                activeClients[clientId].player.foundLongRange();
+                fire_rangePowerUps.splice(fire_range,1);
             }
         }
 
@@ -216,6 +230,8 @@ function update(elapsedTime, currentTime) {
             if(collided(activeClients[clientId].player,healthPowerUps[health])){
                 // if they collided give the reward and remove the powerup from the player.
                 console.log('the player ran over a health!');
+                activeClients[clientId].player.foundMedPack();
+                healthPowerUps.splice(health,1);
             }
         }
 
@@ -223,6 +239,8 @@ function update(elapsedTime, currentTime) {
             if(collided(activeClients[clientId].player,ammoPowerUps[ammo])){
                 // if they collided give the reward and remove the powerup from the player.
                 console.log('the player ran over a ammo!');
+                activeClients[clientId].player.foundAmmoPack();
+                ammoPowerUps.splice(ammo,1);
             }
         }
     }
