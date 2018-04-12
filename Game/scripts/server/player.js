@@ -37,8 +37,9 @@ function createPlayer(mapLogic) {
     let has_rapid_fire = false;
     let isSprinting = false;
     let sprintEnergy = 100;
-    let SPRINT_FACTOR = 2; // how fast to sprint vs regular speed
-    let SPRINT_DECREASE_RATE = .1 // this is per millisecond
+    let SPRINT_FACTOR = 1.5; // how fast to sprint vs regular speed
+    let SPRINT_DECREASE_RATE = .05 // how long to be able to sprint: this is per millisecond
+    let SPRINT_RECOVERY_RATE = .003 // how fast you regenerate sprint: this is per millisecond
 
 
     let missileTime = 1500;
@@ -312,6 +313,10 @@ function createPlayer(mapLogic) {
     //
     //------------------------------------------------------------------
     that.update = function(when) {
+        if (sprintEnergy < 100 && !isSprinting){
+            sprintEnergy += SPRINT_RECOVERY_RATE * when;
+        }
+        isSprinting = false;
     };
 
     return that;

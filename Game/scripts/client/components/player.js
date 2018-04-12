@@ -39,6 +39,7 @@ MyGame.components.Player = function(mapLogic) {
     let sprintEnergy = 100;
     let SPRINT_FACTOR = 2; // how fast to sprint vs regular speed
     let SPRINT_DECREASE_RATE = .1 // this is per millisecond
+    let SPRINT_RECOVERY_RATE = .05 // this is per millisecond
 
 
 
@@ -181,6 +182,10 @@ MyGame.components.Player = function(mapLogic) {
     };
 
     that.update = function(elapsedTime, viewPort) {
+        if (sprintEnergy < 100 && !isSprinting){
+            sprintEnergy += SPRINT_RECOVERY_RATE * elapsedTime;
+        }
+        isSprinting = false;
         let diffX = (viewPort.center.x - this.worldCordinates.x)/viewPort.width;
         let diffY = (viewPort.center.y - this.worldCordinates.y)/viewPort.height;
         this.position.x = 0.5 - diffX;

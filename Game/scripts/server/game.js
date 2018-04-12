@@ -206,7 +206,6 @@ function update(elapsedTime, currentTime) {
     // We need to check every client against every powerup.
 
     for (let clientId in activeClients) {
-        //activeClients[clientId].player.update(currentTime);
         for(let weapon = weaponPowerUps.length - 1; weapon >= 0; weapon-- ){
             if(collided(activeClients[clientId].player,weaponPowerUps[weapon])){
                 // if they collided give the reward and remove the powerup from the player.
@@ -256,7 +255,8 @@ function update(elapsedTime, currentTime) {
     // Now that we have checked every powerup against every player
 
     for (let clientId in activeClients) {
-        activeClients[clientId].player.update(currentTime);
+        //Question about currentTime vs elapsedTime, what should be put right here?
+        activeClients[clientId].player.update(elapsedTime);
     }
 
     for (let missile = 0; missile < newMissiles.length; missile++) {
