@@ -113,7 +113,7 @@ function createMissile(clientId, playerModel) {
 }
 
 function createRapidMissile(clientId, playerModel){
-    if(true){
+    if(playerModel.has_rapid_fire){
         createMissile(clientId, playerModel);
     }
 }
@@ -212,7 +212,7 @@ function update(elapsedTime, currentTime) {
             if(collided(activeClients[clientId].player,fire_ratePowerUps[fire_rate])){
                 // if they collided give the reward and remove the powerup from the player.
                 console.log('the player ran over a fire-rate!');
-
+                activeClients[clientId].player.foundRapidFire();
                 fire_ratePowerUps.splice(fire_rate,1);
             }
         }
