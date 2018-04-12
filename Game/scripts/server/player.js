@@ -37,6 +37,7 @@ function createPlayer(mapLogic) {
     let has_rapid_fire = false;
 
 
+    let missileTime = 1500;
 
     let size = {
         width: 0.01,
@@ -49,6 +50,12 @@ function createPlayer(mapLogic) {
     let speed = 0.2;                  // unit distance per millisecond
     let reportUpdate = false;    // Indicates if this model was updated during the last update
     let moveRate = 200;
+
+
+    Object.defineProperty(that, 'missileTime', {
+        get: () => missileTime,
+        set: value => missileTime = value
+    });
 
     Object.defineProperty(that, 'has_gun', {
         get: () => has_gun,
@@ -175,8 +182,11 @@ function createPlayer(mapLogic) {
     };
 
     that.scoredAHit = function(){
-        reportUpdate = true;
-        score += 1;
+        if(is_alive){
+            reportUpdate = true;
+            score += 1;
+        }
+
     };
 
     that.wasHit = function(){
@@ -192,16 +202,20 @@ function createPlayer(mapLogic) {
     };
 
     that.foundMedPack = function(){
-        this.life_remaining = this.life_remaining + 20;
-        if(life_remaining > 100){
-            life_remaining = 100;
+        if(is_alive){
+            life_remaining = this.life_remaining + 20;
+            if(life_remaining > 100){
+                life_remaining = 100;
+            }
         }
     };
     
     that.foundAmmoPack = function(){
-        ammo_remaining = ammo_remaining + 20;
-        if(ammo_remaining > 40){
-            ammo_remaining = 40;
+        if(is_alive){
+            ammo_remaining = ammo_remaining + 20;
+            if(ammo_remaining > 40){
+                ammo_remaining = 40;
+            }
         }
     };
 
@@ -218,7 +232,21 @@ function createPlayer(mapLogic) {
     };
 
     that.firedAShot = function(){
-        ammo_remaining--;
+        if(is_alive){
+            ammo_remaining--;
+            if(ammo_remaining <= 0){
+                ammo_remaining = 0;
+                return false;
+            }
+            else{
+                return true;
+    
+            }
+        }
+        else{
+            return false;
+        }
+
     };
 
     //------------------------------------------------------------------
