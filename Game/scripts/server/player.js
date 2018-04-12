@@ -22,12 +22,20 @@ function createPlayer(mapLogic) {
         y: 0.5
     };
 
+    let userName = '';
+
     let worldCordinates = random.getRandomMapCords(map, map.mapHeight, map.mapWidth);
 
 
     let score = 0;
     let is_alive = true;
     let life_remaining = 100;
+
+    let ammo_remaining = 20;
+    let has_gun = false;
+    let has_long_range = false;
+    let has_rapid_fire = false;
+
 
 
     let size = {
@@ -41,6 +49,31 @@ function createPlayer(mapLogic) {
     let speed = 0.2;                  // unit distance per millisecond
     let reportUpdate = false;    // Indicates if this model was updated during the last update
     let moveRate = 200;
+
+    Object.defineProperty(that, 'has_gun', {
+        get: () => has_gun,
+        set: value => has_gun = value
+    });
+
+    Object.defineProperty(that, 'has_long_range', {
+        get: () => has_long_range,
+        set: value => has_long_range = value
+    });
+
+    Object.defineProperty(that, 'has_rapid_fire', {
+        get: () => has_rapid_fire,
+        set: value => has_rapid_fire = value
+    });
+
+    Object.defineProperty(that, 'ammo_remaining', {
+        get: () => ammo_remaining,
+        set: value => ammo_remaining = value
+    });
+
+    Object.defineProperty(that, 'userName', {
+        get: () => userName,
+        set: value => userName = value
+    });
 
     Object.defineProperty(that, 'score', {
         get: () => score
@@ -144,7 +177,6 @@ function createPlayer(mapLogic) {
     that.scoredAHit = function(){
         reportUpdate = true;
         score += 1;
-
     };
 
     that.wasHit = function(){
@@ -154,11 +186,40 @@ function createPlayer(mapLogic) {
             is_alive = false;
         }
         if(!is_alive){
-            console.log('I am dead!');
+            life_remaining = 0;
+            //console.log('I am dead!');
         }
+    };
 
+    that.foundMedPack = function(){
+        this.life_remaining = this.life_remaining + 20;
+        if(life_remaining > 100){
+            life_remaining = 100;
+        }
     };
     
+    that.foundAmmoPack = function(){
+        ammo_remaining = ammo_remaining + 20;
+        if(ammo_remaining > 40){
+            ammo_remaining = 40;
+        }
+    };
+
+    that.foundGun = function(){
+        has_gun = true;
+    };
+
+    that.foundRapidFire = function(){
+        has_rapid_fire = true;
+    };
+
+    that.foundLongRange = function(){
+        has_long_range = true;
+    };
+
+    that.firedAShot = function(){
+        ammo_remaining--;
+    };
 
     //------------------------------------------------------------------
     //
