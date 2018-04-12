@@ -120,7 +120,6 @@ function createRapidMissile(clientId, playerModel){
 
 function sprint(clientId, playerModel){
     playerModel.isSprinting = true;
-    console.log('Sprint energy', playerModel.sprintEnergy);
 }
 
 //------------------------------------------------------------------
