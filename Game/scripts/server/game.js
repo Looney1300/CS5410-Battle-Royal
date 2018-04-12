@@ -11,7 +11,8 @@ let Missile = require('./missile');
 let NetworkIds = require('../shared/network-ids');
 let Queue = require('../shared/queue.js');
 let mapLogic = require('../shared/map');
-let mapFile = require('../shared/maps/SmallMap');
+let mapFile = require('../shared/maps/medium');
+// let mapFile = require('../shared/maps/SmallMap');
 let CryptoJS = require('crypto-js');
 let fs = require('fs');
 
@@ -28,6 +29,7 @@ let nextMissileId = 1;
 let map = mapLogic.create();
 map.setMap(mapFile);
 let salt = 'xnBZngGg*+FhQz??V6FMjfd9G4m5w^z8P*6';
+let shield = 
 
 //------------------------------------------------------------------
 //

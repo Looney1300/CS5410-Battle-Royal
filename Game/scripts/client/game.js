@@ -10,11 +10,16 @@ MyGame.main = (function(graphics, renderer, input, components) {
         myKeyboard = input.Keyboard(),
         myMouse = input.Mouse(),
         map = Map.create(),
-        smallMap = SmallMap.create();
-    map.setMap(smallMap.data);
+        // smallMap = SmallMap.create();
+        mediumMap = MediumMap.create();
+    map.setMap(mediumMap.data);
     let playerSelf = {
             model: components.Player(map),
             texture: MyGame.assets['player-self']
+        },
+        miniMap = {
+            model: components.MiniMap(),
+            texture: MyGame.assets['miniMapMedium']
         },
         fov = components.FOV(),
         playerOthers = {},
@@ -310,6 +315,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         renderer.ViewPortal.render();
         renderer.FOV.render(fov);
         renderer.Player.render(playerSelf.model, playerSelf.texture);
+        renderer.MiniMap.render(miniMap.model, miniMap.texture);
         for (let id in playerOthers) {
             let player = playerOthers[id];
             renderer.PlayerRemote.render(player.model, player.texture);

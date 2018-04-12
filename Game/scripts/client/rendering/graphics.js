@@ -10,8 +10,9 @@ MyGame.graphics = (function() {
     let context = canvas.getContext('2d');
     
     let map = Map.create();
-    let smallMap = SmallMap.create();
-    map.setMap(smallMap.data);
+    // let smallMap = SmallMap.create();
+    let medium = MediumMap.create();
+    map.setMap(medium.data);
     let image = new Image();
     image.src = map.mapFile.tilesets[1].image;
     let viewPort = MyGame.components.ViewPortal();
@@ -76,8 +77,8 @@ MyGame.graphics = (function() {
     }
 
     function updateCanvas() {
-        canvas.width = 700;
-        canvas.height = 700;
+        canvas.width = 600;
+        canvas.height = 600;
     }
 
     //------------------------------------------------------------------
@@ -148,6 +149,17 @@ MyGame.graphics = (function() {
         context.lineWidth = 2;
         context.strokeStyle = '#666666';
         context.stroke();
+    }
+
+    //------------------------------------------------------------------
+    //
+    // Draw the mini map
+    //
+    //------------------------------------------------------------------
+    function drawMiniMap(miniMap, texture) {
+
+        context.drawImage(texture, miniMap.x, miniMap.y, miniMap.width, miniMap.height);
+
     }
 
     //------------------------------------------------------------------
@@ -401,6 +413,7 @@ MyGame.graphics = (function() {
         rotateCanvas: rotateCanvas,
         drawMapPortion: drawMapPortion,
         drawFOV : drawFOV,
+        drawMiniMap: drawMiniMap,
         drawImage: drawImage,
         drawImageSpriteSheet: drawImageSpriteSheet,
         drawCircle: drawCircle,

@@ -158,7 +158,7 @@ MyGame.components.Player = function(mapLogic) {
         }
 
         return cords;
-    }
+    };
 
     return that;
 };
