@@ -410,12 +410,14 @@ MyGame.main = (function(graphics, renderer, input, components) {
             input.KeyEvent.moveDown, true);
 
         myKeyboard.registerHandler(elapsedTime => {
-                let message = {
-                    id: messageId++,
-                    elapsedTime: elapsedTime,
-                    type: NetworkIds.INPUT_FIRE
-                };
-                socket.emit(NetworkIds.INPUT, message);
+                //if (player.hasRapidFire){
+                    let message = {
+                        id: messageId++,
+                        elapsedTime: elapsedTime,
+                        type: NetworkIds.INPUT_FIRE
+                    };
+                    socket.emit(NetworkIds.INPUT, message);
+                //}
             },
             input.KeyEvent.rapidFire, true, 100);
 
