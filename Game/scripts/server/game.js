@@ -118,6 +118,11 @@ function createRapidMissile(clientId, playerModel){
     }
 }
 
+function sprint(clientId, playerModel){
+    playerModel.isSprinting = true;
+    console.log('Sprint energy', playerModel.sprintEnergy);
+}
+
 //------------------------------------------------------------------
 //
 // Process the network inputs we have received since the last time
@@ -159,6 +164,9 @@ function processInput(elapsedTime) {
                 break;
             case NetworkIds.INPUT_RAPIDFIRE:
                 createRapidMissile(input.clientId, client.player);
+                break;
+            case NetworkIds.INPUT_SPRINT:
+                sprint(input.clientId, client.player);
                 break;
             case NetworkIds.MOUSE_MOVE:
                 client.player.changeDirection(input.message.x, input.message.y, input.message.viewPort);
@@ -345,6 +353,8 @@ function updateClients(elapsedTime) {
             score: client.player.score,
             life_remaining: client.player.life_remaining,
             is_alive: client.player.is_alive,
+            isSprinting: client.player.isSprinting,
+            sprintEnergy: client.player.sprintEnergy,
             updateWindow: lastUpdate,
             userName: client.player.userName
         };
