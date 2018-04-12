@@ -71,7 +71,10 @@ MyGame.components.Player = function(mapLogic) {
 
     Object.defineProperty(that, 'position', {
         get: () => position,
-        set: value => {position = value; }
+        set: cords => {
+            position.x = cords.x;
+            position.y = cords.y;
+        }
     });
 
     Object.defineProperty(that, 'worldCordinates', {

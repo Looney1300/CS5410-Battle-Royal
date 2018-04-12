@@ -13,18 +13,17 @@ MyGame.main = (function(graphics, renderer, input, components) {
         smallMap = SmallMap.create();
     map.setMap(smallMap.data);
     let myModel = components.Player(map);
-    console.log("my model", myModel);
     let playerSelf = {
             model: myModel,
             texture: components.AnimatedSprite({
-                spriteSheet: MyGame.assets['clientMoveGun'],
+                spriteSheet: MyGame.assets['clientIdleNoGun'],
                 spriteSize: { width: 0.07, height: 0.07 },
                 spriteCenter: {
-                    x: myModel.position.x,
-                    y: myModel.position.y,
+                    x: 0.5,
+                    y: 0.5,
                 },
-                spriteCount: 10,
-                spriteTime: [ 100, 100, 100, 100, 100, 100, 100, 100, 100, 100]
+                spriteCount: 20,
+                spriteTime: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]
             })
         },
         fov = components.FOV(),
@@ -37,8 +36,6 @@ MyGame.main = (function(graphics, renderer, input, components) {
         viewPort = graphics.viewPort,
         socket = io(),
         networkQueue = Queue.create();
-
-        console.log("center",playerSelf.texture.center);
 
         // viewPort.mapWidth = map.mapWidth;
         // viewPort.mapHeight = map.mapHeight;
@@ -134,14 +131,14 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerOthers[data.clientId] = {
             model: model,
             texture: components.AnimatedSprite({
-                spriteSheet: MyGame.assets['enemyIdleGun'],
+                spriteSheet: MyGame.assets['enemyIdleNoGun'],
                 spriteSize: { width: 0.07, height: 0.07 },
                 spriteCenter: {
-                    x: data.worldCordinates.x,
-                    y: data.worldCordinates.y
+                    x: model.state.worldCordinates.x,
+                    y: model.state.worldCordinates.y
                 },
                 spriteCount: 20,
-                spriteTime: [ 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60]
+                spriteTime: [ 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]
             })
         };
     }
@@ -310,6 +307,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.texture.worldCordinates.x = playerSelf.model.worldCordinates.x;
         playerSelf.texture.worldCordinates.y = playerSelf.model.worldCordinates.y;
         playerSelf.texture.update(elapsedTime,viewPort);
+        console.log("Game print center",playerSelf.texture.printCenter);
         fov.update(playerSelf.model);
         for (let id in playerOthers) {
             playerOthers[id].model.update(elapsedTime, viewPort);

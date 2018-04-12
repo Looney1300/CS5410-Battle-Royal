@@ -36,7 +36,11 @@ MyGame.components.AnimatedSprite = function(spec) {
 	};
 
 	Object.defineProperty(that, 'printCenter', {
-		get: () => printCenter
+		get: () => printCenter,
+		set: cords => {
+			printCenter.x = cords.x,
+			printCenter.y = cords.y
+		}
 	});
 
 	Object.defineProperty(that, 'worldCordinates', {
@@ -79,12 +83,9 @@ MyGame.components.AnimatedSprite = function(spec) {
         }
         else {
             this.printCenter.y = 0.5 + diffY;
-        }
-
-		console.log("print center",this.printCenter);
-
-
-
+		}
+		
+		console.log(this.printCenter);
 
 		//
 		// Check to see if we should update the animation frame
