@@ -55,6 +55,7 @@ MyGame.screens['options'] = (function(input) {
     document.getElementById('shortenFOV').name = input.KeyEvent.DOM_VK_E;
     document.getElementById('rapidFire').name = input.KeyEvent.DOM_VK_V;
     document.getElementById('fire').name = input.KeyEvent.DOM_VK_SPACE;
+    document.getElementById('sprint').name = input.KeyEvent.DOM_VK_SHIFT;
     
     document.getElementById('id-options-back').addEventListener(
         'click',
@@ -69,6 +70,7 @@ MyGame.screens['options'] = (function(input) {
     assignKeyButton('shortenFOV');
     assignKeyButton('rapidFire');
     assignKeyButton('fire');
+    assignKeyButton('sprint');
 
   }
 
