@@ -175,7 +175,7 @@ MyGame.graphics = (function() {
             
     }
 
-    function drawHealth(texture, center, size, life_remaining){
+    function drawHealth(center, size, life_remaining){
         let localCenter = {
             x: center.x * viewPort.width,
             y: center.y * viewPort.height
