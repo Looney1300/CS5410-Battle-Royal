@@ -227,7 +227,7 @@ MyGame.particleSystem = (function(graphics){
 // one of these effects is needed, graphics functions take care of conversion.
 //
 // --------------------------------------------------------
-MyGame.particleSystem.clientEliminated = function(location){
+MyGame.particleSystem.playerEliminated = function(location){
     let particleSpec = {
         drawUsing: MyGame.graphics.Circle,
         x: location.x - .02,

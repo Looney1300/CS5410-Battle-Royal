@@ -239,7 +239,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
         explosions[nextExplosionId] = components.AnimatedSprite({
             id: nextExplosionId++,
             spriteSheet: MyGame.assets['bloodsplosion'],
-            spriteSize: { width: 0.04, height: 0.04 },
+            spriteSize: { width: 0.035, height: 0.035 },
             spriteCenter: data.hit_location,
             spriteCount: 6,
             spriteTime: [ 80, 55, 30, 30, 30, 80]
