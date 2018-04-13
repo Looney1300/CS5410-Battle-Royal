@@ -30,6 +30,13 @@ MyGame.components.PlayerRemote = function() {
         updateWindow: 0      // Server reported time elapsed since last update
     };
 
+    let is_alive = false;
+
+    Object.defineProperty(that, 'is_alive', {
+        get: () => is_alive,
+        set: value => is_alive = value
+    });
+
     Object.defineProperty(that, 'state', {
         get: () => state
     });

@@ -91,6 +91,9 @@ function updatePowerUps(){
 //
 //------------------------------------------------------------------
 function createMissile(clientId, playerModel) {
+    if(!playerModel.is_alive){
+        return;
+    }
     if(playerModel.has_gun){
         if(playerModel.firedAShot()){
             let offset = calcXYBulletOffset(playerModel.direction,playerSize);
@@ -233,6 +236,9 @@ function update(elapsedTime, currentTime) {
     // We need to check every client against every powerup.
 
     for (let clientId in activeClients) {
+        if(!activeClients[clientId].player.is_alive){
+            continue;
+        }
         for(let weapon = weaponPowerUps.length - 1; weapon >= 0; weapon-- ){
             if(collided(activeClients[clientId].player,weaponPowerUps[weapon])){
                 // if they collided give the reward and remove the powerup from the player.
@@ -327,6 +333,9 @@ function update(elapsedTime, currentTime) {
             if (clientId !== activeMissiles[missile].clientId) {
                 if (collided(activeMissiles[missile], activeClients[clientId].player)) {
                     // This is player who was hit.
+                    if(!activeClients[clientId].player.is_alive){
+                        continue;
+                    }
                     activeClients[clientId].player.wasHit();
                     activeClients[activeMissiles[missile].clientId].player.scoredAHit();
                     hit = true;
