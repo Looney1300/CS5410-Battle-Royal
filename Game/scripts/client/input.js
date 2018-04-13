@@ -124,14 +124,13 @@ MyGame.input.Keyboard = function() {
 
 	//The button elements text is text of what key pressed,
 	// the button.name is the numeric keycode equivalent of the button pressed.
-	that.registerNextKeyPress = function(oldKeyElement, handler){
+	that.registerNextKeyPress = function(oldKeyElement){
 		document.removeEventListener('keydown', keyDown);
 		function kd(e){
 			MyGame.input.KeyEvent[oldKeyElement.id] = e.keyCode;
 			delete handlers[Number(oldKeyElement.name)];
 			oldKeyElement.name = e.keyCode;
 			oldKeyElement.innerText = MyGame.input.KeyName[e.keyCode];
-			that.registerHandler(handler, e.keyCode, true);
 			document.removeEventListener('keydown', kd);
 			document.addEventListener('keydown', keyDown);
 		};
@@ -246,7 +245,11 @@ MyGame.input.KeyEvent = (function() {
 		moveDown: 83,
 		moveLeft: 65,
 		moveRight: 68,
+		extendFOV: 81,
+		shortenFOV: 69,
 		fire: 32,
+		rapidFire: 86,
+		sprint: 16,
 		get DOM_VK_CANCEL() { return 3; },
 		get DOM_VK_HELP() { return 6; },
 		get DOM_VK_BACK_SPACE() { return 8; },

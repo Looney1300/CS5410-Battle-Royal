@@ -3,6 +3,13 @@ MyGame.screens['join-room'] = (function() {
   
     function initialize() {
       console.log('join-room is inited');
+      document.getElementById('id-join-room-back').addEventListener(
+        'click',
+        function() {
+          //socket.emit('exitedchat','gone');  
+          MyGame.pregame.showScreen('main-menu');
+        }
+      );
 
     }
   
@@ -13,7 +20,8 @@ MyGame.screens['join-room'] = (function() {
 
         document.getElementById('id-chat-start-button').addEventListener('click', function() {
             // When the button is clicked set the user name equal to the input
-            socket.emit('setUsername', document.getElementById('id-chat-name').value);
+            
+            socket.emit('setUsername', document.getElementById('userName').value);
         });
 
 
@@ -28,7 +36,23 @@ MyGame.screens['join-room'] = (function() {
            user = data.username;
            document.getElementById('join-room').innerHTML = '<input type = "text" id = "message">\
            <button type = "button" id = "id-chat-start-buttonp2" >Send</button>\
+           <button type = "button" id = "id-back-button" >Back</button>\
            <div id = "message-container"></div>';
+
+           document.getElementById('id-back-button').addEventListener(
+            'click',
+            function() {
+              socket.emit('exitedchat',document.getElementById('userName').value);
+              document.getElementById('join-room').innerHTML = '<div id = "error-container"></div>\
+              <!-- <input type = "text" id = "id-chat-name" value = "" placeholder = "Enter your name!"> -->\
+              <button type = "button" id = "id-chat-start-button">Let me chat!</button>\
+              <ul class = "menu">\
+                      <li><button id = "id-join-room-back">Back</button></li>\
+              </ul>';
+              user = undefined;
+              MyGame.pregame.showScreen('main-menu');
+            }
+          );
     
            document.getElementById('id-chat-start-buttonp2').addEventListener(
             'click',
@@ -48,6 +72,8 @@ MyGame.screens['join-room'] = (function() {
         })
     
         socket.on('BeginCountDown', function(){
+          console.log(user);
+          if(user){
             console.log('The server says to begin the count down');
             var seconds_left = 3;
             var interval = setInterval(function() {
@@ -66,6 +92,12 @@ MyGame.screens['join-room'] = (function() {
                     
                 }
             }, 1000);
+
+          }
+          else{
+
+          }
+
             
         })
 

@@ -21,6 +21,7 @@ MyGame.renderer.Player = (function(graphics) {
             {x: sprite.printCenter.x - (sprite.width/2), y: sprite.printCenter.y -(sprite.height/2)},
             { width: sprite.width, height: sprite.height });
         graphics.restoreContext();
+        graphics.drawHealth(texture, model.position, model.size, model.life_remaining);
     };
 
         
