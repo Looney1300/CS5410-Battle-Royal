@@ -61,14 +61,14 @@ ul.menu li button {
 	color: #CECEF6;
 	width: 10em;
 	height: 1.5em;
-	background: #0404B4;
-	border: 0.1em solid rgb(255, 0, 0);
+	background: #2C6732;
+	border: 0.1em solid #DFC82A;
 	border-radius: 0.5em;
 	box-shadow: 0.2em 0.2em 0.3em rgb(0, 0, 0);
 }
 
 ul.menu li button:hover {
-	background: #2E2EFE;
+	background: #2A8533;
 }
 
 ul.menu li button:active {
@@ -81,7 +81,7 @@ ul.menu li button:active {
 }
 
 .binding-buttons:hover {
-	background: #2E2EFE;
+	background: #2A8533;
 	cursor: url(../assets/darkBlue.png) 38 38, auto;
 }
 

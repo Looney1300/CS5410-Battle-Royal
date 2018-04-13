@@ -169,6 +169,67 @@ MyGame.loader = (function() {
         {
             key: 'bloodsplosion',
             source: 'assets/bloodsplosion.png'
+        },
+        {
+            key: 'clientIdleNoGun',
+            source: 'assets/Character_Sprites/user_flashlight_idle.png'
+        },
+        {
+            key: 'clientIdleGun',
+            source: 'assets/Character_Sprites/user_rifle_idle.png'
+        },
+        {
+            key: 'clientMoveNoGun',
+            source: 'assets/Character_Sprites/user_flashlight_move.png'
+        },
+        {
+            key: 'clientMoveGun',
+            source: 'assets/Character_Sprites/user_rifle_move.png'
+        },
+        {
+            key: 'enemyIdleNoGun',
+            source: 'assets/Character_Sprites/enemy_flashlight_idle.png'
+        },
+        {
+            key: 'enemyIdleGun',
+            source: 'assets/Character_Sprites/enemy_rifle_idle.png'
+        },
+        {
+            key: 'enemyMoveNoGun',
+            source: 'assets/Character_Sprites/enemy_flashlight_move.png'
+        },
+        {
+            key: 'enemyMoveGun',
+            source: 'assets/Character_Sprites/enemy_rifle_move.png'
+        },
+        {
+            key: 'ammoPowerup',
+            source: 'assets/Powerups/ammo.png'
+        },
+        {
+            key: 'healthPowerup',
+            source: 'assets/Powerups/health_powerup.png'
+        },
+        {
+            key: 'increasedFireRatePowerup',
+            source: 'assets/Powerups/increased_fire_rate.png'
+        },
+        {
+            key: 'increasedRangePowerup',
+            source: 'assets/Powerups/increased_range.png'
+        },
+        {
+            key: 'weaponPowerup',
+            source: 'assets/Powerups/weapon_powerup.png'
+        },
+        {
+            key: 'client',
+            source: 'assets/client_idle.png'
+        },
+        {
+            key: 'enemy',
+            source: 'assets/enemy_idle.png'
+>>>>>>> JUSTIN_CHARACTER_SPRITES
         }
     ];
 
