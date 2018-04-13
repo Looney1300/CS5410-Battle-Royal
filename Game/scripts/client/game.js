@@ -12,6 +12,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         map = Map.create(),
         smallMap = SmallMap.create();
     map.setMap(smallMap.data);
+
     let powerUptextures = {
         weapon: MyGame.assets['weapon'],
         fire_rate: MyGame.assets['fire-rate'],
@@ -19,9 +20,19 @@ MyGame.main = (function(graphics, renderer, input, components) {
         health: MyGame.assets['health'],
         ammo: MyGame.assets['ammo']        
     };
+    let myModel = components.Player(map);
     let playerSelf = {
-            model: components.Player(map),
-            texture: MyGame.assets['player-self']
+            model: myModel,
+            texture: components.AnimatedSprite({
+                spriteSheet: MyGame.assets['clientIdleGun'],
+                spriteSize: { width: 0.07, height: 0.07 },
+                spriteCenter: {
+                    x: 0.5,
+                    y: 0.5,
+                },
+                spriteCount: 20,
+                spriteTime: [60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60]
+            })
         },
         fov = components.FOV(),
         playerOthers = {},
@@ -139,7 +150,16 @@ MyGame.main = (function(graphics, renderer, input, components) {
 
         playerOthers[data.clientId] = {
             model: model,
-            texture: MyGame.assets['player-other']
+            texture: components.AnimatedSprite({
+                spriteSheet: MyGame.assets['enemyIdleGun'],
+                spriteSize: { width: 0.07, height: 0.07},
+                spriteCenter: {
+                    x: model.state.worldCordinates.x,
+                    y: model.state.worldCordinates.y
+                },
+                spriteCount: 20,
+                spriteTime: [ 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60]
+            })
         };
     }
 
@@ -174,6 +194,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.model.score = data.score;
         playerSelf.model.life_remaining = data.life_remaining;
         playerSelf.is_alive = data.is_alive;
+        playerSelf.texture.worldCordinates.x = data.worldCordinates.x;
+        playerSelf.texture.worldCordinates.y = data.worldCordinates.y;
 
         //
         // Remove messages from the queue up through the last one identified
@@ -326,9 +348,15 @@ MyGame.main = (function(graphics, renderer, input, components) {
     function update(elapsedTime) {
         viewPort.update(graphics, playerSelf.model.worldCordinates);
         playerSelf.model.update(elapsedTime, viewPort);
+        playerSelf.texture.worldCordinates.x = playerSelf.model.worldCordinates.x;
+        playerSelf.texture.worldCordinates.y = playerSelf.model.worldCordinates.y;
+        playerSelf.texture.update(elapsedTime,viewPort);
         fov.update(playerSelf.model);
         for (let id in playerOthers) {
             playerOthers[id].model.update(elapsedTime, viewPort);
+            playerOthers[id].texture.worldCordinates.x = playerOthers[id].model.state.worldCordinates.x;
+            playerOthers[id].texture.worldCordinates.y = playerOthers[id].model.state.worldCordinates.y;
+            playerOthers[id].texture.update(elapsedTime,viewPort);
         }
 
         let removeMissiles = [];
@@ -381,10 +409,10 @@ MyGame.main = (function(graphics, renderer, input, components) {
         graphics.clear();
         renderer.ViewPortal.render();
         renderer.FOV.render(fov);
-        renderer.Player.render(playerSelf.model, playerSelf.texture);
+        renderer.Player.render(playerSelf.model,playerSelf.texture);
         for (let id in playerOthers) {
             let player = playerOthers[id];
-            renderer.PlayerRemote.render(player.model, player.texture);
+            renderer.PlayerRemote.render(player.model,player.texture);
         }
 
         for(let power = 0; power<powerUps.length; power++){
@@ -394,7 +422,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         //powerUps.length = 0;
 
         for (let missile in missiles) {
-            renderer.Missile.render(missiles[missile]);
+            renderer.Missile.render(missiles[missile],playerSelf.texture);
         }
 
         for (let id in explosions) {
