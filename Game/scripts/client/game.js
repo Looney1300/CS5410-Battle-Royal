@@ -203,6 +203,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //
     //------------------------------------------------------------------
     function updatePlayerOther(data) {
+        
         if (playerOthers.hasOwnProperty(data.clientId)) {
             let model = playerOthers[data.clientId].model;
             model.goal.updateWindow = data.updateWindow;
@@ -210,7 +211,10 @@ MyGame.main = (function(graphics, renderer, input, components) {
             model.goal.worldCordinates.x = data.worldCordinates.x;
             model.goal.worldCordinates.y = data.worldCordinates.y;
             model.goal.direction = data.direction;
+            model.is_alive = data.is_alive;
+            //console.log(data.is_alive);
         }
+        //console.log(data.is_alive);
     }
 
     //------------------------------------------------------------------
@@ -384,7 +388,12 @@ MyGame.main = (function(graphics, renderer, input, components) {
         renderer.Player.render(playerSelf.model, playerSelf.texture);
         for (let id in playerOthers) {
             let player = playerOthers[id];
-            renderer.PlayerRemote.render(player.model, player.texture);
+            //console.log(player.model.is_alive);
+            if(player.model.is_alive){
+                renderer.PlayerRemote.render(player.model, player.texture);
+                continue;
+            }
+            
         }
 
         for(let power = 0; power<powerUps.length; power++){
