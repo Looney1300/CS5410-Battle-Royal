@@ -40,6 +40,8 @@ let nextMissileId = 1;
 let map = mapLogic.create();
 map.setMap(mapFile);
 let salt = 'xnBZngGg*+FhQz??V6FMjfd9G4m5w^z8P*6';
+//this is being hard coded for now until I figure out a better solution
+let playerSize = {width: 80, height: 80};
 
 
 
@@ -94,6 +96,7 @@ function createMissile(clientId, playerModel) {
     }
     if(playerModel.has_gun){
         if(playerModel.firedAShot()){
+            let offset = calcXYBulletOffset(playerModel.direction,playerSize);
             let tempmistime = playerModel.missileTime;
             if(playerModel.has_long_range){
                 tempmistime = 2*tempmistime;
@@ -103,8 +106,8 @@ function createMissile(clientId, playerModel) {
                 id: nextMissileId++,
                 clientId: clientId,
                 worldCordinates: {
-                    x: playerModel.worldCordinates.x,
-                    y: playerModel.worldCordinates.y
+                    x: playerModel.worldCordinates.x + offset.x,
+                    y: playerModel.worldCordinates.y - offset.y
                 },
                 timeRemaining: tempmistime,
                 direction: playerModel.direction,
@@ -195,6 +198,28 @@ function collided(obj1, obj2) {
     return distance <= radii;
 }
 
+
+function calcXYBulletOffset(direction,imageSize){
+    let offsetX = null;
+    let offsetY = null;
+    //these are hard coded for now, essentially the 20 is 1/4 the actual size of the image, and the 8 is 1/10 the actual size of the image
+    if (direction < 0){
+        offsetX = (imageSize.width/4)*Math.cos(-direction) + (imageSize.width/10);
+    }
+    else{
+        offsetX = (imageSize.width/4)*Math.cos(-direction) - (imageSize.width/10);
+    }
+    if (Math.abs(direction) < (Math.PI/2)){
+        offsetY = (imageSize.height/4)*Math.sin(-direction) - (imageSize.height/10); //this value depends on the direction
+    }
+    else {
+        offsetY = (imageSize.height/4)*Math.sin(-direction) + (imageSize.height/10);
+    }
+    return {
+        x: offsetX,
+        y: offsetY
+    }
+}
 //------------------------------------------------------------------
 //
 // Update the simulation of the game.
@@ -534,7 +559,8 @@ function initializeSocketIO(httpServer) {
                     worldCordinates: newPlayer.worldCordinates,
                     rotateRate: newPlayer.rotateRate,
                     speed: newPlayer.speed,
-                    size: newPlayer.size
+                    size: newPlayer.size,
+                    position: newPlayer.position,
                 });
 
                 //
@@ -545,7 +571,8 @@ function initializeSocketIO(httpServer) {
                     worldCordinates: client.player.worldCordinates,
                     rotateRate: client.player.rotateRate,
                     speed: client.player.speed,
-                    size: client.player.size
+                    size: client.player.size,
+                    position: newPlayer.position,
                 });
             }
         }
@@ -706,7 +733,6 @@ function initializeSocketIO(httpServer) {
          });
 
          socket.on(NetworkIds.HIGH_SCORES, data => {
-            //console.log("Got a high scores request from the user!");
             var fs = require('fs');
             var obj;
             fs.readFile('../Game/data/highscores.json', 'utf8', function (err, fileData) {
@@ -719,8 +745,6 @@ function initializeSocketIO(httpServer) {
          });
 
          socket.on(NetworkIds.VALID_USER, data => {
-             //console.log("Got a login users request");
-             console.log(data.name,data.password);
              if (validUser(data.name,data.password)){
                 newPlayerName = data.name;
                 //newPlayer.userName = data.name;
@@ -732,7 +756,6 @@ function initializeSocketIO(httpServer) {
          });
 
          socket.on(NetworkIds.VALID_CREATE_USER, data => {
-             //console.log("Got a create users request");
              if(validCreateUser(data.name,data.password)){
                  newPlayerName = data.name;
                 //newPlayer.userName = data.name;
@@ -765,7 +788,6 @@ function initialize(httpServer) {
 function validUser(uName,uPassword){
     var obj = JSON.parse(fs.readFileSync('../Game/data/users.json', 'utf8'));
     for (var i = 0; i < obj.length; ++i){
-        console.log(CryptoJS.AES.decrypt(obj[i].password, salt).toString(CryptoJS.enc.Utf8));
         if (obj[i].name == uName && CryptoJS.AES.decrypt(obj[i].password, salt).toString(CryptoJS.enc.Utf8) == uPassword){
             return true;
         }
@@ -774,7 +796,6 @@ function validUser(uName,uPassword){
 }
 
 function validCreateUser(uName,uPassword){ 
-    console.log('checking for valid create user');
     var obj = JSON.parse(fs.readFileSync('../Game/data/users.json', 'utf8'));
     for (var i = 0; i < obj.length; ++i){
         if (obj[i].name == uName){

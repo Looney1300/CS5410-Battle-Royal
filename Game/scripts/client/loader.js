@@ -141,6 +141,38 @@ MyGame.loader = (function() {
             source: 'assets/explosion.png'
         },
         {
+            key: 'clientIdleNoGun',
+            source: 'assets/Character_Sprites/user_flashlight_idle.png'
+        },
+        {
+            key: 'clientIdleGun',
+            source: 'assets/Character_Sprites/user_rifle_idle.png'
+        },
+        {
+            key: 'clientMoveNoGun',
+            source: 'assets/Character_Sprites/user_flashlight_move.png'
+        },
+        {
+            key: 'clientMoveGun',
+            source: 'assets/Character_Sprites/user_rifle_move.png'
+        },
+        {
+            key: 'enemyIdleNoGun',
+            source: 'assets/Character_Sprites/enemy_flashlight_idle.png'
+        },
+        {
+            key: 'enemyIdleGun',
+            source: 'assets/Character_Sprites/enemy_rifle_idle.png'
+        },
+        {
+            key: 'enemyMoveNoGun',
+            source: 'assets/Character_Sprites/enemy_flashlight_move.png'
+        },
+        {
+            key: 'enemyMoveGun',
+            source: 'assets/Character_Sprites/enemy_rifle_move.png'
+        },
+        {
             key: 'weapon',
             source: 'assets/Powerups/weapon_powerup.png'
         },
