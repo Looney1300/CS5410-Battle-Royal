@@ -138,6 +138,9 @@ function processInput(elapsedTime) {
     while (!processMe.empty) {
         let input = processMe.dequeue();
         let client = activeClients[input.clientId];
+        if(client == undefined){
+            break;
+        }
         client.lastMessageId = input.message.id;
         switch (input.message.type) {
             case NetworkIds.INPUT_MOVE_UP:
@@ -208,6 +211,9 @@ function update(elapsedTime, currentTime) {
         for(let weapon = weaponPowerUps.length - 1; weapon >= 0; weapon-- ){
             if(collided(activeClients[clientId].player,weaponPowerUps[weapon])){
                 // if they collided give the reward and remove the powerup from the player.
+                if(activeClients[clientId].player.has_gun){
+                    continue;
+                }
                 console.log('the player ran over a weapon!');
                 activeClients[clientId].player.foundGun();
                 weaponPowerUps.splice(weapon,1);
@@ -217,6 +223,9 @@ function update(elapsedTime, currentTime) {
         for(let fire_rate = fire_ratePowerUps.length - 1; fire_rate >= 0; fire_rate-- ){
             if(collided(activeClients[clientId].player,fire_ratePowerUps[fire_rate])){
                 // if they collided give the reward and remove the powerup from the player.
+                if(activeClients[clientId].player.has_rapid_fire){
+                    continue;
+                }
                 console.log('the player ran over a fire-rate!');
                 activeClients[clientId].player.foundRapidFire();
                 fire_ratePowerUps.splice(fire_rate,1);
@@ -226,6 +235,9 @@ function update(elapsedTime, currentTime) {
         for(let fire_range = fire_rangePowerUps.length - 1; fire_range >= 0; fire_range-- ){
             if(collided(activeClients[clientId].player,fire_rangePowerUps[fire_range])){
                 // if they collided give the reward and remove the powerup from the player.
+                if(activeClients[clientId].player.has_long_range){
+                    continue;
+                }
                 console.log('the player ran over a fire_range!');
                 activeClients[clientId].player.foundLongRange();
                 fire_rangePowerUps.splice(fire_range,1);
@@ -235,6 +247,9 @@ function update(elapsedTime, currentTime) {
         for(let health = healthPowerUps.length - 1; health >= 0; health-- ){
             if(collided(activeClients[clientId].player,healthPowerUps[health])){
                 // if they collided give the reward and remove the powerup from the player.
+                if(activeClients[clientId].player.life_remaining >= 100){
+                    continue;
+                }
                 console.log('the player ran over a health!');
                 activeClients[clientId].player.foundMedPack();
                 healthPowerUps.splice(health,1);
@@ -244,6 +259,9 @@ function update(elapsedTime, currentTime) {
         for(let ammo = ammoPowerUps.length - 1; ammo >= 0; ammo-- ){
             if(collided(activeClients[clientId].player,ammoPowerUps[ammo])){
                 // if they collided give the reward and remove the powerup from the player.
+                if(activeClients[clientId].player.ammo_remaining >= 100){
+                    continue;
+                }
                 console.log('the player ran over a ammo!');
                 activeClients[clientId].player.foundAmmoPack();
                 ammoPowerUps.splice(ammo,1);

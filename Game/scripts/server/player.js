@@ -259,8 +259,8 @@ function createPlayer(mapLogic) {
     that.foundAmmoPack = function(){
         if(is_alive){
             ammo_remaining = ammo_remaining + 20;
-            if(ammo_remaining > 40){
-                ammo_remaining = 40;
+            if(ammo_remaining > 100){
+                ammo_remaining = 100;
             }
         }
     };
