@@ -44,11 +44,20 @@ MyGame.components.Player = function(mapLogic) {
 
 
 
+    Object.defineProperty(that, 'SPRINT_DECREASE_RATE', {
+        get: () => SPRINT_DECREASE_RATE,
+        set: value => SPRINT_DECREASE_RATE = value
+    })
+
+    Object.defineProperty(that, 'SPRINT_RECOVERY_RATE', {
+        get: () => SPRINT_RECOVERY_RATE,
+        set: value => SPRINT_RECOVERY_RATE = value
+    })
+
     Object.defineProperty(that, 'isSprinting', {
         get: () => isSprinting,
-        set: (value) => { isSprinting = value }
-    });
-
+        set: value => isSprinting = value
+    })
 
     Object.defineProperty(that, 'sprintEnergy', {
         get: () => sprintEnergy,

@@ -37,9 +37,9 @@ function createPlayer(mapLogic) {
     let has_rapid_fire = false;
     let isSprinting = false;
     let sprintEnergy = 100;
-    let SPRINT_FACTOR = 1.5; // how fast to sprint vs regular speed
-    let SPRINT_DECREASE_RATE = .05 // how long to be able to sprint: this is per millisecond
-    let SPRINT_RECOVERY_RATE = .003 // how fast you regenerate sprint: this is per millisecond
+    let SPRINT_FACTOR = 2.0; // how fast to sprint vs regular speed
+    let SPRINT_DECREASE_RATE = .1 // how long to be able to sprint: this is per millisecond
+    let SPRINT_RECOVERY_RATE = .05 // how fast you regenerate sprint: this is per millisecond
 
 
     let missileTime = 1500;
@@ -56,6 +56,16 @@ function createPlayer(mapLogic) {
     let reportUpdate = false;    // Indicates if this model was updated during the last update
     let moveRate = 200;
 
+
+    Object.defineProperty(that, 'SPRINT_DECREASE_RATE', {
+        get: () => SPRINT_DECREASE_RATE,
+        set: value => SPRINT_DECREASE_RATE = value
+    })
+
+    Object.defineProperty(that, 'SPRINT_RECOVERY_RATE', {
+        get: () => SPRINT_RECOVERY_RATE,
+        set: value => SPRINT_RECOVERY_RATE = value
+    })
 
     Object.defineProperty(that, 'isSprinting', {
         get: () => isSprinting,

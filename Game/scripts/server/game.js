@@ -354,6 +354,9 @@ function updateClients(elapsedTime) {
             is_alive: client.player.is_alive,
             isSprinting: client.player.isSprinting,
             sprintEnergy: client.player.sprintEnergy,
+            SPRINT_FACTOR: client.player.SPRINT_FACTOR,
+            SPRINT_DECREASE_RATE: client.player.SPRINT_DECREASE_RATE,
+            SPRINT_RECOVERY_RATE: client.player.SPRINT_RECOVERY_RATE,
             updateWindow: lastUpdate,
             userName: client.player.userName
         };

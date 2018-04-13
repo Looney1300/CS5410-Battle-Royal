@@ -165,6 +165,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.model.speed = data.speed;
         playerSelf.model.isSprinting = data.isSprinting;
         playerSelf.model.sprintEnergy = data.sprintEnergy;
+        playerSelf.model.SPRINT_FACTOR = data.SPRINT_FACTOR;
+        playerSelf.model.SPRINT_DECREASE_RATE = data.SPRINT_DECREASE_RATE;
+        playerSelf.model.SPRINT_RECOVERY_RATE = data.SPRINT_RECOVERY_RATE;
 
         playerSelf.model.userName = data.userName;
 
