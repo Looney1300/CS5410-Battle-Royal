@@ -229,7 +229,6 @@ MyGame.loader = (function() {
         {
             key: 'enemy',
             source: 'assets/enemy_idle.png'
->>>>>>> JUSTIN_CHARACTER_SPRITES
         }
     ];
 
