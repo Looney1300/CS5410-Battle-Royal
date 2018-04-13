@@ -38,8 +38,8 @@ MyGame.components.Player = function(mapLogic) {
     let isSprinting = false;
     let sprintEnergy = 100;
     let SPRINT_FACTOR = 2; // how fast to sprint vs regular speed
-    let SPRINT_DECREASE_RATE = .1 // this is per millisecond
-    let SPRINT_RECOVERY_RATE = .05 // this is per millisecond
+    let SPRINT_DECREASE_RATE = .05 // this is per millisecond
+    let SPRINT_RECOVERY_RATE = .003 // this is per millisecond
 
 
 
