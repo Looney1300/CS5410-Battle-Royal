@@ -227,26 +227,26 @@ MyGame.particleSystem = (function(graphics){
 // one of these effects is needed, graphics functions take care of conversion.
 //
 // --------------------------------------------------------
-MyGame.particleSystem.playerEliminated = function(location){
+MyGame.particleSystem.playerDied = function(location){
     let particleSpec = {
-        drawUsing: MyGame.graphics.Circle,
-        x: location.x - .02,
-        y: location.y - .02,
-        xMax: location.x + .02,
-        yMax: location.y + .02,
-        particlesPerSec: 40,
+        drawUsing: MyGame.graphics.Rectangle,
+        x: location.x - 10,
+        y: location.y - 10,
+        xMax: location.x + 10,
+        yMax: location.y + 10,
+        particlesPerSec: 2000,
         // imageSrc: 'bubble1b.png',
-        fill: Color.green,
-        stroke: Color.brown,
-        lineWidth: 2,
+        fill: Color.brown,
+        // stroke: Color.brown,
+        // lineWidth: 2,
         rotationMax: 1,
-        lifetime: {mean: 1500, std: 100},
-        speed: {mean: .02, std: .01},
-        size: {mean: .01, std: .001},
+        lifetime: {mean: 500, std: 50},
+        speed: {mean: 20, std: 10},
+        size: {mean: .004, std: .0003},
         onTop: true,
         gravity: 0,
         disappear: true,
-        duration: 500,
+        duration: 100,
     }
 
     MyGame.particleSystem.ParticleEffect(particleSpec);

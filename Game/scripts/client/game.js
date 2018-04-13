@@ -242,10 +242,10 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
             spriteSize: { width: 0.035, height: 0.035 },
             spriteCenter: data.hit_location,
             spriteCount: 6,
-            spriteTime: [ 80, 55, 30, 30, 30, 80]
+            spriteTime: [ 80, 55, 30, 30, 30, 2000]
         });
-
-        particles.enemyHit(data.hit_location);
+        particles.playerDied(data.hit_location);
+        // particles.enemyHit(data.hit_location);
 
         //
         // When we receive a hit notification, go ahead and remove the
