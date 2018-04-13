@@ -48,6 +48,14 @@
             value: 'fire',
             writable: false
         },
+        'INPUT_RAPIDFIRE': {
+            value: 'rapid-fire',
+            writable: false
+        },
+        'INPUT_SPRINT': {
+            value: 'sprint',
+            writable: false
+        },
         'MOUSE_MOVE': {
             value: 'mouse-move',
             writable: false
@@ -98,6 +106,10 @@
         },
         'VALID_CREATE_USER' : {
             value: 'valid-create-user',
+            writable: false
+        },
+        'POWER_UP_LOC' : {
+            value: 'power-up-location',
             writable: false
         },
         
