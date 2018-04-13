@@ -401,7 +401,8 @@ function updateClients(elapsedTime) {
             SPRINT_DECREASE_RATE: client.player.SPRINT_DECREASE_RATE,
             SPRINT_RECOVERY_RATE: client.player.SPRINT_RECOVERY_RATE,
             updateWindow: lastUpdate,
-            userName: client.player.userName
+            userName: client.player.userName,
+            hasWeapon: client.player.has_gun
         };
         if (client.player.reportUpdate) {
             client.socket.emit(NetworkIds.UPDATE_SELF, update);

@@ -24,7 +24,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
     let playerSelf = {
             model: myModel,
             texture: components.AnimatedSprite({
-                spriteSheet: MyGame.assets['clientIdleGun'],
+                spriteSheet: MyGame.assets['clientIdleNoGun'],
                 spriteSize: { width: 0.07, height: 0.07 },
                 spriteCenter: {
                     x: 0.5,
@@ -151,7 +151,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerOthers[data.clientId] = {
             model: model,
             texture: components.AnimatedSprite({
-                spriteSheet: MyGame.assets['enemyIdleGun'],
+                spriteSheet: MyGame.assets['enemyIdleNoGun'],
                 spriteSize: { width: 0.07, height: 0.07},
                 spriteCenter: {
                     x: model.state.worldCordinates.x,
@@ -190,7 +190,12 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.model.SPRINT_RECOVERY_RATE = data.SPRINT_RECOVERY_RATE;
 
         playerSelf.model.userName = data.userName;
-
+        //deal with has weapon
+        if (!playerSelf.hasWeapon && data.hasWeapon){
+            //change the image
+            playerSelf.texture.spriteSheet = MyGame.assets['clientIdleGun']
+        }
+        playerSelf.model.hasWeapon = data.hasWeapon;
         playerSelf.model.score = data.score;
         playerSelf.model.life_remaining = data.life_remaining;
         playerSelf.is_alive = data.is_alive;
@@ -232,6 +237,11 @@ MyGame.main = (function(graphics, renderer, input, components) {
             model.goal.worldCordinates.x = data.worldCordinates.x;
             model.goal.worldCordinates.y = data.worldCordinates.y;
             model.goal.direction = data.direction;
+            if (!model.hasWeapon && data.hasWeapon){
+                //change the image
+                playerOthers[data.ClientId].texture.spriteSheet = MyGame.assets['enemyIdleGun'];
+            }
+            model.hasWeapn = data.hasWeapon;
         }
     }
 
