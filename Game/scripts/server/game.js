@@ -91,21 +91,9 @@ function updatePowerUps(){
 //
 //------------------------------------------------------------------
 function createMissile(clientId, playerModel) {
-<<<<<<< HEAD
-    let offset = calcXYBulletOffset(playerModel.direction,playerSize);
-    let missile = Missile.create({
-        id: nextMissileId++,
-        clientId: clientId,
-        worldCordinates: {
-            x: playerModel.worldCordinates.x + offset.x,
-            y: playerModel.worldCordinates.y - offset.y
-        },
-        direction: playerModel.direction,
-        speed: playerModel.speed
-    });
-=======
     if(playerModel.has_gun){
         if(playerModel.firedAShot()){
+            let offset = calcXYBulletOffset(playerModel.direction,playerSize);
             let tempmistime = playerModel.missileTime;
             if(playerModel.has_long_range){
                 tempmistime = 2*tempmistime;
@@ -115,8 +103,8 @@ function createMissile(clientId, playerModel) {
                 id: nextMissileId++,
                 clientId: clientId,
                 worldCordinates: {
-                    x: playerModel.worldCordinates.x,
-                    y: playerModel.worldCordinates.y
+                    x: playerModel.worldCordinates.x + offset.x,
+                    y: playerModel.worldCordinates.y - offset.y
                 },
                 timeRemaining: tempmistime,
                 direction: playerModel.direction,
@@ -126,7 +114,6 @@ function createMissile(clientId, playerModel) {
         }
     }
 }
->>>>>>> master
 
 function createRapidMissile(clientId, playerModel){
     if(playerModel.has_rapid_fire){
@@ -606,22 +593,6 @@ function initializeSocketIO(httpServer) {
         console.log('Connection established: ', socket.id);
         //
         // Create an entry in our list of connected clients
-<<<<<<< HEAD
-        let newPlayer = Player.create(map);
-        newPlayer.clientId = socket.id;
-        activeClients[socket.id] = {
-            socket: socket,
-            player: newPlayer
-        };
-        socket.emit(NetworkIds.CONNECT_ACK, {
-            direction: newPlayer.direction,
-            worldCordinates: newPlayer.worldCordinates,
-            size: newPlayer.size,
-            rotateRate: newPlayer.rotateRate,
-            speed: newPlayer.speed,
-            position: newPlayer.position
-        });
-=======
         let newPlayerName = '';
         // let newPlayer = Player.create(map);
         // newPlayer.clientId = socket.id;
@@ -636,7 +607,6 @@ function initializeSocketIO(httpServer) {
         //     rotateRate: newPlayer.rotateRate,
         //     speed: newPlayer.speed
         // });
->>>>>>> master
 
         socket.on(NetworkIds.INPUT, data => {
             inputQueue.enqueue({
