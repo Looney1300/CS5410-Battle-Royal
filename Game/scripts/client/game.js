@@ -239,9 +239,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
             model.goal.direction = data.direction;
             if (!model.hasWeapon && data.hasWeapon){
                 //change the image
-                playerOthers[data.ClientId].texture.spriteSheet = MyGame.assets['enemyIdleGun'];
+                playerOthers[data.clientId].texture.spriteSheet = MyGame.assets['enemyIdleGun'];
             }
-            model.hasWeapn = data.hasWeapon;
+            model.hasWeapon = data.hasWeapon;
         }
     }
 
