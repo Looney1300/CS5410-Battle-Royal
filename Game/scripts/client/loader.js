@@ -194,19 +194,23 @@ MyGame.loader = (function() {
         },
         {
             key: 'die',
-            source: 'assets/Sounds/die.wav'
+            source: 'assets/Sounds/die.mp3'
         },
         {
             key: 'background',
-            source: 'assets/Sounds/background.wav'
+            source: 'assets/Sounds/background.mp3'
         },
         {
             key: 'gunshot',
-            source: 'assets/Sounds/gunshot.wav'
+            source: 'assets/Sounds/gunshot.mp3'
+        },
+        {
+            key: 'emptyfire',
+            source: 'assets/Sounds/emptyfire.mp3'
         },
         {
             key: 'hit',
-            source: 'assets/Sounds/hit.wav'
+            source: 'assets/Sounds/hit.mp3'
         }
 
     ];

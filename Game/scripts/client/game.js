@@ -20,6 +20,13 @@ MyGame.main = (function(graphics, renderer, input, components) {
         health: MyGame.assets['health'],
         ammo: MyGame.assets['ammo']        
     };
+
+    let sounds = {
+        gunshot: MyGame.assets['gunshot'],
+        hit:  MyGame.assets['hit'],
+        die: MyGame.assets['die'],
+        emptyfire: MyGame.assets['emptyfire']
+    }
     let myModel = components.Player(map);
     let playerSelf = {
             model: myModel,
@@ -188,16 +195,19 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.model.SPRINT_FACTOR = data.SPRINT_FACTOR;
         playerSelf.model.SPRINT_DECREASE_RATE = data.SPRINT_DECREASE_RATE;
         playerSelf.model.SPRINT_RECOVERY_RATE = data.SPRINT_RECOVERY_RATE;
-
+        playerSelf.hasBullets = data.hasBullets;
         playerSelf.model.userName = data.userName;
-        //deal with has weapon
+
         if (!playerSelf.hasWeapon && data.hasWeapon){
-            //change the image
             playerSelf.texture.spriteSheet = MyGame.assets['clientIdleGun']
         }
+
         playerSelf.model.hasWeapon = data.hasWeapon;
         playerSelf.model.score = data.score;
         playerSelf.model.life_remaining = data.life_remaining;
+        if (playerSelf.is_alive && !data.is_alive){
+            sounds.die.play();
+        }
         playerSelf.is_alive = data.is_alive;
         playerSelf.texture.worldCordinates.x = data.worldCordinates.x;
         playerSelf.texture.worldCordinates.y = data.worldCordinates.y;
@@ -279,8 +289,12 @@ MyGame.main = (function(graphics, renderer, input, components) {
             spriteCount: 16,
             spriteTime: [ 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
         });
+        //TODO: make a sound that deals with a player being hit
+        //sounds.hit.play();
+        sounds.hit.pause();
+        sounds.hit.currentTime = 0;
+        sounds.hit.play();
 
-        //
         // When we receive a hit notification, go ahead and remove the
         // associated missle from the client model.
         delete missiles[data.missileId];
@@ -375,24 +389,6 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 removeMissiles.push(missiles[missile]);
             }
         }
-
-
-
-        // if(!(powerUps.toString() === printPowerUps.toString())){
-        //     // console.log('it worked!');
-        //     // set printPowerUps equal to powerUps
-        //     console.log('are we in here?');
-        //     printPowerUps.length = 0;
-        //     for(let power = 0; power<powerUps.length; power++){
-        //         printPowerUps.push(powerUps[power])
-        //     }
-        //     powerUps.length = 0;
-           
-        // }
-
-        
-    
-
 
         for(let power = 0; power<powerUps.length; power++){
             powerUps[power].update(elapsedTime, viewPort);
@@ -535,6 +531,16 @@ MyGame.main = (function(graphics, renderer, input, components) {
                     type: NetworkIds.INPUT_FIRE
                 };
                 socket.emit(NetworkIds.INPUT, message);
+                if (playerSelf != null && playerSelf.model.hasWeapon && playerSelf.hasBullets){
+                    sounds.gunshot.pause();
+                    sounds.gunshot.currentTime = 0;
+                    sounds.gunshot.play();
+                } 
+                else if (playerSelf != null && playerSelf.model.hasWeapon && !playerSelf.hasBullets) {
+                    sounds.emptyfire.pause();
+                    sounds.emptyfire.currentTime = 0;
+                    sounds.emptyfire.play();
+                }
             },
             input.KeyEvent.fire, false);
 

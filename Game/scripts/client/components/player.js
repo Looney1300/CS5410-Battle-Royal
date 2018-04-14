@@ -31,7 +31,7 @@ MyGame.components.Player = function(mapLogic) {
     let width = 600;
 
 
-
+    let hasBullets = false;
     let score = 0;
     let life_remaining = 0;
     let is_alive = true;
@@ -123,6 +123,11 @@ MyGame.components.Player = function(mapLogic) {
     Object.defineProperty(that, 'size', {
         get: () => size
     });
+
+    Object.defineProperty(that, 'hasBullets', {
+        get: () => hasBullets,
+        set: value => hasBullets = value
+    })
 
     //------------------------------------------------------------------
     //
