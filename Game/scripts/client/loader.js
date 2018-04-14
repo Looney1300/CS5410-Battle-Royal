@@ -51,6 +51,11 @@ MyGame.loader = (function() {
             onComplete: null
         }, 
         {
+            scripts: ['persistence'],
+            message: 'Persistence loaded',
+            onComplete: null
+        }, 
+        {
             scripts: ['components/player', 'components/player-remote', 'components/missile','components/powerup', 'components/animated-sprite', 'components/view-portal', 'components/fov'],
             message: 'Player models loaded',
             onComplete: null
