@@ -192,6 +192,23 @@ MyGame.loader = (function() {
             key: 'ammo',
             source: 'assets/Powerups/ammo.png'
         },
+        {
+            key: 'die',
+            source: 'assets/Sounds/die.wav'
+        },
+        {
+            key: 'background',
+            source: 'assets/Sounds/background.wav'
+        },
+        {
+            key: 'gunshot',
+            source: 'assets/Sounds/gunshot.wav'
+        },
+        {
+            key: 'hit',
+            source: 'assets/Sounds/hit.wav'
+        }
+
     ];
 
     //------------------------------------------------------------------
