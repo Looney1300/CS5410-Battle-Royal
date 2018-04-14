@@ -211,6 +211,10 @@ MyGame.loader = (function() {
         {
             key: 'hit',
             source: 'assets/Sounds/hit.mp3'
+        },
+        {
+            key: 'rapidFire',
+            source: 'assets/Sounds/rapidFire.mp3'
         }
 
     ];

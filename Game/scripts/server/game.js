@@ -403,7 +403,8 @@ function updateClients(elapsedTime) {
             updateWindow: lastUpdate,
             userName: client.player.userName,
             hasWeapon: client.player.has_gun,
-            hasBullets: client.player.ammo_remaining > 0
+            hasBullets: client.player.ammo_remaining > 0,
+            hasRapidFire: client.player.has_rapid_fire,
         };
         if (client.player.reportUpdate) {
             client.socket.emit(NetworkIds.UPDATE_SELF, update);

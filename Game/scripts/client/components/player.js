@@ -37,6 +37,7 @@ MyGame.components.Player = function(mapLogic) {
     let is_alive = true;
     let isSprinting = false;
     let hasWeapon = false;
+    let hasRapidFire = false;
     let sprintEnergy = 100;
     let SPRINT_FACTOR = 2; // how fast to sprint vs regular speed
     let SPRINT_DECREASE_RATE = .1 // this is per millisecond
@@ -127,7 +128,12 @@ MyGame.components.Player = function(mapLogic) {
     Object.defineProperty(that, 'hasBullets', {
         get: () => hasBullets,
         set: value => hasBullets = value
-    })
+    });
+
+    Object.defineProperty(that, 'hasRapidFire', {
+        get: () => hasRapidFire,
+        set: value => hasRapidFire = value
+    });
 
     //------------------------------------------------------------------
     //

@@ -18,14 +18,15 @@ MyGame.main = (function(graphics, renderer, input, components) {
         fire_rate: MyGame.assets['fire-rate'],
         fire_range: MyGame.assets['fire-range'],
         health: MyGame.assets['health'],
-        ammo: MyGame.assets['ammo']        
+        ammo: MyGame.assets['ammo'],      
     };
 
     let sounds = {
         gunshot: MyGame.assets['gunshot'],
         hit:  MyGame.assets['hit'],
         die: MyGame.assets['die'],
-        emptyfire: MyGame.assets['emptyfire']
+        emptyfire: MyGame.assets['emptyfire'],
+        rapidFire: MyGame.assets['rapidFire'] 
     }
     let myModel = components.Player(map);
     let playerSelf = {
@@ -54,11 +55,6 @@ MyGame.main = (function(graphics, renderer, input, components) {
         socket = io(),
         networkQueue = Queue.create();
 
-        // viewPort.mapWidth = map.mapWidth;
-        // viewPort.mapHeight = map.mapHeight;
-
-
-        
         
     socket.on(NetworkIds.POWER_UP_LOC, data => {
         networkQueue.enqueue({
@@ -197,6 +193,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.model.SPRINT_RECOVERY_RATE = data.SPRINT_RECOVERY_RATE;
         playerSelf.hasBullets = data.hasBullets;
         playerSelf.model.userName = data.userName;
+        playerSelf.hasRapidFire = data.hasRapidFire;
 
         if (!playerSelf.hasWeapon && data.hasWeapon){
             playerSelf.texture.spriteSheet = MyGame.assets['clientIdleGun']
@@ -272,6 +269,11 @@ MyGame.main = (function(graphics, renderer, input, components) {
             },
             timeRemaining: data.timeRemaining
         });
+        //only play this sound if it is within a certain distance of me. So gunshots from other players can be heard, if they are less than 1000 units away from me.
+        //This allows the user to hear gunshots that are slightly outside of his viewing window.
+        if (inRange(data.worldCordinates,playerSelf.model.worldCordinates)){
+            sounds.gunshot.play();
+        }
     }
 
     //------------------------------------------------------------------
@@ -362,6 +364,26 @@ MyGame.main = (function(graphics, renderer, input, components) {
                     break;
             }
         }
+    }
+
+    //deal with sounds for firing weapon
+    function weaponSound(){
+        if (playerSelf != null && playerSelf.model.hasWeapon && playerSelf.hasBullets){
+            sounds.gunshot.pause();
+            sounds.gunshot.currentTime = 0;
+            sounds.gunshot.play();
+        } 
+        else if (playerSelf != null && playerSelf.model.hasWeapon && !playerSelf.hasBullets) {
+            sounds.emptyfire.pause();
+            sounds.emptyfire.currentTime = 0;
+            sounds.emptyfire.play();
+        }
+    }
+
+    //determine if a shot is within range 1000 in canvas coordinates?
+    function inRange(fireLocation,characterLocation){
+        var dist = Math.sqrt(Math.pow((fireLocation.x-characterLocation.x),2) + Math.pow((fireLocation.y-characterLocation.y),2))
+        return dist <= 1000;
     }
 
     //------------------------------------------------------------------
@@ -521,6 +543,10 @@ MyGame.main = (function(graphics, renderer, input, components) {
                     type: NetworkIds.INPUT_RAPIDFIRE
                 };
                 socket.emit(NetworkIds.INPUT, message);
+                //this doesn't work right as the key is held down, so nothing happens until the key is released.
+                if (playerSelf.hasRapidFire){
+                    weaponSound();         
+                }
             },
             input.KeyEvent.rapidFire, true, 80);
 
@@ -531,16 +557,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                     type: NetworkIds.INPUT_FIRE
                 };
                 socket.emit(NetworkIds.INPUT, message);
-                if (playerSelf != null && playerSelf.model.hasWeapon && playerSelf.hasBullets){
-                    sounds.gunshot.pause();
-                    sounds.gunshot.currentTime = 0;
-                    sounds.gunshot.play();
-                } 
-                else if (playerSelf != null && playerSelf.model.hasWeapon && !playerSelf.hasBullets) {
-                    sounds.emptyfire.pause();
-                    sounds.emptyfire.currentTime = 0;
-                    sounds.emptyfire.play();
-                }
+                weaponSound();
             },
             input.KeyEvent.fire, false);
 
@@ -566,6 +583,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                     type: NetworkIds.INPUT_FIRE
                 };
                 socket.emit(NetworkIds.INPUT, message);
+                weaponSound();
             });
 
         myMouse.registerHandler('mousemove', function(e) {
