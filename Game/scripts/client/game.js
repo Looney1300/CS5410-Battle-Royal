@@ -55,6 +55,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
         socket = io(),
         networkQueue = Queue.create();
 
+    let rapidUpdate = 0;
+    let rapidSound = false;
         
     socket.on(NetworkIds.POWER_UP_LOC, data => {
         networkQueue.enqueue({
@@ -271,7 +273,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
         });
         //only play this sound if it is within a certain distance of me. So gunshots from other players can be heard, if they are less than 1000 units away from me.
         //This allows the user to hear gunshots that are slightly outside of his viewing window.
-        if (inRange(data.worldCordinates,playerSelf.model.worldCordinates)){
+        if (inRange(data.worldCordinates,playerSelf.model.worldCordinates) && rapidSound){
+            //I think I only want to restart the sound every x miliseconds
             sounds.gunshot.pause();
             sounds.gunshot.currentTime = 0;
             sounds.gunshot.play();
@@ -404,6 +407,15 @@ MyGame.main = (function(graphics, renderer, input, components) {
             playerOthers[id].texture.worldCordinates.x = playerOthers[id].model.state.worldCordinates.x;
             playerOthers[id].texture.worldCordinates.y = playerOthers[id].model.state.worldCordinates.y;
             playerOthers[id].texture.update(elapsedTime,viewPort);
+        }
+
+        rapidUpdate += elapsedTime;
+        if (rapidUpdate > 30){
+            rapidSound = true;
+            rapidUpdate -= 30;
+        }
+        else {
+            rapidSound = false;
         }
 
         let removeMissiles = [];
@@ -544,6 +556,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
                     type: NetworkIds.INPUT_RAPIDFIRE
                 };
                 socket.emit(NetworkIds.INPUT, message);
+                if (playerSelf.hasRapidFire && !playerSelf.hasBullets){
+                    weaponSound();
+                }
             },
             input.KeyEvent.rapidFire, true, 80);
 
