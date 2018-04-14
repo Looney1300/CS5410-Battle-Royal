@@ -132,7 +132,6 @@ MyGame.input.Keyboard = function() {
 			oldKeyElement.name = e.keyCode;
 			oldKeyElement.innerText = MyGame.input.KeyName[e.keyCode];
 			MyGame.persistence.add(oldKeyElement.id, e.keyCode)
-			console.log('Now ' + oldKeyElement.id + ' is associated with ' + MyGame.input.KeyName[e.keyCode]);
 			document.removeEventListener('keydown', kd);
 			document.addEventListener('keydown', keyDown);
 		};

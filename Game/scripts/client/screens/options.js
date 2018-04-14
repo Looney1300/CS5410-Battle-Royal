@@ -27,7 +27,6 @@ MyGame.screens['options'] = (function(input, persistence) {
               myKeyboard.registerNextKeyPress(ele);
               //Will get added back into in the input file in Keyboard.registerNextKeyPress.
               persistence.remove(id);
-              console.log('removed ', id, ele.name);
           }
       );
   }
