@@ -163,6 +163,11 @@ MyGame.main = (function(graphics, renderer, input, components, persistence) {
         playerSelf.model.worldCordinates.x = data.worldCordinates.x;
         playerSelf.model.worldCordinates.y = data.worldCordinates.y;
         playerSelf.model.speed = data.speed;
+        playerSelf.model.isSprinting = data.isSprinting;
+        playerSelf.model.sprintEnergy = data.sprintEnergy;
+        playerSelf.model.SPRINT_FACTOR = data.SPRINT_FACTOR;
+        playerSelf.model.SPRINT_DECREASE_RATE = data.SPRINT_DECREASE_RATE;
+        playerSelf.model.SPRINT_RECOVERY_RATE = data.SPRINT_RECOVERY_RATE;
 
         playerSelf.model.userName = data.userName;
 
@@ -494,6 +499,16 @@ MyGame.main = (function(graphics, renderer, input, components, persistence) {
                 socket.emit(NetworkIds.INPUT, message);
             },
             input.KeyEvent.fire, false);
+
+        myKeyboard.registerHandler(elapsedTime => {
+                let message = {
+                    id: messageId++,
+                    elapsedTime: elapsedTime,
+                    type: NetworkIds.INPUT_SPRINT
+                };
+                socket.emit(NetworkIds.INPUT, message);
+            },
+            input.KeyEvent.sprint, true);
 
         myKeyboard.registerHandler(fov.widen, input.KeyEvent.shortenFOV, true);
         myKeyboard.registerHandler(fov.thin, input.KeyEvent.extendFOV, true);

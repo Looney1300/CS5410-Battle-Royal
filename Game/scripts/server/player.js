@@ -35,6 +35,11 @@ function createPlayer(mapLogic) {
     let has_gun = false;
     let has_long_range = false;
     let has_rapid_fire = false;
+    let isSprinting = false;
+    let sprintEnergy = 100;
+    let SPRINT_FACTOR = 2.0; // how fast to sprint vs regular speed
+    let SPRINT_DECREASE_RATE = .1 // how long to be able to sprint: this is per millisecond
+    let SPRINT_RECOVERY_RATE = .05 // how fast you regenerate sprint: this is per millisecond
 
 
     let missileTime = 1500;
@@ -51,6 +56,26 @@ function createPlayer(mapLogic) {
     let reportUpdate = false;    // Indicates if this model was updated during the last update
     let moveRate = 200;
 
+
+    Object.defineProperty(that, 'SPRINT_DECREASE_RATE', {
+        get: () => SPRINT_DECREASE_RATE,
+        set: value => SPRINT_DECREASE_RATE = value
+    })
+
+    Object.defineProperty(that, 'SPRINT_RECOVERY_RATE', {
+        get: () => SPRINT_RECOVERY_RATE,
+        set: value => SPRINT_RECOVERY_RATE = value
+    })
+
+    Object.defineProperty(that, 'isSprinting', {
+        get: () => isSprinting,
+        set: value => isSprinting = value
+    })
+
+    Object.defineProperty(that, 'sprintEnergy', {
+        get: () => sprintEnergy,
+        set: value => sprintEnergy = value
+    })
 
     Object.defineProperty(that, 'missileTime', {
         get: () => missileTime,
@@ -107,7 +132,8 @@ function createPlayer(mapLogic) {
     });
 
     Object.defineProperty(that, 'speed', {
-        get: () => speed
+        get: () => speed,
+        set: value => speed = value
     })
 
     Object.defineProperty(that, 'rotateRate', {
@@ -151,7 +177,12 @@ function createPlayer(mapLogic) {
 
     that.moveUp = function(elapsedTime) {
         reportUpdate = true;
-        let move = speed * elapsedTime;
+        let tempSpeed = speed;
+        if (isSprinting && sprintEnergy > 0){
+            tempSpeed *= SPRINT_FACTOR;
+            sprintEnergy -= SPRINT_DECREASE_RATE * elapsedTime;
+        }
+        let move = tempSpeed * elapsedTime;
         if (map.isValid(this.worldCordinates.y - move, this.worldCordinates.x)){
             this.worldCordinates.y -= move;
         }
@@ -159,7 +190,12 @@ function createPlayer(mapLogic) {
 
     that.moveDown = function(elapsedTime) {
         reportUpdate = true;
-        let move = speed * elapsedTime;
+        let tempSpeed = speed;
+        if (isSprinting && sprintEnergy > 0){
+            tempSpeed *= SPRINT_FACTOR;
+            sprintEnergy -= SPRINT_DECREASE_RATE * elapsedTime;
+        }
+        let move = tempSpeed * elapsedTime;
         if (map.isValid(this.worldCordinates.y + move, this.worldCordinates.x)){
             this.worldCordinates.y += move;
         }
@@ -167,7 +203,12 @@ function createPlayer(mapLogic) {
 
     that.moveLeft = function(elapsedTime) {
         reportUpdate = true;
-        let move = speed * elapsedTime;
+        let tempSpeed = speed;
+        if (isSprinting && sprintEnergy > 0){
+            tempSpeed *= SPRINT_FACTOR;
+            sprintEnergy -= SPRINT_DECREASE_RATE * elapsedTime;
+        }
+        let move = tempSpeed * elapsedTime;
         if (map.isValid(this.worldCordinates.y, this.worldCordinates.x - move)){
             this.worldCordinates.x -= move;
         }
@@ -175,7 +216,12 @@ function createPlayer(mapLogic) {
 
     that.moveRight = function(elapsedTime) {
         reportUpdate = true;
-        let move = speed * elapsedTime;
+        let tempSpeed = speed;
+        if (isSprinting && sprintEnergy > 0){
+            tempSpeed *= SPRINT_FACTOR;
+            sprintEnergy -= SPRINT_DECREASE_RATE * elapsedTime;
+        }
+        let move = tempSpeed * elapsedTime;
         if (map.isValid(this.worldCordinates.y, this.worldCordinates.x + move)){
             this.worldCordinates.x += move;
         }
@@ -213,8 +259,8 @@ function createPlayer(mapLogic) {
     that.foundAmmoPack = function(){
         if(is_alive){
             ammo_remaining = ammo_remaining + 20;
-            if(ammo_remaining > 40){
-                ammo_remaining = 40;
+            if(ammo_remaining > 100){
+                ammo_remaining = 100;
             }
         }
     };
@@ -277,6 +323,10 @@ function createPlayer(mapLogic) {
     //
     //------------------------------------------------------------------
     that.update = function(when) {
+        if (sprintEnergy < 100 && !isSprinting){
+            sprintEnergy += SPRINT_RECOVERY_RATE * when;
+        }
+        isSprinting = false;
     };
 
     return that;

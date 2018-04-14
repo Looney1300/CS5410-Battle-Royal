@@ -251,6 +251,7 @@ MyGame.input.KeyEvent = (function() {
 		shortenFOV: 69,
 		fire: 32,
 		rapidFire: 86,
+		sprint: 16,
 		get DOM_VK_CANCEL() { return 3; },
 		get DOM_VK_HELP() { return 6; },
 		get DOM_VK_BACK_SPACE() { return 8; },
