@@ -272,6 +272,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
         //only play this sound if it is within a certain distance of me. So gunshots from other players can be heard, if they are less than 1000 units away from me.
         //This allows the user to hear gunshots that are slightly outside of his viewing window.
         if (inRange(data.worldCordinates,playerSelf.model.worldCordinates)){
+            sounds.gunshot.pause();
+            sounds.gunshot.currentTime = 0;
             sounds.gunshot.play();
         }
     }
@@ -291,8 +293,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
             spriteCount: 16,
             spriteTime: [ 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
         });
-        //TODO: make a sound that deals with a player being hit
-        //sounds.hit.play();
+
         sounds.hit.pause();
         sounds.hit.currentTime = 0;
         sounds.hit.play();
@@ -543,10 +544,6 @@ MyGame.main = (function(graphics, renderer, input, components) {
                     type: NetworkIds.INPUT_RAPIDFIRE
                 };
                 socket.emit(NetworkIds.INPUT, message);
-                //this doesn't work right as the key is held down, so nothing happens until the key is released.
-                if (playerSelf.hasRapidFire){
-                    weaponSound();         
-                }
             },
             input.KeyEvent.rapidFire, true, 80);
 
