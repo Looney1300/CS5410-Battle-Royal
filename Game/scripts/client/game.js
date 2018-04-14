@@ -244,8 +244,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
             spriteCount: 6,
             spriteTime: [ 80, 55, 30, 30, 30, 2000]
         });
-        particles.playerDied(data.hit_location);
-        // particles.enemyHit(data.hit_location);
+        particles.enemyHit(data.hit_location);
 
         //
         // When we receive a hit notification, go ahead and remove the
