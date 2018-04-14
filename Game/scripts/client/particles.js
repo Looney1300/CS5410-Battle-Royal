@@ -227,29 +227,133 @@ MyGame.particleSystem = (function(graphics){
 // one of these effects is needed, graphics functions take care of conversion.
 //
 // --------------------------------------------------------
-MyGame.particleSystem.playerDied = function(location){
+MyGame.particleSystem.playerDied = function(location, direction){
+    let shotDirection = direction;
+    let dx = Math.cos(shotDirection);
+    let dy = Math.sin(shotDirection);
+    let loc = {x:location.x - 8.5*dx, y:location.y - 7*dy};
     let particleSpec = {
         drawUsing: MyGame.graphics.Rectangle,
-        x: location.x - 10,
-        y: location.y - 10,
-        xMax: location.x + 10,
-        yMax: location.y + 10,
-        particlesPerSec: 2000,
-        // imageSrc: 'bubble1b.png',
-        fill: Color.brown,
-        // stroke: Color.brown,
-        // lineWidth: 2,
+        x: loc.x,
+        y: loc.y,
+        xMax: loc.x,
+        yMax: loc.y,
+        particlesPerSec: 500,
+        fill: Color.green_dark,
+        stroke: Color.black,
+        lineWidth: .5,
         rotationMax: 1,
         lifetime: {mean: 500, std: 50},
         speed: {mean: 20, std: 10},
         size: {mean: .004, std: .0003},
+        gravity: 0,
+        disappear: true,
+        duration: 100,
+    }
+    MyGame.particleSystem.ParticleEffect(particleSpec);
+
+    let particleSpec2 = {
+        drawUsing: MyGame.graphics.Circle,
+        x: loc.x,
+        y: loc.y,
+        xMax: loc.x,
+        yMax: loc.y,
+        particlesPerSec: 500,
+        fill: Color.red,
+        // stroke: Color.black,
+        // lineWidth: .5,
+        // rotationMax: 1,
+        lifetime: {mean: 150, std: 0},
+        speed: {mean: 60, std: 20},
+        size: {mean: .004, std: .001},
+        gravity: 0,
+        duration: 70,
+    }
+    MyGame.particleSystem.ParticleEffect(particleSpec2);
+    
+    let particleSpec3 = {
+        drawUsing: MyGame.graphics.Circle,
+        x: loc.x,
+        y: loc.y,
+        particlesPerSec: 9,
+        fill: Color.red_dark,
+        stroke: Color.black,
+        lineWidth: 2,
+        rotationMax: 1,
+        lifetime: {mean: 700, std: 0},
+        speed: {mean: 1, std: .2},
+        size: {mean: .012, std: 0},
         onTop: true,
         gravity: 0,
         disappear: true,
         duration: 100,
     }
+    MyGame.particleSystem.ParticleEffect(particleSpec3);
+};
 
+MyGame.particleSystem.playerSelfDied = function(location, direction){
+    let shotDirection = direction;
+    let dx = Math.cos(shotDirection);
+    let dy = Math.sin(shotDirection);
+    let loc = {x:location.x - 8.5*dx, y:location.y - 7*dy};
+
+    let particleSpec = {
+        drawUsing: MyGame.graphics.Rectangle,
+        x: loc.x ,
+        y: loc.y ,
+        xMax: loc.x ,
+        yMax: loc.y ,
+        particlesPerSec: 1000,
+        fill: Color.green_dark,
+        stroke: Color.black,
+        lineWidth: .5,
+        rotationMax: 2,
+        lifetime: {mean: 700, std: 200},
+        speed: {mean: 40, std: 10},
+        size: {mean: .004, std: .001},
+        gravity: 0,
+        duration: 100,
+    }
     MyGame.particleSystem.ParticleEffect(particleSpec);
+
+    let particleSpec2 = {
+        drawUsing: MyGame.graphics.Circle,
+        x: loc.x ,
+        y: loc.y ,
+        xMax: loc.x ,
+        yMax: loc.y ,
+        particlesPerSec: 1000,
+        fill: Color.brown,
+        stroke: Color.black,
+        lineWidth: .5,
+        rotationMax: 1,
+        lifetime: {mean: 500, std: 50},
+        speed: {mean: 20, std: 10},
+        size: {mean: .004, std: .0003},
+        gravity: 0,
+        disappear: true,
+        duration: 100,
+    }
+    MyGame.particleSystem.ParticleEffect(particleSpec2);
+    
+    let particleSpec3 = {
+        drawUsing: MyGame.graphics.Circle,
+        x: loc.x,
+        y: loc.y,
+        particlesPerSec: 9,
+        fill: Color.green_dark,
+        stroke: Color.black,
+        lineWidth: 2,
+        rotationMax: 1,
+        lifetime: {mean: 500, std: 50},
+        speed: {mean: 1, std: .2},
+        size: {mean: .012, std: 0},
+        onTop: true,
+        gravity: 0,
+        disappear: true,
+        duration: 100,
+    }
+    MyGame.particleSystem.ParticleEffect(particleSpec3);
 };
 
 MyGame.particleSystem.enemyHit = function(location){

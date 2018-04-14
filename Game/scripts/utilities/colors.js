@@ -22,6 +22,8 @@ let Color = {
     white: 'rgb(255, 255, 255)',
     black: 'rgb(0, 0, 0)',
     grey: 'rgb(200, 200, 200)',
-    brown: 'rgba(110, 50, 5)',
+    brown: 'rgb(53, 47, 29)',
+    green_dark: 'rgb(51, 76, 57)',
+    red_dark: 'rgb(119, 40, 12)',
 
 }
