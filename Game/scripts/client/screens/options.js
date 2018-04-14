@@ -44,7 +44,6 @@ MyGame.screens['options'] = (function(input, persistence) {
 
     //Get keybindings
     let keybindings = persistence.retrieveKeyBindings();
-    console.log(keybindings);
 
     //If they don't exist set them.
     if (!keybindings.hasOwnProperty('moveUp')){
@@ -56,6 +55,7 @@ MyGame.screens['options'] = (function(input, persistence) {
         persistence.add('rapidFire', input.KeyEvent.rapidFire);
         persistence.add('extendFOV', input.KeyEvent.extendFOV);
         persistence.add('shortenFOV', input.KeyEvent.shortenFOV);
+        persistence.add('sprint', input.KeyEvent.sprint);
     }else{
         input.KeyEvent.moveUp = keybindings.moveUp;
         input.KeyEvent.moveDown = keybindings.moveDown;
@@ -65,6 +65,7 @@ MyGame.screens['options'] = (function(input, persistence) {
         input.KeyEvent.rapidFire = keybindings.rapidFire;
         input.KeyEvent.extendFOV = keybindings.extendFOV;
         input.KeyEvent.shortenFOV = keybindings.shortenFOV;
+        input.KeyEvent.sprint = keybindings.sprint;
     }
 
     //This is for changing the background back of the keybinding buttons.
