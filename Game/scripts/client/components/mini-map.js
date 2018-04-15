@@ -18,8 +18,8 @@ MyGame.components.MiniMap = function() {
       y: 50,
       direction: 0,
       size: {
-        width: .04,
-        height: .04
+        width: .025,
+        height: .025
       }
     },
     size = {
