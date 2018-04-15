@@ -153,17 +153,6 @@ MyGame.graphics = (function() {
 
     //------------------------------------------------------------------
     //
-    // Draw the mini map
-    //
-    //------------------------------------------------------------------
-    function drawMiniMap(miniMap, texture) {
-
-        context.drawImage(texture, miniMap.x, miniMap.y, miniMap.width, miniMap.height);
-
-    }
-
-    //------------------------------------------------------------------
-    //
     // Draw an image into the local canvas coordinate system.
     //
     //------------------------------------------------------------------
@@ -182,6 +171,28 @@ MyGame.graphics = (function() {
             localCenter.y - localSize.height / 2,
             localSize.width,
             localSize.height);
+    }
+
+    //------------------------------------------------------------------
+    //
+    // Draw a portion of an image on the canvasd
+    //
+    //------------------------------------------------------------------
+    function drawCroppedImage(texture, cord, size, clipping){
+        context.drawImage(texture, clipping.x, clipping.y, clipping.size.width, clipping.size.height,
+            cord.x * viewPort.width, cord.y * viewPort.height, 
+            size.width * viewPort.width, size.height * viewPort.height);
+    }
+
+    //------------------------------------------------------------------
+    //
+    // Draw a time at a specific place on the canvas
+    //
+    //------------------------------------------------------------------
+    function drawTime(time, cord) {
+        context.font = "12px Arial";
+        context.fillStyle = "#ffffff";
+        context.fillText(time, cord.x * viewPort.width, cord.y * viewPort.height);
     }
 
     //------------------------------------------------------------------
@@ -413,8 +424,9 @@ MyGame.graphics = (function() {
         rotateCanvas: rotateCanvas,
         drawMapPortion: drawMapPortion,
         drawFOV : drawFOV,
-        drawMiniMap: drawMiniMap,
         drawImage: drawImage,
+        drawCroppedImage: drawCroppedImage,
+        drawTime: drawTime,
         drawImageSpriteSheet: drawImageSpriteSheet,
         drawCircle: drawCircle,
         Circle: Circle,

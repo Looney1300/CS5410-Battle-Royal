@@ -65,7 +65,7 @@ MyGame.components.Player = function(mapLogic) {
     //------------------------------------------------------------------
     that.changeDirection = function(x, y, viewPort) {
         // direction = Math.atan2(y - (position.y * viewPort.height), x - (position.x * viewPort.width));
-        this.direction = Math.atan2(y - this.worldCordinates.y, x - this.worldCordinates.x);
+        direction = Math.atan2(y - this.worldCordinates.y, x - this.worldCordinates.x);
     };
 
     that.moveUp = function(elapsedTime) {

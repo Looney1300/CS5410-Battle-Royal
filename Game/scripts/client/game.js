@@ -19,8 +19,10 @@ MyGame.main = (function(graphics, renderer, input, components) {
         },
         miniMap = {
             model: components.MiniMap(),
-            texture: MyGame.assets['miniMapMedium']
+            mapTexture: MyGame.assets['miniMapMedium'],
+            playerTexture: MyGame.assets['playerIcon']
         },
+        mapIconTexture = MyGame.assets['mapIcons'],
         fov = components.FOV(),
         playerOthers = {},
         missiles = {},
@@ -282,6 +284,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         viewPort.update(graphics, playerSelf.model.worldCordinates);
         playerSelf.model.update(elapsedTime, viewPort);
         fov.update(playerSelf.model);
+        miniMap.model.update(playerSelf.model, null, viewPort);
         for (let id in playerOthers) {
             playerOthers[id].model.update(elapsedTime, viewPort);
         }
@@ -315,7 +318,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         renderer.ViewPortal.render();
         renderer.FOV.render(fov);
         renderer.Player.render(playerSelf.model, playerSelf.texture);
-        renderer.MiniMap.render(miniMap.model, miniMap.texture);
+        renderer.MiniMap.render(miniMap.model, miniMap.mapTexture, miniMap.playerTexture, mapIconTexture);
         for (let id in playerOthers) {
             let player = playerOthers[id];
             renderer.PlayerRemote.render(player.model, player.texture);

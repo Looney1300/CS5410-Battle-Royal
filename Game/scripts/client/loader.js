@@ -155,6 +155,14 @@ MyGame.loader = (function() {
         {
             key: 'miniMapMedium',
             source: 'assets/mediumMapImage.png'
+        },
+        {
+            key: 'mapIcons',
+            source: 'assets/powers.png'
+        },
+        {
+            key: 'playerIcon',
+            source: 'assets/white-cursor.png'
         }
     ];
 
