@@ -214,9 +214,26 @@ MyGame.main = (function(graphics, renderer, input, components) {
         let memory = Queue.create();
         while (!messageHistory.empty) {
             let message = messageHistory.dequeue();
+            // console.log('-----> ',message.type,' <-----');
+            switch (message.type) {
+                case 'move-up':
+                    playerSelf.model.moveUp(message.elapsedTime);
+                    break;
+                case 'move-left':
+                    playerSelf.model.moveLeft(message.elapsedTime);
+                    break;
+                case 'move-right':
+                    playerSelf.model.moveRight(message.elapsedTime);
+                    break;
+                case 'move-down':
+                    playerSelf.model.moveDown(message.elapsedTime);
+                    break;
+                    
+            }
             memory.enqueue(message);
         }
         messageHistory = memory;
+
     }
 
     //------------------------------------------------------------------
