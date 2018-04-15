@@ -15,6 +15,7 @@ let mapLogic = require('../shared/map');
 let mapFile = require('../shared/maps/SmallMap');
 let CryptoJS = require('crypto-js');
 let fs = require('fs');
+let shieldLogic = require('./shield');
 
 
 
@@ -39,6 +40,9 @@ let inputQueue = Queue.create();
 let nextMissileId = 1;
 let map = mapLogic.create();
 map.setMap(mapFile);
+//Shield by passing the map, the percent of map with that the first 
+// shield radius will be, and ahow many minutes between shield moves.
+let shield = shieldLogic.create(map, .74, 2);
 let salt = 'xnBZngGg*+FhQz??V6FMjfd9G4m5w^z8P*6';
 //this is being hard coded for now until I figure out a better solution
 let playerSize = {width: 80, height: 80};
@@ -123,6 +127,7 @@ function createRapidMissile(clientId, playerModel){
         createMissile(clientId, playerModel);
     }
 }
+
 
 function sprint(clientId, playerModel){
     playerModel.isSprinting = true;
@@ -236,6 +241,9 @@ function update(elapsedTime, currentTime) {
     // We need to check every client against every powerup.
 
     for (let clientId in activeClients) {
+        if(collided(activeClients[clientId].player, shield)){
+
+        }
         if(!activeClients[clientId].player.is_alive){
             continue;
         }
