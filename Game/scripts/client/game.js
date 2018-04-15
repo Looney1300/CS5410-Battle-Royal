@@ -20,6 +20,10 @@ MyGame.main = (function(graphics, renderer, input, components) {
         health: MyGame.assets['health'],
         ammo: MyGame.assets['ammo']        
     };
+
+    let killer_and_killed = [];
+    killer_and_killed[0] = 'banina';
+    killer_and_killed[1] = 'fofina';
     let myModel = components.Player(map);
     let playerSelf = {
             model: myModel,
@@ -430,7 +434,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         graphics.clear();
         renderer.ViewPortal.render();
         renderer.FOV.render(fov);
-        renderer.Player.render(playerSelf.model,playerSelf.texture);
+        renderer.Player.render(playerSelf.model,playerSelf.texture, killer_and_killed);
         for (let id in playerOthers) {
             let player = playerOthers[id];
             //console.log(player.model.is_alive);
