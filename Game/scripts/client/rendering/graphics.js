@@ -253,10 +253,25 @@ MyGame.graphics = (function() {
     }
 
     //------------------------------------------------------------------
+    //
+    // Draw the shield into the local canvas coordinate system.
+    //
+    //------------------------------------------------------------------
+    function drawShield(center, radius, color, lineWidth) {
+        //console.log(center);
+        context.beginPath();
+        context.arc(center.x * canvas.width, center.y * canvas.width, 2 * radius * canvas.width, 2 * Math.PI, false);
+        context.closePath();
+        context.strokeStyle = color;
+        context.lineWidth = lineWidth;
+        context.stroke();
+    }
+
+    //------------------------------------------------------------------
     /*
     Circle expects a spec with
-        center.x
-        center.y
+        x
+        y
         radius
         fillStyle
         strokeStyle
@@ -265,14 +280,10 @@ MyGame.graphics = (function() {
     //------------------------------------------------------------------
     function Circle(spec){
         let that = {};
-        that.draw = function(){
-            context.beginPath();
-            context.arc(spec.centerX, spec.centerY, spec.radius, 0, 2*3.14159265);
-            context.closePath();
-            context.strokeStyle = spec.strokeStyle;
-            context.stroke();
-            context.fillStyle = spec.fillStyle;
-            context.fill();
+
+        that.draw = function(viewPort){
+
+            context.restore();
         }
         return that;
     }
@@ -449,6 +460,7 @@ MyGame.graphics = (function() {
         drawHealth: drawHealth,
         drawImageSpriteSheet: drawImageSpriteSheet,
         drawCircle: drawCircle,
+        drawShield: drawShield,
         Circle: Circle,
         Rectangle: Rectangle,
         Texture: Texture,

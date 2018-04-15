@@ -11,12 +11,29 @@
         let waitTime = 1000 * 60 * minutesBetweenShieldMoves;
         let timeTilNextShield = waitTime;
         let percentLessEachShrink = .14;
-        let nextPosition = {
-            x: random.nextRange(position.x - currentRadius, position.x + currentRadius),
-            y: random.nextRange(position.y - currentRadius, position.y + currentRadius)
-        };
+        let nextPosition = {};
         let shieldMovesDone = 0;
         let shieldMovesTotal = 4;
+
+        //Prep the next position with a valid randomly selected position
+        let valid = false;
+        while (!valid){
+            nextPosition.x = random.nextRange(position.x - firstRadius, position.x + firstRadius);
+            nextPosition.y = random.nextRange(position.y - firstRadius, position.y + firstRadius);
+            while (nextPosition.x < firstRadius){
+                nextPosition.x += 5;
+            }
+            while (nextPosition.x > map.mapWidth - firstRadius){
+                nextPosition.x -= 5;
+            }
+            while (nextPosition.y < firstRadius){
+                nextPosition.y += 5;
+            }
+            while (nextPosition.y > map.mapWidth - firstRadius){
+                nextPosition.y -= 5;
+            }
+            valid = map.isValid(nextPosition.y, nextPosition.x);
+        }     
 
         Object.defineProperty(that, 'position', {
             get: () => position
@@ -48,12 +65,10 @@
 
         that.update = function(elapsedTime){
             if (shieldMovesDone > shieldMovesTotal){
-                nextPosition = position;
                 return false;
             }
             timeTilNextShield -= elapsedTime;
             if(timeTilNextShield < 0){
-                console.log('Shield moving');
                 shieldMovesDone += 1;
                 timeTilNextShield += waitTime;
                 if (currentRadius > firstRadius){
@@ -61,24 +76,14 @@
                 }else{
                     currentRadius -= percentLessEachShrink * map.mapWidth/2;
                 }
+                console.log(position);
+                position.x = nextPosition.x;
+                position.y = nextPosition.y;
                 let valid = false;
-                while (!valid){
-                    console.log(position);
-                    position = nextPosition;
-                    nextPosition.x = random.nextRange(position.x - currentRadius, position.x + currentRadius);
-                    nextPosition.y = random.nextRange(position.y - currentRadius, position.y + currentRadius);
-                    while (nextPosition.x < currentRadius){
-                        nextPosition.x += 5;
-                    }
-                    while (nextPosition.x > map.mapWidth - currentRadius){
-                        nextPosition.x -= 5;
-                    }
-                    while (nextPosition.y < currentRadius){
-                        nextPosition.y += 5;
-                    }
-                    while (nextPosition.y > map.mapWidth - currentRadius){
-                        nextPosition.y -= 5;
-                    }
+                while (!valid && shieldMovesDone <= shieldMovesTotal){
+                    let nextRadius = currentRadius - percentLessEachShrink * map.mapWidth/2;
+                    nextPosition.x = random.nextRange(position.x - currentRadius + nextRadius, position.x + currentRadius - nextRadius);
+                    nextPosition.y = random.nextRange(position.y - currentRadius + nextRadius, position.y + currentRadius - nextRadius);
                     valid = map.isValid(nextPosition.y, nextPosition.x);
                 }
                 console.log('shield moved to', position, 'radius', currentRadius);

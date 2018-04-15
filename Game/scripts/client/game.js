@@ -13,7 +13,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         smallMap = SmallMap.create();
     map.setMap(smallMap.data);
 
-    let shield = {};
+    let shield = {center: {x: 0, y: 0}};
 
     let powerUptextures = {
         weapon: MyGame.assets['weapon'],
@@ -304,10 +304,11 @@ MyGame.main = (function(graphics, renderer, input, components) {
     };
 
     function shieldUpdate(data){
-        shield.radius = data.radius;
-        shield.worldCordinates = data.worldCordinates;
+        shield.radius = data.radius/(viewPort.width*2);
         shield.nextWorldCordinates = data.nextWorldCordinates;
         shield.timeTilNextShield = data.timeTilNextShield;
+        shield.center.x = .5 - (viewPort.center.x - data.worldCordinates.x)/viewPort.width;
+        shield.center.y = .5 - (viewPort.center.y - data.worldCordinates.y)/viewPort.height;
     };
 
     //------------------------------------------------------------------
@@ -456,6 +457,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
         for (let id in explosions) {
             renderer.AnimatedSprite.render(explosions[id]);
         }
+        
+        graphics.drawCircle(shield.center, shield.radius, 'rgba(0,0,0,.5)');
     }
 
     //------------------------------------------------------------------

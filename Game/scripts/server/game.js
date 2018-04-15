@@ -244,9 +244,7 @@ function update(elapsedTime, currentTime) {
     // We need to check every client against every powerup.
 
     for (let clientId in activeClients) {
-        if(collided(activeClients[clientId].player, shield)){
-            console.log('the player is inside the shield');
-        }else{
+        if(!collided(activeClients[clientId].player, shield)){
             // Um... Is this how I make the client die when they aren't in the shield?
             activeClients[clientId].player.wasHit();
             // activeClients[clientId].player.health = 0; 
@@ -413,10 +411,10 @@ function updateClients(elapsedTime) {
     // Send the shield and time remaining til it shrinks.
     for (let clientId in activeClients) {
         activeClients[clientId].socket.emit(NetworkIds.SHIELD_MOVE, {
-            radius: shield.radius,
+            radius: shield.radius + 2*activeClients[clientId].player.collision_radius,
             worldCordinates: shield.worldCordinates,
             nextWorldCordinates: shield.nextWorldCordinates,
-            timeTilNextShield: sheild.timeTilNextShield
+            timeTilNextShield: shield.timeTilNextShield
         });
     }
 
