@@ -407,7 +407,7 @@ MyGame.particleSystem.shotSmoke = function(location, direction){
         duration: 50,
     }
     let smokeParticleSpec = {
-        drawUsing: MyGame.graphics.Rectangle,
+        drawUsing: MyGame.graphics.Circle,
         fill: Color.grey,
         stroke: Color.grey,
         lineWidth: 2,
