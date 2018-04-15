@@ -251,6 +251,11 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 playerOthers[data.clientId].texture.spriteSheet = MyGame.assets['enemyIdleGun'];
             }
             model.hasWeapon = data.hasWeapon;
+
+            if (playerOthers[data.clientId].is_alive && !data.is_alive){
+                sounds.die.play();
+            }
+            playerOthers[data.clientId].is_alive = data.is_alive;
         }
     }
 
@@ -279,6 +284,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
             sounds.gunshot.currentTime = 0;
             sounds.gunshot.play();
         }
+        else if (inRange(data.worldCordinates,playerSelf.model.worldCordinates)){
+            sounds.gunshot.play();
+        }
     }
 
     //------------------------------------------------------------------
@@ -296,10 +304,12 @@ MyGame.main = (function(graphics, renderer, input, components) {
             spriteCount: 16,
             spriteTime: [ 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
         });
+        if (inRange(data.hit_location,playerSelf.model.worldCordinates)){
+            sounds.hit.pause();
+            sounds.hit.currentTime = 0;
+            sounds.hit.play();
+        }
 
-        sounds.hit.pause();
-        sounds.hit.currentTime = 0;
-        sounds.hit.play();
 
         // When we receive a hit notification, go ahead and remove the
         // associated missle from the client model.
