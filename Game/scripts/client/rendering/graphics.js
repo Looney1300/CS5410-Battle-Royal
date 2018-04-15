@@ -157,6 +157,8 @@ MyGame.graphics = (function() {
     //
     //------------------------------------------------------------------
     function drawImage(texture, center, size) {
+        // center is model.position
+        // size is model.size
         let localCenter = {
             x: center.x * viewPort.width,
             y: center.y * viewPort.height
@@ -171,7 +173,47 @@ MyGame.graphics = (function() {
             localCenter.y - localSize.height / 2,
             localSize.width,
             localSize.height);
+            
     }
+
+    function drawHealth(center, size, life_remaining){
+        let localCenter = {
+            x: center.x * viewPort.width,
+            y: center.y * viewPort.height
+        };
+        let localSize = {
+            width: size.width * viewPort.width,
+            height: size.height * viewPort.height
+        };
+
+
+        if(life_remaining > 0){
+            context.fillStyle="#FF0000";
+            context.fillRect((localCenter.x - (localSize.width / 2)),
+                (localCenter.y - localSize.height / 2) - (localSize.height/2),
+                localSize.width,
+                localSize.height/5);
+    
+            let life_bar_total = (localSize.width);
+            let life_bar_actual = life_bar_total*life_remaining/100;
+            context.fillStyle='#00FF00';
+            context.fillRect((localCenter.x - (localSize.width / 2)),
+            (localCenter.y - localSize.height / 2) - (localSize.height/2),
+            life_bar_actual,
+            localSize.height/5);
+        }
+        else{
+            context.fillStyle="#000000";
+            context.fillRect((localCenter.x - (localSize.width / 2)),
+                (localCenter.y - localSize.height / 2) - (localSize.height/2),
+                localSize.width,
+                localSize.height/5);
+            
+        }
+
+        
+
+    };
 
     //------------------------------------------------------------------
     //
@@ -200,21 +242,22 @@ MyGame.graphics = (function() {
     // Draw an image out of a spritesheet into the local canvas coordinate system.
     //
     //------------------------------------------------------------------
-    function drawImageSpriteSheet(spriteSheet, spriteSize, sprite, center, size) {
+    function drawImageSpriteSheet(spriteSheet, spriteSize, sprite, printCenter, size) {
+        // center is still the world coords.
+        // center needs to be where the player can see.
         let localCenter = {
-            x: center.x * canvas.width,
-            y: center.y * canvas.width
+            x: printCenter.x * viewPort.width,
+            y: printCenter.y * viewPort.width
         };
         let localSize = {
-            width: size.width * canvas.width,
-            height: size.height * canvas.height
+            width: size.width * viewPort.width,
+            height: size.height * viewPort.height
         };
-
         context.drawImage(spriteSheet,
             sprite * spriteSize.width, 0,                 // which sprite to render
             spriteSize.width, spriteSize.height,    // size in the spritesheet
-            localCenter.x - localSize.width / 2,
-            localCenter.y - localSize.height / 2,
+            localCenter.x,
+            localCenter.y,
             localSize.width, localSize.height);
     }
 
@@ -224,6 +267,7 @@ MyGame.graphics = (function() {
     //
     //------------------------------------------------------------------
     function drawCircle(center, radius, color) {
+        //console.log(center);
         context.beginPath();
         context.arc(center.x * canvas.width, center.y * canvas.width, 2 * radius * canvas.width, 2 * Math.PI, false);
         context.closePath();
@@ -427,6 +471,7 @@ MyGame.graphics = (function() {
         drawImage: drawImage,
         drawCroppedImage: drawCroppedImage,
         drawTime: drawTime,
+        drawHealth: drawHealth,
         drawImageSpriteSheet: drawImageSpriteSheet,
         drawCircle: drawCircle,
         Circle: Circle,

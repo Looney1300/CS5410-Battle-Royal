@@ -12,10 +12,28 @@ MyGame.main = (function(graphics, renderer, input, components) {
         map = Map.create(),
         // smallMap = SmallMap.create();
         mediumMap = MediumMap.create();
-    map.setMap(mediumMap.data);
+        map.setMap(mediumMap.data);
+
+    let powerUptextures = {
+        weapon: MyGame.assets['weapon'],
+        fire_rate: MyGame.assets['fire-rate'],
+        fire_range: MyGame.assets['fire-range'],
+        health: MyGame.assets['health'],
+        ammo: MyGame.assets['ammo']        
+    };
+    let myModel = components.Player(map);
     let playerSelf = {
-            model: components.Player(map),
-            texture: MyGame.assets['player-self']
+            model: myModel,
+            texture: components.AnimatedSprite({
+                spriteSheet: MyGame.assets['clientIdleGun'],
+                spriteSize: { width: 0.07, height: 0.07 },
+                spriteCenter: {
+                    x: 0.5,
+                    y: 0.5,
+                },
+                spriteCount: 20,
+                spriteTime: [60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60]
+            })
         },
         miniMap = {
             model: components.MiniMap(),
@@ -26,6 +44,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
         fov = components.FOV(),
         playerOthers = {},
         missiles = {},
+        powerUps = [],
+        printPowerUps = [],
         explosions = {},
         messageHistory = Queue.create(),
         messageId = 1,
@@ -36,6 +56,16 @@ MyGame.main = (function(graphics, renderer, input, components) {
 
         // viewPort.mapWidth = map.mapWidth;
         // viewPort.mapHeight = map.mapHeight;
+
+
+        
+        
+    socket.on(NetworkIds.POWER_UP_LOC, data => {
+        networkQueue.enqueue({
+            type: NetworkIds.POWER_UP_LOC,
+            data: data
+        });
+    });
 
     
     socket.on(NetworkIds.CONNECT_ACK, data => {
@@ -127,7 +157,16 @@ MyGame.main = (function(graphics, renderer, input, components) {
 
         playerOthers[data.clientId] = {
             model: model,
-            texture: MyGame.assets['player-other']
+            texture: components.AnimatedSprite({
+                spriteSheet: MyGame.assets['enemyIdleGun'],
+                spriteSize: { width: 0.07, height: 0.07},
+                spriteCenter: {
+                    x: model.state.worldCordinates.x,
+                    y: model.state.worldCordinates.y
+                },
+                spriteCount: 20,
+                spriteTime: [ 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60]
+            })
         };
     }
 
@@ -151,6 +190,19 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.model.worldCordinates.x = data.worldCordinates.x;
         playerSelf.model.worldCordinates.y = data.worldCordinates.y;
         playerSelf.model.speed = data.speed;
+        playerSelf.model.isSprinting = data.isSprinting;
+        playerSelf.model.sprintEnergy = data.sprintEnergy;
+        playerSelf.model.SPRINT_FACTOR = data.SPRINT_FACTOR;
+        playerSelf.model.SPRINT_DECREASE_RATE = data.SPRINT_DECREASE_RATE;
+        playerSelf.model.SPRINT_RECOVERY_RATE = data.SPRINT_RECOVERY_RATE;
+
+        playerSelf.model.userName = data.userName;
+
+        playerSelf.model.score = data.score;
+        playerSelf.model.life_remaining = data.life_remaining;
+        playerSelf.is_alive = data.is_alive;
+        playerSelf.texture.worldCordinates.x = data.worldCordinates.x;
+        playerSelf.texture.worldCordinates.y = data.worldCordinates.y;
 
         //
         // Remove messages from the queue up through the last one identified
@@ -180,6 +232,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //
     //------------------------------------------------------------------
     function updatePlayerOther(data) {
+        
         if (playerOthers.hasOwnProperty(data.clientId)) {
             let model = playerOthers[data.clientId].model;
             model.goal.updateWindow = data.updateWindow;
@@ -187,7 +240,10 @@ MyGame.main = (function(graphics, renderer, input, components) {
             model.goal.worldCordinates.x = data.worldCordinates.x;
             model.goal.worldCordinates.y = data.worldCordinates.y;
             model.goal.direction = data.direction;
+            model.is_alive = data.is_alive;
+            //console.log(data.is_alive);
         }
+        //console.log(data.is_alive);
     }
 
     //------------------------------------------------------------------
@@ -201,9 +257,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
             radius: data.radius,
             speed: data.speed,
             direction: data.direction,
-            position: {
-                x: data.position.x,
-                y: data.position.y
+            worldCordinates: {
+                x: data.worldCordinates.x,
+                y: data.worldCordinates.y
             },
             timeRemaining: data.timeRemaining
         });
@@ -215,11 +271,12 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //
     //------------------------------------------------------------------
     function missileHit(data) {
+        // data is the hits array
         explosions[nextExplosionId] = components.AnimatedSprite({
             id: nextExplosionId++,
             spriteSheet: MyGame.assets['explosion'],
             spriteSize: { width: 0.07, height: 0.07 },
-            spriteCenter: data.position,
+            spriteCenter: data.hit_location,
             spriteCount: 16,
             spriteTime: [ 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
         });
@@ -230,12 +287,26 @@ MyGame.main = (function(graphics, renderer, input, components) {
         delete missiles[data.missileId];
     }
 
+    function powerUpdate(data){
+        // If I created an array of all the datas that were coming into here,
+        // and rendered them, and then deleted them, that could work.
+        //console.log(data.type);
+        let tempPowerUp = components.PowerUp({
+            worldCordinates: data.worldCordinates,
+            type: data.type,
+            radius: data.radius
+        });
+        powerUps[data.indexId] = tempPowerUp;
+
+    };
+
     //------------------------------------------------------------------
     //
     // Process the registered input handlers here.
     //
     //------------------------------------------------------------------
     function processInput(elapsedTime) {
+        //powerUps.length = 0;
         //
         // Start with the keyboard updates so those messages can get in transit
         // while the local updating of received network messages are processed.
@@ -266,10 +337,15 @@ MyGame.main = (function(graphics, renderer, input, components) {
                     updatePlayerOther(message.data);
                     break;
                 case NetworkIds.MISSILE_NEW:
+                    //console.log('I am: ',playerSelf.model.userName,' My Score is: ', 
+                    //playerSelf.model.score, ' My Life is at: ', playerSelf.model.life_remaining);
                     missileNew(message.data);
                     break;
                 case NetworkIds.MISSILE_HIT:
                     missileHit(message.data);
+                    break;
+                case NetworkIds.POWER_UP_LOC:
+                    powerUpdate(message.data);
                     break;
             }
         }
@@ -283,17 +359,45 @@ MyGame.main = (function(graphics, renderer, input, components) {
     function update(elapsedTime) {
         viewPort.update(graphics, playerSelf.model.worldCordinates);
         playerSelf.model.update(elapsedTime, viewPort);
+        playerSelf.texture.worldCordinates.x = playerSelf.model.worldCordinates.x;
+        playerSelf.texture.worldCordinates.y = playerSelf.model.worldCordinates.y;
+        playerSelf.texture.update(elapsedTime,viewPort);
         fov.update(playerSelf.model);
         miniMap.model.update(playerSelf.model, null, viewPort);
         for (let id in playerOthers) {
             playerOthers[id].model.update(elapsedTime, viewPort);
+            playerOthers[id].texture.worldCordinates.x = playerOthers[id].model.state.worldCordinates.x;
+            playerOthers[id].texture.worldCordinates.y = playerOthers[id].model.state.worldCordinates.y;
+            playerOthers[id].texture.update(elapsedTime,viewPort);
         }
 
         let removeMissiles = [];
         for (let missile in missiles) {
-            if (!missiles[missile].update(elapsedTime)) {
+            if (!missiles[missile].update(elapsedTime, viewPort)) {
                 removeMissiles.push(missiles[missile]);
             }
+        }
+
+
+
+        // if(!(powerUps.toString() === printPowerUps.toString())){
+        //     // console.log('it worked!');
+        //     // set printPowerUps equal to powerUps
+        //     console.log('are we in here?');
+        //     printPowerUps.length = 0;
+        //     for(let power = 0; power<powerUps.length; power++){
+        //         printPowerUps.push(powerUps[power])
+        //     }
+        //     powerUps.length = 0;
+           
+        // }
+
+        
+    
+
+
+        for(let power = 0; power<powerUps.length; power++){
+            powerUps[power].update(elapsedTime, viewPort);
         }
 
         for (let missile = 0; missile < removeMissiles.length; missile++) {
@@ -301,7 +405,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         }
 
         for (let id in explosions) {
-            if (!explosions[id].update(elapsedTime)) {
+            if (!explosions[id].update(elapsedTime, viewPort)) {
                 delete explosions[id];
             }
         }
@@ -318,19 +422,29 @@ MyGame.main = (function(graphics, renderer, input, components) {
         renderer.ViewPortal.render();
         renderer.FOV.render(fov);
         renderer.Player.render(playerSelf.model, playerSelf.texture);
-        renderer.MiniMap.render(miniMap.model, miniMap.mapTexture, miniMap.playerTexture, mapIconTexture);
         for (let id in playerOthers) {
             let player = playerOthers[id];
-            renderer.PlayerRemote.render(player.model, player.texture);
+            //console.log(player.model.is_alive);
+            if(player.model.is_alive){
+                renderer.PlayerRemote.render(player.model, player.texture);
+                continue;
+            }
         }
-
+        
+        for(let power = 0; power<powerUps.length; power++){
+            //console.log(powerUps[power].type);
+            renderer.PowerUp.render(powerUps[power],MyGame.assets[powerUps[power].type]);
+        }
+        //powerUps.length = 0;
+        
         for (let missile in missiles) {
-            renderer.Missile.render(missiles[missile]);
+            renderer.Missile.render(missiles[missile],playerSelf.texture);
         }
-
+        
         for (let id in explosions) {
             renderer.AnimatedSprite.render(explosions[id]);
         }
+        renderer.MiniMap.render(miniMap.model, miniMap.mapTexture, miniMap.playerTexture, mapIconTexture);
     }
 
     //------------------------------------------------------------------
@@ -373,7 +487,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 messageHistory.enqueue(message);
                 playerSelf.model.moveUp(elapsedTime);
             },
-            MyGame.input.KeyEvent.moveUp, true);
+            input.KeyEvent.moveUp, true);
 
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
@@ -385,7 +499,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 messageHistory.enqueue(message);
                 playerSelf.model.moveRight(elapsedTime);
             },
-            MyGame.input.KeyEvent.moveRight, true);
+            input.KeyEvent.moveRight, true);
 
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
@@ -397,7 +511,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 messageHistory.enqueue(message);
                 playerSelf.model.moveLeft(elapsedTime);
             },
-            MyGame.input.KeyEvent.moveLeft, true);
+            input.KeyEvent.moveLeft, true);
 
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
@@ -409,7 +523,17 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 messageHistory.enqueue(message);
                 playerSelf.model.moveDown(elapsedTime);
             },
-            MyGame.input.KeyEvent.moveDown, true);
+            input.KeyEvent.moveDown, true);
+
+        myKeyboard.registerHandler(elapsedTime => {
+                let message = {
+                    id: messageId++,
+                    elapsedTime: elapsedTime,
+                    type: NetworkIds.INPUT_RAPIDFIRE
+                };
+                socket.emit(NetworkIds.INPUT, message);
+            },
+            input.KeyEvent.rapidFire, true, 80);
 
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
@@ -419,7 +543,31 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 };
                 socket.emit(NetworkIds.INPUT, message);
             },
-            MyGame.input.KeyEvent.fire, false);
+            input.KeyEvent.fire, false);
+
+        myKeyboard.registerHandler(elapsedTime => {
+                let message = {
+                    id: messageId++,
+                    elapsedTime: elapsedTime,
+                    type: NetworkIds.INPUT_SPRINT
+                };
+                socket.emit(NetworkIds.INPUT, message);
+            },
+            input.KeyEvent.sprint, true);
+
+        myKeyboard.registerHandler(fov.widen, input.KeyEvent.shortenFOV, true);
+        myKeyboard.registerHandler(fov.thin, input.KeyEvent.extendFOV, true);
+        //TODO: are we letting the user exit anytime during the game?
+        myKeyboard.registerHandler(function(){console.log('exit game')}, input.KeyEvent.DOM_VK_ESCAPE, true);
+
+        myMouse.registerHandler('mousedown', elapsedTime => {
+                let message = {
+                    id: messageId++,
+                    elapsedTime: elapsedTime,
+                    type: NetworkIds.INPUT_FIRE
+                };
+                socket.emit(NetworkIds.INPUT, message);
+            });
 
         myMouse.registerHandler('mousemove', function(e) {
             let mouseWC = playerSelf.model.worldCordinatesFromMouse(e.clientX - 20, e.clientY - 20, viewPort);

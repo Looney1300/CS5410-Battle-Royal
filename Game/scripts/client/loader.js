@@ -56,7 +56,7 @@ MyGame.loader = (function() {
             onComplete: null
         }, 
         {
-            scripts: ['components/player', 'components/player-remote', 'components/missile', 'components/animated-sprite', 'components/view-portal', 'components/fov', 'components/mini-map'],
+            scripts: ['components/player', 'components/player-remote', 'components/missile','components/powerup', 'components/animated-sprite', 'components/view-portal', 'components/fov', 'components/mini-map'],
             message: 'Player models loaded',
             onComplete: null
         }, 
@@ -66,7 +66,7 @@ MyGame.loader = (function() {
             onComplete: null
         }, 
         {
-            scripts: ['rendering/player', 'rendering/player-remote', 'rendering/missile', 'rendering/animated-sprite', 'rendering/view-portal', 'rendering/fov', 'rendering/mini-map'],
+            scripts: ['rendering/player', 'rendering/player-remote', 'rendering/missile', 'rendering/powerup', 'rendering/animated-sprite', 'rendering/view-portal', 'rendering/fov', 'rendering/mini-map'],
             message: 'Renderers loaded',
             onComplete: null
         }, 
@@ -116,18 +116,11 @@ MyGame.loader = (function() {
             message: 'about screen loaded',
             onComplete: null,
         },
-        // ---------------- Options/Help -----------------
-        {
-            scripts: ['./input/miniCanvas'],
-            message: 'input renderer loaded',
-            onComplete: null,
-        },
         {
             scripts: ['./screens/options'],
             message: 'options screen loaded',
             onComplete: null,
         },
-        // -----------------------------------------------
         {
             scripts: ['./screens/high-scores'],
             message: 'high score screen loaded',
@@ -163,7 +156,59 @@ MyGame.loader = (function() {
         {
             key: 'playerIcon',
             source: 'assets/white-cursor.png'
-        }
+        },
+        {
+            key: 'clientIdleNoGun',
+            source: 'assets/Character_Sprites/user_flashlight_idle.png'
+        },
+        {
+            key: 'clientIdleGun',
+            source: 'assets/Character_Sprites/user_rifle_idle.png'
+        },
+        {
+            key: 'clientMoveNoGun',
+            source: 'assets/Character_Sprites/user_flashlight_move.png'
+        },
+        {
+            key: 'clientMoveGun',
+            source: 'assets/Character_Sprites/user_rifle_move.png'
+        },
+        {
+            key: 'enemyIdleNoGun',
+            source: 'assets/Character_Sprites/enemy_flashlight_idle.png'
+        },
+        {
+            key: 'enemyIdleGun',
+            source: 'assets/Character_Sprites/enemy_rifle_idle.png'
+        },
+        {
+            key: 'enemyMoveNoGun',
+            source: 'assets/Character_Sprites/enemy_flashlight_move.png'
+        },
+        {
+            key: 'enemyMoveGun',
+            source: 'assets/Character_Sprites/enemy_rifle_move.png'
+        },
+        {
+            key: 'weapon',
+            source: 'assets/Powerups/weapon_powerup.png'
+        },
+        {
+            key: 'fire-rate',
+            source: 'assets/Powerups/increased_fire_rate.png'
+        },
+        {
+            key: 'fire-range',
+            source: 'assets/Powerups/increased_range.png'
+        },
+        {
+            key: 'health',
+            source: 'assets/Powerups/health_powerup.png'
+        },
+        {
+            key: 'ammo',
+            source: 'assets/Powerups/ammo.png'
+        },
     ];
 
     //------------------------------------------------------------------

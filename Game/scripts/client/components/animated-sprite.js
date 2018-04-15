@@ -14,8 +14,8 @@
 //------------------------------------------------------------------
 MyGame.components.AnimatedSprite = function(spec) {
 	'use strict';
-	let frame = 0,
-		that = {
+	let frame = 0;
+	let	that = {
 			get spriteSheet() { return spec.spriteSheet; },
 			get pixelWidth() { return spec.spriteSheet.width / spec.spriteCount; },
 			get pixelHeight() { return spec.spriteSheet.height; },
@@ -23,7 +23,34 @@ MyGame.components.AnimatedSprite = function(spec) {
 			get height() { return spec.spriteSize.height; },
 			get center() { return spec.spriteCenter; },
 			get sprite() { return spec.sprite; }
-		};
+	};
+	
+	let printCenter = {
+		x: 0,
+		y: 0
+	};
+
+	let worldCordinates = {
+		x: spec.spriteCenter.x,
+		y: spec.spriteCenter.y
+	};
+
+	Object.defineProperty(that, 'printCenter', {
+		get: () => printCenter,
+		set: cords => {
+			printCenter.x = cords.x,
+			printCenter.y = cords.y
+		}
+	});
+
+	Object.defineProperty(that, 'worldCordinates', {
+		get: () => worldCordinates,
+		set: cords => {
+			worldCordinates.x = cords.x;
+			worldCordinates.y = cords.y;
+		},
+	});
+
 
 	//
 	// Initialize the animation of the spritesheet
@@ -39,9 +66,25 @@ MyGame.components.AnimatedSprite = function(spec) {
 	// Update the animation of the sprite based upon elapsed time.
 	//
 	//------------------------------------------------------------------
-	that.update = function(elapsedTime) {
+	that.update = function(elapsedTime, viewPort) {
 		spec.elapsedTime += elapsedTime;
 		spec.lifetime -= elapsedTime;
+
+        let diffX = (Math.abs(viewPort.center.x - this.worldCordinates.x))/viewPort.width;
+		let diffY = (Math.abs(viewPort.center.y - this.worldCordinates.y))/viewPort.height;
+        if (this.worldCordinates.x < viewPort.center.x){
+            this.printCenter.x = 0.5 - diffX;
+        }
+        else {
+            this.printCenter.x = 0.5 + diffX;
+        }
+        if (this.worldCordinates.y < viewPort.center.y) {
+            this.printCenter.y = 0.5 - diffY;
+        }
+        else {
+            this.printCenter.y = 0.5 + diffY;
+		}
+		
 		//
 		// Check to see if we should update the animation frame
 		if (spec.elapsedTime >= spec.spriteTime[spec.sprite]) {
