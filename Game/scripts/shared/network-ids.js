@@ -112,6 +112,10 @@
             value: 'power-up-location',
             writable: false
         },
+        'SHIELD_MOVE' : {
+            value: 'shield-move',
+            writable: false
+        },
         
     });
 

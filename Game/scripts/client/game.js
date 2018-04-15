@@ -13,6 +13,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
         smallMap = SmallMap.create();
     map.setMap(smallMap.data);
 
+    let shield = {};
+
     let powerUptextures = {
         weapon: MyGame.assets['weapon'],
         fire_rate: MyGame.assets['fire-rate'],
@@ -56,6 +58,14 @@ MyGame.main = (function(graphics, renderer, input, components) {
     socket.on(NetworkIds.POWER_UP_LOC, data => {
         networkQueue.enqueue({
             type: NetworkIds.POWER_UP_LOC,
+            data: data
+        });
+    });
+
+        
+    socket.on(NetworkIds.SHIELD_MOVE, data => {
+        networkQueue.enqueue({
+            type: NetworkIds.SHIELD_MOVE,
             data: data
         });
     });
@@ -293,6 +303,13 @@ MyGame.main = (function(graphics, renderer, input, components) {
 
     };
 
+    function shieldUpdate(data){
+        shield.radius = data.radius;
+        shield.worldCordinates = data.worldCordinates;
+        shield.nextWorldCordinates = data.nextWorldCordinates;
+        shield.timeTilNextShield = data.timeTilNextShield;
+    };
+
     //------------------------------------------------------------------
     //
     // Process the registered input handlers here.
@@ -339,6 +356,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
                     break;
                 case NetworkIds.POWER_UP_LOC:
                     powerUpdate(message.data);
+                    break;
+                case NetworkIds.SHIELD_MOVE:
+                    shieldUpdate(message.data);
                     break;
             }
         }

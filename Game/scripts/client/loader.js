@@ -46,6 +46,11 @@ MyGame.loader = (function() {
             onComplete: null
         },
         {
+            scripts: ['../shared/shield'],
+            message: 'Shield loaded',
+            onComplete: null
+        },
+        {
             scripts: ['input'],
             message: 'Input loaded',
             onComplete: null

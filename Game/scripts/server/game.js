@@ -15,7 +15,8 @@ let mapLogic = require('../shared/map');
 let mapFile = require('../shared/maps/SmallMap');
 let CryptoJS = require('crypto-js');
 let fs = require('fs');
-let shieldLogic = require('./shield');
+let Shield = require('../shared/shield');
+let sendShield = true;
 
 
 
@@ -42,7 +43,9 @@ let map = mapLogic.create();
 map.setMap(mapFile);
 //Shield by passing the map, the percent of map with that the first 
 // shield radius will be, and ahow many minutes between shield moves.
-let shield = shieldLogic.create(map, .74, 2);
+let SHIELD_RADIUS = .78;
+let TIME_TO_MOVE_SHIELD = .1;
+let shield = Shield.create(map, SHIELD_RADIUS, TIME_TO_MOVE_SHIELD);
 let salt = 'xnBZngGg*+FhQz??V6FMjfd9G4m5w^z8P*6';
 //this is being hard coded for now until I figure out a better solution
 let playerSize = {width: 80, height: 80};
@@ -191,7 +194,7 @@ function processInput(elapsedTime) {
 //------------------------------------------------------------------
 //
 // Utility function to perform a hit test between two objects.  The
-// objects must have a position: { x: , y: } property and radius property.
+// objects must have a worldCordinates: { x: , y: } property and collision_radius property.
 //
 //------------------------------------------------------------------
 function collided(obj1, obj2) {
@@ -231,7 +234,7 @@ function calcXYBulletOffset(direction,imageSize){
 //
 //------------------------------------------------------------------
 function update(elapsedTime, currentTime) {
-
+    shield.update(elapsedTime);
 
     // In update we need to ensure we have pPerPlayer of each powerup
 
@@ -242,8 +245,14 @@ function update(elapsedTime, currentTime) {
 
     for (let clientId in activeClients) {
         if(collided(activeClients[clientId].player, shield)){
-
+            console.log('the player is inside the shield');
+        }else{
+            // Um... Is this how I make the client die when they aren't in the shield?
+            activeClients[clientId].player.wasHit();
+            // activeClients[clientId].player.health = 0; 
+            // console.log('health is now at ', activeClients[clientId].player.health);  
         }
+
         if(!activeClients[clientId].player.is_alive){
             continue;
         }
@@ -400,6 +409,17 @@ function updateClients(elapsedTime) {
         activeMissiles.push(newMissiles[missile]);
     }
     newMissiles.length = 0;
+
+    // Send the shield and time remaining til it shrinks.
+    for (let clientId in activeClients) {
+        activeClients[clientId].socket.emit(NetworkIds.SHIELD_MOVE, {
+            radius: shield.radius,
+            worldCordinates: shield.worldCordinates,
+            nextWorldCordinates: shield.nextWorldCordinates,
+            timeTilNextShield: sheild.timeTilNextShield
+        });
+    }
+
 
     for (let clientId in activeClients) {
         let client = activeClients[clientId];
