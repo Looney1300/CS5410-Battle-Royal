@@ -10,8 +10,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
         myKeyboard = input.Keyboard(),
         myMouse = input.Mouse(),
         map = Map.create(),
-        smallMap = SmallMap.create();
-    map.setMap(smallMap.data);
+        // smallMap = SmallMap.create();
+        mediumMap = MediumMap.create();
+        map.setMap(mediumMap.data);
 
     let powerUptextures = {
         weapon: MyGame.assets['weapon'],
@@ -45,6 +46,12 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 spriteTime: [60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60]
             })
         },
+        miniMap = {
+            model: components.MiniMap(),
+            mapTexture: MyGame.assets['miniMapMedium'],
+            playerTexture: MyGame.assets['playerIcon']
+        },
+        mapIconTexture = MyGame.assets['mapIcons'],
         fov = components.FOV(),
         playerOthers = {},
         missiles = {},
@@ -408,6 +415,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.texture.worldCordinates.y = playerSelf.model.worldCordinates.y;
         playerSelf.texture.update(elapsedTime,viewPort);
         fov.update(playerSelf.model);
+        miniMap.model.update(playerSelf.model, null, viewPort);
         for (let id in playerOthers) {
             playerOthers[id].model.update(elapsedTime, viewPort);
             playerOthers[id].texture.worldCordinates.x = playerOthers[id].model.state.worldCordinates.x;
@@ -484,20 +492,21 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 continue;
             }
         }
-
+        
         for(let power = 0; power<powerUps.length; power++){
             //console.log(powerUps[power].type);
             renderer.PowerUp.render(powerUps[power],MyGame.assets[powerUps[power].type]);
         }
         //powerUps.length = 0;
-
+        
         for (let missile in missiles) {
             renderer.Missile.render(missiles[missile],playerSelf.texture);
         }
-
+        
         for (let id in explosions) {
             renderer.AnimatedSprite.render(explosions[id]);
         }
+        renderer.MiniMap.render(miniMap.model, miniMap.mapTexture, miniMap.playerTexture, mapIconTexture);
     }
 
     //------------------------------------------------------------------
