@@ -19,9 +19,17 @@ MyGame.main = (function(graphics, renderer, input, components) {
         fire_rate: MyGame.assets['fire-rate'],
         fire_range: MyGame.assets['fire-range'],
         health: MyGame.assets['health'],
-        ammo: MyGame.assets['ammo']        
+        ammo: MyGame.assets['ammo'],      
     };
 
+    let sounds = {
+        gunshot: MyGame.assets['gunshot'],
+        hit:  MyGame.assets['hit'],
+        die: MyGame.assets['die'],
+        emptyfire: MyGame.assets['emptyfire'],
+        rapidFire: MyGame.assets['rapidFire'] 
+    }
+    sounds.hit.volume = 0.5;
     let killer_and_killed = {
         killer: '',
         killed: '',
@@ -36,7 +44,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
     let playerSelf = {
             model: myModel,
             texture: components.AnimatedSprite({
-                spriteSheet: MyGame.assets['clientIdleGun'],
+                spriteSheet: MyGame.assets['clientIdleNoGun'],
                 spriteSize: { width: 0.07, height: 0.07 },
                 spriteCenter: {
                     x: 0.5,
@@ -65,11 +73,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
         socket = io(),
         networkQueue = Queue.create();
 
-        // viewPort.mapWidth = map.mapWidth;
-        // viewPort.mapHeight = map.mapHeight;
-
-
-        
+    let rapidUpdate = 0;
+    let rapidSound = false;
         
     socket.on(NetworkIds.POWER_UP_LOC, data => {
         networkQueue.enqueue({
@@ -169,7 +174,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerOthers[data.clientId] = {
             model: model,
             texture: components.AnimatedSprite({
-                spriteSheet: MyGame.assets['enemyIdleGun'],
+                spriteSheet: MyGame.assets['enemyIdleNoGun'],
                 spriteSize: { width: 0.07, height: 0.07},
                 spriteCenter: {
                     x: model.state.worldCordinates.x,
@@ -206,6 +211,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.model.SPRINT_FACTOR = data.SPRINT_FACTOR;
         playerSelf.model.SPRINT_DECREASE_RATE = data.SPRINT_DECREASE_RATE;
         playerSelf.model.SPRINT_RECOVERY_RATE = data.SPRINT_RECOVERY_RATE;
+        playerSelf.hasBullets = data.hasBullets;
 
         playerSelf.model.kills = data.kills;
         playerSelf.model.killer = data.killer;
@@ -215,9 +221,18 @@ MyGame.main = (function(graphics, renderer, input, components) {
 
 
         playerSelf.model.userName = data.userName;
+        playerSelf.hasRapidFire = data.hasRapidFire;
 
+        if (!playerSelf.hasWeapon && data.hasWeapon){
+            playerSelf.texture.spriteSheet = MyGame.assets['clientIdleGun']
+        }
+
+        playerSelf.model.hasWeapon = data.hasWeapon;
         playerSelf.model.score = data.score;
         playerSelf.model.life_remaining = data.life_remaining;
+        if (playerSelf.is_alive && !data.is_alive){
+            sounds.die.play();
+        }
         playerSelf.is_alive = data.is_alive;
         playerSelf.texture.worldCordinates.x = data.worldCordinates.x;
         playerSelf.texture.worldCordinates.y = data.worldCordinates.y;
@@ -278,6 +293,16 @@ MyGame.main = (function(graphics, renderer, input, components) {
             model.goal.worldCordinates.x = data.worldCordinates.x;
             model.goal.worldCordinates.y = data.worldCordinates.y;
             model.goal.direction = data.direction;
+            if (!model.hasWeapon && data.hasWeapon){
+                //change the image
+                playerOthers[data.clientId].texture.spriteSheet = MyGame.assets['enemyIdleGun'];
+            }
+            model.hasWeapon = data.hasWeapon;
+
+            if (playerOthers[data.clientId].is_alive && !data.is_alive){
+                sounds.die.play();
+            }
+            playerOthers[data.clientId].is_alive = data.is_alive;
             model.is_alive = data.is_alive;
             model.userName = data.userName;
             //console.log(data.is_alive);
@@ -315,6 +340,17 @@ MyGame.main = (function(graphics, renderer, input, components) {
             },
             timeRemaining: data.timeRemaining
         });
+        //only play this sound if it is within a certain distance of me. So gunshots from other players can be heard, if they are less than 1000 units away from me.
+        //This allows the user to hear gunshots that are slightly outside of his viewing window.
+        if (inRange(data.worldCordinates,playerSelf.model.worldCordinates) && rapidSound){
+            //I think I only want to restart the sound every x miliseconds
+            sounds.gunshot.pause();
+            sounds.gunshot.currentTime = 0;
+            sounds.gunshot.play();
+        }
+        else if (inRange(data.worldCordinates,playerSelf.model.worldCordinates)){
+            sounds.gunshot.play();
+        }
     }
 
     //------------------------------------------------------------------
@@ -332,8 +368,13 @@ MyGame.main = (function(graphics, renderer, input, components) {
             spriteCount: 16,
             spriteTime: [ 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
         });
+        if (inRange(data.hit_location,playerSelf.model.worldCordinates)){
+            sounds.hit.pause();
+            sounds.hit.currentTime = 0;
+            sounds.hit.play();
+        }
 
-        //
+
         // When we receive a hit notification, go ahead and remove the
         // associated missle from the client model.
         delete missiles[data.missileId];
@@ -403,6 +444,26 @@ MyGame.main = (function(graphics, renderer, input, components) {
         }
     }
 
+    //deal with sounds for firing weapon
+    function weaponSound(){
+        if (playerSelf != null && playerSelf.model.hasWeapon && playerSelf.hasBullets){
+            sounds.gunshot.pause();
+            sounds.gunshot.currentTime = 0;
+            sounds.gunshot.play();
+        } 
+        else if (playerSelf != null && playerSelf.model.hasWeapon && !playerSelf.hasBullets) {
+            sounds.emptyfire.pause();
+            sounds.emptyfire.currentTime = 0;
+            sounds.emptyfire.play();
+        }
+    }
+
+    //determine if a shot is within range 1000 in canvas coordinates?
+    function inRange(fireLocation,characterLocation){
+        var dist = Math.sqrt(Math.pow((fireLocation.x-characterLocation.x),2) + Math.pow((fireLocation.y-characterLocation.y),2))
+        return dist <= 1000;
+    }
+
     //------------------------------------------------------------------
     //
     // Update the game simulation
@@ -423,30 +484,21 @@ MyGame.main = (function(graphics, renderer, input, components) {
             playerOthers[id].texture.update(elapsedTime,viewPort);
         }
 
+        rapidUpdate += elapsedTime;
+        if (rapidUpdate > 30){
+            rapidSound = true;
+            rapidUpdate -= 30;
+        }
+        else {
+            rapidSound = false;
+        }
+
         let removeMissiles = [];
         for (let missile in missiles) {
             if (!missiles[missile].update(elapsedTime, viewPort)) {
                 removeMissiles.push(missiles[missile]);
             }
         }
-
-
-
-        // if(!(powerUps.toString() === printPowerUps.toString())){
-        //     // console.log('it worked!');
-        //     // set printPowerUps equal to powerUps
-        //     console.log('are we in here?');
-        //     printPowerUps.length = 0;
-        //     for(let power = 0; power<powerUps.length; power++){
-        //         printPowerUps.push(powerUps[power])
-        //     }
-        //     powerUps.length = 0;
-           
-        // }
-
-        
-    
-
 
         for(let power = 0; power<powerUps.length; power++){
             powerUps[power].update(elapsedTime, viewPort);
@@ -594,6 +646,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
                     type: NetworkIds.INPUT_RAPIDFIRE
                 };
                 socket.emit(NetworkIds.INPUT, message);
+                if (playerSelf.hasRapidFire && !playerSelf.hasBullets){
+                    weaponSound();
+                }
             },
             input.KeyEvent.rapidFire, true, 80);
 
@@ -604,6 +659,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                     type: NetworkIds.INPUT_FIRE
                 };
                 socket.emit(NetworkIds.INPUT, message);
+                weaponSound();
             },
             input.KeyEvent.fire, false);
 
@@ -629,6 +685,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                     type: NetworkIds.INPUT_FIRE
                 };
                 socket.emit(NetworkIds.INPUT, message);
+                weaponSound();
             });
 
         myMouse.registerHandler('mousemove', function(e) {

@@ -30,7 +30,8 @@ MyGame.components.PlayerRemote = function() {
         updateWindow: 0      // Server reported time elapsed since last update
     };
 
-    let is_alive = false;
+    let is_alive = true;
+
 
     let killer = '';
     let kills = 0;
@@ -75,6 +76,7 @@ MyGame.components.PlayerRemote = function() {
     Object.defineProperty(that, 'size', {
         get: () => size
     });
+
 
     //------------------------------------------------------------------
     //

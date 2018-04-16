@@ -11,6 +11,7 @@ MyGame.screens['register-user'] = (function() {
 		});
 
 		socket.on(NetworkIds.VALID_CREATE_USER, data => {
+			MyGame.assets['background'].pause();
 			MyGame.pregame.showScreen('main-menu');
 		})
 
