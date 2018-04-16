@@ -1,4 +1,3 @@
-// let small = require('./maps/SmallMap');
 
 (function (exports) {
   'use strict';

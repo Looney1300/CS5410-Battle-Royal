@@ -10,8 +10,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
         myKeyboard = input.Keyboard(),
         myMouse = input.Mouse(),
         map = Map.create(),
-        smallMap = SmallMap.create();
-    map.setMap(smallMap.data);
+        // smallMap = SmallMap.create();
+        mediumMap = MediumMap.create();
+        map.setMap(mediumMap.data);
 
     let shield = {center: {x: 0, y: 0}};
 
@@ -36,6 +37,12 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 spriteTime: [60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60]
             })
         },
+        miniMap = {
+            model: components.MiniMap(),
+            mapTexture: MyGame.assets['miniMapMedium'],
+            playerTexture: MyGame.assets['playerIcon']
+        },
+        mapIconTexture = MyGame.assets['mapIcons'],
         fov = components.FOV(),
         playerOthers = {},
         missiles = {},
@@ -378,6 +385,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.texture.worldCordinates.y = playerSelf.model.worldCordinates.y;
         playerSelf.texture.update(elapsedTime,viewPort);
         fov.update(playerSelf.model);
+        miniMap.model.update(playerSelf.model, null, viewPort);
         for (let id in playerOthers) {
             playerOthers[id].model.update(elapsedTime, viewPort);
             playerOthers[id].texture.worldCordinates.x = playerOthers[id].model.state.worldCordinates.x;
@@ -435,7 +443,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         graphics.clear();
         renderer.ViewPortal.render();
         renderer.FOV.render(fov);
-        renderer.Player.render(playerSelf.model,playerSelf.texture);
+        renderer.Player.render(playerSelf.model, playerSelf.texture);
         for (let id in playerOthers) {
             let player = playerOthers[id];
             //console.log(player.model.is_alive);
@@ -459,6 +467,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
             renderer.AnimatedSprite.render(explosions[id]);
         }
         graphics.drawShield(shield.center, shield.radius, 'rgba(0,0,50,.5)', 1);
+        renderer.MiniMap.render(miniMap.model, miniMap.mapTexture, miniMap.playerTexture, mapIconTexture);
     }
 
     //------------------------------------------------------------------
