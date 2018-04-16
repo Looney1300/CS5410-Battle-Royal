@@ -41,7 +41,20 @@ MyGame.components.Player = function(mapLogic) {
     let SPRINT_DECREASE_RATE = .1 // this is per millisecond
     let SPRINT_RECOVERY_RATE = .05 // this is per millisecond
 
+    let killer = '';
+    let kills = 0;
 
+
+
+    Object.defineProperty(that, 'kills', {
+        get: () => kills,
+        set: value => kills = value
+    })
+
+    Object.defineProperty(that, 'killer', {
+        get: () => killer,
+        set: value => killer = value
+    })
 
 
     Object.defineProperty(that, 'SPRINT_DECREASE_RATE', {

@@ -21,6 +21,17 @@ MyGame.main = (function(graphics, renderer, input, components) {
         health: MyGame.assets['health'],
         ammo: MyGame.assets['ammo']        
     };
+
+    let killer_and_killed = {
+        killer: '',
+        killed: '',
+    };
+    let killStatsArray = [];
+    let killStat = {};
+    let killWasUpdated = false;
+    let killDisplayTime = 0;
+    //killer_and_killed[0] = 'banina';
+    //killer_and_killed[1] = 'fofina';
     let myModel = components.Player(map);
     let playerSelf = {
             model: myModel,
@@ -196,6 +207,13 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.model.SPRINT_DECREASE_RATE = data.SPRINT_DECREASE_RATE;
         playerSelf.model.SPRINT_RECOVERY_RATE = data.SPRINT_RECOVERY_RATE;
 
+        playerSelf.model.kills = data.kills;
+        playerSelf.model.killer = data.killer;
+
+
+
+
+
         playerSelf.model.userName = data.userName;
 
         playerSelf.model.score = data.score;
@@ -221,9 +239,26 @@ MyGame.main = (function(graphics, renderer, input, components) {
         let memory = Queue.create();
         while (!messageHistory.empty) {
             let message = messageHistory.dequeue();
+            // console.log('-----> ',message.type,' <-----');
+            switch (message.type) {
+                case 'move-up':
+                    playerSelf.model.moveUp(message.elapsedTime);
+                    break;
+                case 'move-left':
+                    playerSelf.model.moveLeft(message.elapsedTime);
+                    break;
+                case 'move-right':
+                    playerSelf.model.moveRight(message.elapsedTime);
+                    break;
+                case 'move-down':
+                    playerSelf.model.moveDown(message.elapsedTime);
+                    break;
+                    
+            }
             memory.enqueue(message);
         }
         messageHistory = memory;
+
     }
 
     //------------------------------------------------------------------
@@ -237,12 +272,29 @@ MyGame.main = (function(graphics, renderer, input, components) {
             let model = playerOthers[data.clientId].model;
             model.goal.updateWindow = data.updateWindow;
 
+            model.kills = data.kills;
+            model.killer = data.killer;
+
             model.goal.worldCordinates.x = data.worldCordinates.x;
             model.goal.worldCordinates.y = data.worldCordinates.y;
             model.goal.direction = data.direction;
             model.is_alive = data.is_alive;
+            model.userName = data.userName;
             //console.log(data.is_alive);
+
+            if(!model.is_alive && model.wasNewlyKilled){
+                model.wasNewlyKilled = false;
+
+                let tempKillStat = Object.create(killer_and_killed);
+                tempKillStat.killer = model.userName;
+                //console.log(model.userName);
+                tempKillStat.killed = model.killer;
+                killStatsArray.push(tempKillStat);
+                
+            }
         }
+
+
         //console.log(data.is_alive);
     }
 
@@ -417,11 +469,21 @@ MyGame.main = (function(graphics, renderer, input, components) {
     // Render the current state of the game simulation
     //
     //------------------------------------------------------------------
-    function render() {
+    function render(elapsedTime) {
+        if(killDisplayTime <= 0){
+            if(killStatsArray.length != 0){
+                // someone died!
+                killStat = killStatsArray.pop();
+                killDisplayTime = 3;
+            }
+        }
+        //console.log(killStat);
+        killDisplayTime = killDisplayTime - (elapsedTime/1000);
+
         graphics.clear();
         renderer.ViewPortal.render();
         renderer.FOV.render(fov);
-        renderer.Player.render(playerSelf.model, playerSelf.texture);
+        renderer.Player.render(playerSelf.model,playerSelf.texture, killStat, killDisplayTime);
         for (let id in playerOthers) {
             let player = playerOthers[id];
             //console.log(player.model.is_alive);
@@ -458,7 +520,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
 
         processInput(elapsedTime);
         update(elapsedTime);
-        render();
+        render(elapsedTime);
 
         requestAnimationFrame(gameLoop);
     };
