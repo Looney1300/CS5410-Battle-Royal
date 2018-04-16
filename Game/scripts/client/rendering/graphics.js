@@ -276,12 +276,13 @@ MyGame.graphics = (function() {
         context.fill();
     }
 
+    // Circle, Rectangle, and Texture, are made for use by particleSystem.
     //------------------------------------------------------------------
     //
     // Draw the shield into the local canvas coordinate system.
     //
     //------------------------------------------------------------------
-    function drawShield(center, radius, color, lineWidth,) {
+    function drawShield(center, radius, color) {
 
         context.save();
         context.beginPath();
@@ -298,7 +299,7 @@ MyGame.graphics = (function() {
     Circle expects a spec with
         x
         y
-        radius
+        width
         fillStyle
         strokeStyle
         lineWidth
@@ -306,9 +307,27 @@ MyGame.graphics = (function() {
     //------------------------------------------------------------------
     function Circle(spec){
         let that = {};
+        let hasFillStyle = spec.hasOwnProperty('fillStyle');
+        let hasLineWidth = spec.hasOwnProperty('lineWidth');
+        let hasStrokeStyle = spec.hasOwnProperty('strokeStyle');
 
         that.draw = function(viewPort){
-
+            let posX = canvas.width/2 - (viewPort.center.x - spec.x);
+            let posY = canvas.height/2 - (viewPort.center.y - spec.y);
+            context.beginPath();
+            context.arc(posX, posY, spec.width/2 * canvas.width, 2 * Math.PI, false);
+            context.closePath();
+            if (hasLineWidth){
+                context.lineWidth = spec.lineWidth;
+            }
+            if (hasStrokeStyle){
+                context.strokeStyle = spec.strokeStyle;
+                context.stroke();
+            }
+            if (hasFillStyle){
+                context.fillStyle = spec.fillStyle;
+                context.fill();
+            }
             context.restore();
         }
         return that;
@@ -337,25 +356,27 @@ MyGame.graphics = (function() {
             spec.rotation += angle;
         };
 
-        that.draw = function(){
+        that.draw = function(viewPort){
+            let posX = canvas.width/2 - (viewPort.center.x - spec.x);
+            let posY = canvas.height/2 - (viewPort.center.y - spec.y);
             //Rotating a shape
             //1. Translate (0,0) of canvas to center of shape
             context.save();
-            context.translate(spec.x + spec.width/2, spec.y + spec.height/2);
+            context.translate(posX + spec.width*canvas.width/2, posY + spec.height*canvas.height/2);
             //2. Rotate canvas
             context.rotate(spec.rotation);
-            context.translate(-(spec.x + spec.width/2), -(spec.y + spec.height/2));
+            context.translate(-(posX + spec.width*canvas.width/2), -(posY + spec.height*canvas.height/2));
             //3. Draw shape at original coordinates
             if (hasFillStyle){
                 context.fillStyle = spec.fillStyle;
-                context.fillRect(spec.x, spec.y, spec.width, spec.height);
+                context.fillRect(posX, posY, spec.width * canvas.width, spec.height * canvas.height);
             }
             if (hasLineWidth){
                 context.lineWidth = spec.lineWidth;
             }
             if (hasStrokeStyle){
                 context.strokeStyle = spec.strokeStyle;
-                context.strokeRect(spec.x, spec.y, spec.width, spec.height);
+                context.strokeRect(posX, posY, spec.width * canvas.width, spec.height * canvas.height);
             }
             //4. Undo translations and rotations of canvas.
             context.restore();
@@ -369,8 +390,8 @@ MyGame.graphics = (function() {
     Texture function passed spec property expects
       spec.imageSrc
       spec.rotation
-      spec.center.x
-      spec.center.y
+      spec.x
+      spec.y
       spec.width
       spec.height
     Texture function 'has' the following properties
@@ -391,18 +412,24 @@ MyGame.graphics = (function() {
             spec.rotation += angle;
         };
         
-        that.draw = function(){
+        that.draw = function(viewPort){
+            let posX = canvas.width/2 - (viewPort.center.x - spec.x) - spec.width*canvas.width/2;
+            let posY = canvas.height/2 - (viewPort.center.y - spec.y) - spec.height*canvas.height/2;
             if (ready){
                 context.save();
-                context.translate(spec.x, spec.y);
+                context.translate(posX + spec.width*canvas.width/2, posY + spec.height*canvas.height/2);
                 context.rotate(spec.rotation);
-                context.translate(-spec.x, -spec.y);
+                context.translate(-(posX + spec.width*canvas.width/2), -(posY + spec.height*canvas.height/2));
+
+                //For fading textures
+                context.globalAlpha = spec.o;
 
                 context.drawImage(
                     image,
-                    spec.x - spec.width/2,
-                    spec.y -spec.height/2,
-                    spec.width, spec.height);
+                    (posX),
+                    (posY),
+                    spec.width * canvas.width, 
+                    spec.height * canvas.height);
 
                 context.restore();   
             }
@@ -458,11 +485,11 @@ MyGame.graphics = (function() {
             }
             if (spec.hasOwnProperty('fillStyle')){
                 context.fillStyle = spec.fillStyle;
-                context.fillText(spec.text, spec.x, spec.y);
+                context.fillText(spec.text, spec.x * canvas.width, spec.y * canvas.height);
             }
             if (spec.hasOwnProperty('strokeStyle')){
                 context.strokeStyle = spec.strokeStyle;
-                context.strokeText(spec.text, spec.x, spec.y);
+                context.strokeText(spec.text, spec.x * canvas.width, spec.y * canvas.height);
             }
         }
 

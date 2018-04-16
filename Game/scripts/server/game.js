@@ -44,7 +44,7 @@ map.setMap(mapFile);
 //Shield by passing the map, the percent of map width the first 
 // shield diameter will be, and how many minutes between shield moves.
 let SHIELD_RADIUS = .78;
-let TIME_TO_MOVE_SHIELD = .1;
+let TIME_TO_MOVE_SHIELD = 2;
 let shield = Shield.create(map, SHIELD_RADIUS, TIME_TO_MOVE_SHIELD);
 let salt = 'xnBZngGg*+FhQz??V6FMjfd9G4m5w^z8P*6';
 //this is being hard coded for now until I figure out a better solution

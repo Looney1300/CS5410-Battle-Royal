@@ -3,7 +3,7 @@
 // This function provides the "game" code.
 //
 //------------------------------------------------------------------
-MyGame.main = (function(graphics, renderer, input, components) {
+MyGame.main = (function(graphics, renderer, input, components, particles) {
     'use strict';
 
     let lastTimeStamp = performance.now(),
@@ -161,6 +161,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         model.goal.worldCordinates.y = data.worldCordinates.y;
         model.goal.direction = data.direction;
         model.goal.updateWindow = 21;
+        model.is_alive = true;
 
         model.size.x = data.size.x;
         model.size.y = data.size.y;
@@ -242,10 +243,16 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //
     //------------------------------------------------------------------
     function updatePlayerOther(data) {
-        
+
         if (playerOthers.hasOwnProperty(data.clientId)) {
             let model = playerOthers[data.clientId].model;
             model.goal.updateWindow = data.updateWindow;
+
+            //If the status of is_alive changed, they died.
+            if (model.is_alive !== data.is_alive){
+                console.log(model.is_alive, data.is_alive);
+                particles.playerDied(data.worldCordinates, data.direction);
+            }
 
             model.goal.worldCordinates.x = data.worldCordinates.x;
             model.goal.worldCordinates.y = data.worldCordinates.y;
@@ -273,6 +280,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
             },
             timeRemaining: data.timeRemaining
         });
+
+        particles.shotSmoke(data.worldCordinates, data.direction);        
     }
 
     //------------------------------------------------------------------
@@ -282,15 +291,20 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //------------------------------------------------------------------
     function missileHit(data) {
         // data is the hits array
-        explosions[nextExplosionId] = components.AnimatedSprite({
-            id: nextExplosionId++,
-            spriteSheet: MyGame.assets['explosion'],
-            spriteSize: { width: 0.07, height: 0.07 },
-            spriteCenter: data.hit_location,
-            spriteCount: 16,
-            spriteTime: [ 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
-        });
-
+        //Only animate the blood if they are still alive.
+        if (playerSelf.is_alive){
+            explosions[nextExplosionId] = components.AnimatedSprite({
+                id: nextExplosionId++,
+                spriteSheet: MyGame.assets['bloodsplosion'],
+                spriteSize: { width: 0.035, height: 0.035 },
+                spriteCenter: data.hit_location,
+                spriteCount: 6,
+                spriteTime: [ 80, 55, 30, 30, 30, 2000]
+            });
+            particles.enemyHit(data.hit_location);
+        }else{
+            particles.playerSelfDied(data.hit_location, playerSelf.model.direction);
+        }
         //
         // When we receive a hit notification, go ahead and remove the
         // associated missle from the client model.
@@ -311,12 +325,16 @@ MyGame.main = (function(graphics, renderer, input, components) {
     };
 
     function shieldUpdate(data){
-        shield.radius = data.radius/(viewPort.width*2);
+        let r = data.radius/(viewPort.width*2);
         shield.nextRadius = data.nextRadius;
         shield.nextWorldCordinates = data.nextWorldCordinates;
         shield.timeTilNextShield = data.timeTilNextShield;
         shield.center.x = .5 - (viewPort.center.x - data.worldCordinates.x)/viewPort.width;
         shield.center.y = .5 - (viewPort.center.y - data.worldCordinates.y)/viewPort.height;
+        if (shield.radius !== r && data.radius < 3*map.mapWidth){
+            particles.shieldSparks(data.worldCordinates, data.radius, data.timeTilNextShield, viewPort);
+        }
+        shield.radius = r;
     };
 
     //------------------------------------------------------------------
@@ -379,6 +397,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //
     //------------------------------------------------------------------
     function update(elapsedTime) {
+        particles.update(elapsedTime);
+        
         viewPort.update(graphics, playerSelf.model.worldCordinates);
         playerSelf.model.update(elapsedTime, viewPort);
         playerSelf.texture.worldCordinates.x = playerSelf.model.worldCordinates.x;
@@ -466,7 +486,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
         for (let id in explosions) {
             renderer.AnimatedSprite.render(explosions[id]);
         }
-        graphics.drawShield(shield.center, shield.radius, 'rgba(0,0,50,.5)', 1);
+        graphics.drawShield(shield.center, shield.radius, 'rgba(0,0,50,.5)');
+        particles.render(viewPort);
         renderer.MiniMap.render(miniMap.model, miniMap.mapTexture, miniMap.playerTexture, mapIconTexture);
     }
 
@@ -617,4 +638,4 @@ MyGame.main = (function(graphics, renderer, input, components) {
         socket: socket
     };
  
-}(MyGame.graphics, MyGame.renderer, MyGame.input, MyGame.components));
+}(MyGame.graphics, MyGame.renderer, MyGame.input, MyGame.components, MyGame.particleSystem));

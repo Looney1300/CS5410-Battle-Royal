@@ -83,7 +83,6 @@
                     nextRadius = currentRadius;
                     currentRadius -= percentLessEachShrink * map.mapWidth/2;
                 }
-                console.log(position);
                 position.x = nextPosition.x;
                 position.y = nextPosition.y;
                 let valid = false;

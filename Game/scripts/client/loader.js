@@ -76,6 +76,21 @@ MyGame.loader = (function() {
             onComplete: null
         }, 
         {
+            scripts: ['../utilities/colors'],
+            message: 'Colors loaded',
+            onComplete: null
+        },
+        {
+            scripts: ['../utilities/random'],
+            message: 'Random loaded',
+            onComplete: null
+        },
+        {
+            scripts: ['particles'],
+            message: 'Particle System loaded',
+            onComplete: null
+        },
+        {
             scripts: ['game'],
             message: 'Gameplay model loaded',
             onComplete: null
@@ -161,6 +176,14 @@ MyGame.loader = (function() {
         {
             key: 'playerIcon',
             source: 'assets/white-cursor.png'
+        },
+        {
+            key: 'blood',
+            source: 'assets/blood.png'
+        },
+        {
+            key: 'bloodsplosion',
+            source: 'assets/bloodsplosion.png'
         },
         {
             key: 'clientIdleNoGun',
