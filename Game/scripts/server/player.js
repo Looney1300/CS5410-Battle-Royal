@@ -255,8 +255,15 @@ function createPlayer(mapLogic) {
         }
         if(!is_alive){
             life_remaining = 0;
-            killer = hitter.userName;
-            hitter.kills++;
+            //This shouldn't happen when the shield kills you.
+            if (hitter){
+                if (hitter.userName){
+                    killer = hitter.userName;
+                }
+                if (hitter.kills){
+                    hitter.kills++;
+                }
+            }
             //console.log('I am dead!');
         }
     };
