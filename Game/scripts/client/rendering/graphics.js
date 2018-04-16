@@ -213,9 +213,9 @@ MyGame.graphics = (function() {
     function drawGameStatus(printArr){
         context.font = "bold 40px Arial";
         context.fillStyle = 'red';
-        context.fillText(printArr[0],0,canvas.height/20);
+        context.fillText(printArr.killer,0,canvas.height/20);
         context.fillText('was killed by',0,canvas.height/10);
-        context.fillText(printArr[1],0,canvas.height/6.5);
+        context.fillText(printArr.killed,0,canvas.height/6.5);
     };
 
     //------------------------------------------------------------------

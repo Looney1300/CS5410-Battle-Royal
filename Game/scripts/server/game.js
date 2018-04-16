@@ -336,7 +336,7 @@ function update(elapsedTime, currentTime) {
                     if(!activeClients[clientId].player.is_alive){
                         continue;
                     }
-                    activeClients[clientId].player.wasHit();
+                    activeClients[clientId].player.wasHit(activeClients[activeMissiles[missile].clientId].player);
                     activeClients[activeMissiles[missile].clientId].player.scoredAHit();
                     hit = true;
                     hits.push({
@@ -409,6 +409,9 @@ function updateClients(elapsedTime) {
             SPRINT_FACTOR: client.player.SPRINT_FACTOR,
             SPRINT_DECREASE_RATE: client.player.SPRINT_DECREASE_RATE,
             SPRINT_RECOVERY_RATE: client.player.SPRINT_RECOVERY_RATE,
+            kills: client.player.kills,
+            userName: client.player.userName,
+            killer: client.player.killer,
             updateWindow: lastUpdate,
             userName: client.player.userName
         };
