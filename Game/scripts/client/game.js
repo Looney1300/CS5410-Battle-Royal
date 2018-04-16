@@ -29,6 +29,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         emptyfire: MyGame.assets['emptyfire'],
         rapidFire: MyGame.assets['rapidFire'] 
     }
+    sounds.hit.volume = 0.5;
     let killer_and_killed = {
         killer: '',
         killed: '',

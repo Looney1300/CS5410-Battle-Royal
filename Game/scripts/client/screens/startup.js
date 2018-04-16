@@ -12,6 +12,8 @@ MyGame.screens['startup'] = (function() {
 			MyGame.assets['background'].play();
 		}, false);
 	}
+
+	MyGame.assets['background'].volume = 1.0;
 	function initialize() {
 		console.log('startup screen initialized');
 		document.getElementById('id-login').addEventListener(

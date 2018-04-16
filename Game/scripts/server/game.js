@@ -112,7 +112,7 @@ function createMissile(clientId, playerModel) {
                 },
                 timeRemaining: tempmistime,
                 direction: playerModel.direction,
-                speed: playerModel.speed
+                speed: playerModel.speed*2
             });
             newMissiles.push(missile);
         }

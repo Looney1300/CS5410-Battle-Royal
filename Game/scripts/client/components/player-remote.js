@@ -77,10 +77,6 @@ MyGame.components.PlayerRemote = function() {
         get: () => size
     });
 
-    Object.defineProperty(that, 'is_alive', {
-        get: () => is_alive,
-        set: value => is_alive = value
-    });
 
     //------------------------------------------------------------------
     //
