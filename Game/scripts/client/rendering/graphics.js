@@ -209,11 +209,15 @@ MyGame.graphics = (function() {
                 (localCenter.y - localSize.height / 2) - (localSize.height/2),
                 localSize.width,
                 localSize.height/5);
-            
         }
+    };
 
-        
-
+    function drawGameStatus(printArr){
+        context.font = "bold 40px Arial";
+        context.fillStyle = 'red';
+        context.fillText(printArr.killer,0,canvas.height/20);
+        context.fillText('was killed by',0,canvas.height/10);
+        context.fillText(printArr.killed,0,canvas.height/6.5);
     };
 
     //------------------------------------------------------------------
@@ -507,6 +511,7 @@ MyGame.graphics = (function() {
         saveContext: saveContext,
         restoreContext: restoreContext,
         rotateCanvas: rotateCanvas,
+        drawGameStatus: drawGameStatus,
         drawMapPortion: drawMapPortion,
         drawFOV : drawFOV,
         drawImage: drawImage,

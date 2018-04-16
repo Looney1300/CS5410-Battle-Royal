@@ -17,12 +17,13 @@ MyGame.components.AnimatedSprite = function(spec) {
 	let frame = 0;
 	let	that = {
 			get spriteSheet() { return spec.spriteSheet; },
+			set spriteSheet(value) {spec.spriteSheet = value;},
 			get pixelWidth() { return spec.spriteSheet.width / spec.spriteCount; },
 			get pixelHeight() { return spec.spriteSheet.height; },
 			get width() { return spec.spriteSize.width; },
 			get height() { return spec.spriteSize.height; },
 			get center() { return spec.spriteCenter; },
-			get sprite() { return spec.sprite; }
+			get sprite() { return spec.sprite; },
 	};
 	
 	let printCenter = {
