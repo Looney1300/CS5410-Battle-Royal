@@ -16,7 +16,6 @@ let mapFile = require('../shared/maps/SmallMap');
 let CryptoJS = require('crypto-js');
 let fs = require('fs');
 let Shield = require('../shared/shield');
-let sendShield = true;
 
 
 
@@ -41,8 +40,8 @@ let inputQueue = Queue.create();
 let nextMissileId = 1;
 let map = mapLogic.create();
 map.setMap(mapFile);
-//Shield by passing the map, the percent of map with that the first 
-// shield radius will be, and ahow many minutes between shield moves.
+//Shield by passing the map, the percent of map width the first 
+// shield diameter will be, and how many minutes between shield moves.
 let SHIELD_RADIUS = .78;
 let TIME_TO_MOVE_SHIELD = .1;
 let shield = Shield.create(map, SHIELD_RADIUS, TIME_TO_MOVE_SHIELD);
@@ -246,9 +245,7 @@ function update(elapsedTime, currentTime) {
     for (let clientId in activeClients) {
         if(!collided(activeClients[clientId].player, shield)){
             // Um... Is this how I make the client die when they aren't in the shield?
-            activeClients[clientId].player.wasHit();
-            // activeClients[clientId].player.health = 0; 
-            // console.log('health is now at ', activeClients[clientId].player.health);  
+            activeClients[clientId].player.wasHit(); 
         }
 
         if(!activeClients[clientId].player.is_alive){
@@ -412,6 +409,7 @@ function updateClients(elapsedTime) {
     for (let clientId in activeClients) {
         activeClients[clientId].socket.emit(NetworkIds.SHIELD_MOVE, {
             radius: shield.radius + 2*activeClients[clientId].player.collision_radius,
+            nextRadius: shield.nextRadius + 2*activeClients[clientId].player.collision_radius,
             worldCordinates: shield.worldCordinates,
             nextWorldCordinates: shield.nextWorldCordinates,
             timeTilNextShield: shield.timeTilNextShield
@@ -733,7 +731,7 @@ function initializeSocketIO(httpServer) {
                             //document.getElementById('joinroom').innerHTML = 'You are ready';
                             console.log('the server has begun the game!!!');
                             //gameHasBegun = true;
-                            //gameLoop(present(), 0);
+                            // gameLoop(present(), 0);
                             
                             clearInterval(interval);
                             

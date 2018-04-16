@@ -305,6 +305,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
 
     function shieldUpdate(data){
         shield.radius = data.radius/(viewPort.width*2);
+        shield.nextRadius = data.nextRadius;
         shield.nextWorldCordinates = data.nextWorldCordinates;
         shield.timeTilNextShield = data.timeTilNextShield;
         shield.center.x = .5 - (viewPort.center.x - data.worldCordinates.x)/viewPort.width;
@@ -443,22 +444,21 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 continue;
             }
         }
-
+        
         for(let power = 0; power<powerUps.length; power++){
             //console.log(powerUps[power].type);
             renderer.PowerUp.render(powerUps[power],MyGame.assets[powerUps[power].type]);
         }
         //powerUps.length = 0;
-
+        
         for (let missile in missiles) {
             renderer.Missile.render(missiles[missile],playerSelf.texture);
         }
-
+        
         for (let id in explosions) {
             renderer.AnimatedSprite.render(explosions[id]);
         }
-        
-        graphics.drawCircle(shield.center, shield.radius, 'rgba(0,0,0,.5)');
+        graphics.drawShield(shield.center, shield.radius, 'rgba(0,0,50,.5)', 1);
     }
 
     //------------------------------------------------------------------

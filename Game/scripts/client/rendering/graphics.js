@@ -17,7 +17,8 @@ MyGame.graphics = (function() {
     let viewPort = MyGame.components.ViewPortal();
     viewPort.mapWidth = map.mapWidth;
     viewPort.mapHeight = map.mapHeight;
-
+    
+    let shieldClipping = false;
 
     //------------------------------------------------------------------
     //
@@ -257,14 +258,16 @@ MyGame.graphics = (function() {
     // Draw the shield into the local canvas coordinate system.
     //
     //------------------------------------------------------------------
-    function drawShield(center, radius, color, lineWidth) {
-        //console.log(center);
+    function drawShield(center, radius, color, lineWidth,) {
+
+        context.save();
         context.beginPath();
-        context.arc(center.x * canvas.width, center.y * canvas.width, 2 * radius * canvas.width, 2 * Math.PI, false);
+        context.arc(center.x * canvas.width, center.y * canvas.width, 30000 * canvas.width, 0, 2 * Math.PI, false);
+        context.arc(center.x * canvas.width, center.y * canvas.width, 2 * radius * canvas.width, 0, 2 * Math.PI, true);
         context.closePath();
-        context.strokeStyle = color;
-        context.lineWidth = lineWidth;
-        context.stroke();
+        context.fillStyle = color;
+        context.fill()
+
     }
 
     //------------------------------------------------------------------

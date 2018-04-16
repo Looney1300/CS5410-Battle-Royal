@@ -7,6 +7,7 @@
         let that = {};
         let firstRadius = map.mapWidth * startDiameterAsPercentOfMapWidth/2;
         let currentRadius = map.mapWidth*10;
+        let nextRadius = firstRadius;
         let position = {x: map.mapWidth/2, y: map.mapWidth/2};
         let waitTime = 1000 * 60 * minutesBetweenShieldMoves;
         let timeTilNextShield = waitTime;
@@ -63,6 +64,10 @@
             get: () => timeTilNextShield
         });
 
+        Object.defineProperty(that, 'nextRadius', {
+            get: () => nextRadius
+        });
+
         that.update = function(elapsedTime){
             if (shieldMovesDone > shieldMovesTotal){
                 return false;
@@ -73,7 +78,9 @@
                 timeTilNextShield += waitTime;
                 if (currentRadius > firstRadius){
                     currentRadius = firstRadius;
+                    nextRadius = firstRadius - percentLessEachShrink * map.mapWidth/2;
                 }else{
+                    nextRadius = currentRadius;
                     currentRadius -= percentLessEachShrink * map.mapWidth/2;
                 }
                 console.log(position);
