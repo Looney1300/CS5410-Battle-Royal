@@ -38,8 +38,8 @@ MyGame.components.ViewPortal = function() {
 
 
   that.update = function(graphics, playerWC) { //player world cordinates
-    width = graphics.getCanvasWidth();
-    height = graphics.getCanvasHeight();
+    // width = graphics.getCanvasWidth();
+    // height = graphics.getCanvasHeight();
     this.center.x = playerWC.x;
     this.center.y = playerWC.y;
     if (this.center.x < width/2){
