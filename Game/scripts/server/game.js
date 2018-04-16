@@ -12,7 +12,8 @@ let Missile = require('./missile');
 let NetworkIds = require('../shared/network-ids');
 let Queue = require('../shared/queue.js');
 let mapLogic = require('../shared/map');
-let mapFile = require('../shared/maps/SmallMap');
+let mapFile = require('../shared/maps/medium');
+// let mapFile = require('../shared/maps/SmallMap');
 let CryptoJS = require('crypto-js');
 let fs = require('fs');
 
@@ -91,6 +92,9 @@ function updatePowerUps(){
 //
 //------------------------------------------------------------------
 function createMissile(clientId, playerModel) {
+    if(!playerModel.is_alive){
+        return;
+    }
     if(playerModel.has_gun){
         if(playerModel.firedAShot()){
             let offset = calcXYBulletOffset(playerModel.direction,playerSize);
@@ -233,6 +237,9 @@ function update(elapsedTime, currentTime) {
     // We need to check every client against every powerup.
 
     for (let clientId in activeClients) {
+        if(!activeClients[clientId].player.is_alive){
+            continue;
+        }
         for(let weapon = weaponPowerUps.length - 1; weapon >= 0; weapon-- ){
             if(collided(activeClients[clientId].player,weaponPowerUps[weapon])){
                 // if they collided give the reward and remove the powerup from the player.
@@ -327,7 +334,10 @@ function update(elapsedTime, currentTime) {
             if (clientId !== activeMissiles[missile].clientId) {
                 if (collided(activeMissiles[missile], activeClients[clientId].player)) {
                     // This is player who was hit.
-                    activeClients[clientId].player.wasHit();
+                    if(!activeClients[clientId].player.is_alive){
+                        continue;
+                    }
+                    activeClients[clientId].player.wasHit(activeClients[activeMissiles[missile].clientId].player);
                     activeClients[activeMissiles[missile].clientId].player.scoredAHit();
                     hit = true;
                     hits.push({
@@ -400,6 +410,9 @@ function updateClients(elapsedTime) {
             SPRINT_FACTOR: client.player.SPRINT_FACTOR,
             SPRINT_DECREASE_RATE: client.player.SPRINT_DECREASE_RATE,
             SPRINT_RECOVERY_RATE: client.player.SPRINT_RECOVERY_RATE,
+            kills: client.player.kills,
+            userName: client.player.userName,
+            killer: client.player.killer,
             updateWindow: lastUpdate,
             userName: client.player.userName,
             hasWeapon: client.player.has_gun,

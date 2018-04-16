@@ -32,6 +32,39 @@ MyGame.components.PlayerRemote = function() {
 
     let is_alive = true;
 
+
+    let killer = '';
+    let kills = 0;
+
+    let wasNewlyKilled = true;
+
+    let userName = '';
+
+    Object.defineProperty(that, 'userName', {
+        get: () => userName,
+        set: value => userName = value
+    })
+
+    Object.defineProperty(that, 'wasNewlyKilled', {
+        get: () => wasNewlyKilled,
+        set: value => wasNewlyKilled = value
+    })
+
+    Object.defineProperty(that, 'kills', {
+        get: () => kills,
+        set: value => kills = value
+    })
+
+    Object.defineProperty(that, 'killer', {
+        get: () => killer,
+        set: value => killer = value
+    })
+
+    Object.defineProperty(that, 'is_alive', {
+        get: () => is_alive,
+        set: value => is_alive = value
+    });
+
     Object.defineProperty(that, 'state', {
         get: () => state
     });

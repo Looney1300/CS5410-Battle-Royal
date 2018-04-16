@@ -35,9 +35,14 @@ MyGame.loader = (function() {
             message: 'Utilities loaded',
             onComplete: null,
         }, 
+        // {
+        //     scripts: ['../shared/maps/SmallMap'],
+        //     message: 'Small Map loaded',
+        //     onComplete: null
+        // },
         {
-            scripts: ['../shared/maps/SmallMap'],
-            message: 'Small Map loaded',
+            scripts: ['../shared/maps/medium'],
+            message: 'Medium Map loaded',
             onComplete: null
         },
         {
@@ -51,7 +56,7 @@ MyGame.loader = (function() {
             onComplete: null
         }, 
         {
-            scripts: ['components/player', 'components/player-remote', 'components/missile','components/powerup', 'components/animated-sprite', 'components/view-portal', 'components/fov'],
+            scripts: ['components/player', 'components/player-remote', 'components/missile','components/powerup', 'components/animated-sprite', 'components/view-portal', 'components/fov', 'components/mini-map'],
             message: 'Player models loaded',
             onComplete: null
         }, 
@@ -61,7 +66,7 @@ MyGame.loader = (function() {
             onComplete: null
         }, 
         {
-            scripts: ['rendering/player', 'rendering/player-remote', 'rendering/missile', 'rendering/powerup', 'rendering/animated-sprite', 'rendering/view-portal', 'rendering/fov'],
+            scripts: ['rendering/player', 'rendering/player-remote', 'rendering/missile', 'rendering/powerup', 'rendering/animated-sprite', 'rendering/view-portal', 'rendering/fov', 'rendering/mini-map'],
             message: 'Renderers loaded',
             onComplete: null
         }, 
@@ -139,6 +144,18 @@ MyGame.loader = (function() {
         {
             key: 'explosion',
             source: 'assets/explosion.png'
+        },
+        {
+            key: 'miniMapMedium',
+            source: 'assets/mediumMapImage.png'
+        },
+        {
+            key: 'mapIcons',
+            source: 'assets/powers.png'
+        },
+        {
+            key: 'playerIcon',
+            source: 'assets/white-cursor.png'
         },
         {
             key: 'clientIdleNoGun',

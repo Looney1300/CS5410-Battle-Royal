@@ -56,6 +56,18 @@ function createPlayer(mapLogic) {
     let reportUpdate = false;    // Indicates if this model was updated during the last update
     let moveRate = 200;
 
+    let killer = '';
+    let kills = 0;
+
+    Object.defineProperty(that, 'kills', {
+        get: () => kills,
+        set: value => kills = value
+    })
+
+    Object.defineProperty(that, 'killer', {
+        get: () => killer,
+        set: value => killer = value
+    })
 
     Object.defineProperty(that, 'SPRINT_DECREASE_RATE', {
         get: () => SPRINT_DECREASE_RATE,
@@ -235,7 +247,7 @@ function createPlayer(mapLogic) {
 
     };
 
-    that.wasHit = function(){
+    that.wasHit = function(hitter){
         reportUpdate = true;
         life_remaining -= 10;
         if(life_remaining <= 0){
@@ -243,6 +255,8 @@ function createPlayer(mapLogic) {
         }
         if(!is_alive){
             life_remaining = 0;
+            killer = hitter.userName;
+            hitter.kills++;
             //console.log('I am dead!');
         }
     };

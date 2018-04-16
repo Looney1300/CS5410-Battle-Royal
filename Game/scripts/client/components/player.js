@@ -43,7 +43,20 @@ MyGame.components.Player = function(mapLogic) {
     let SPRINT_DECREASE_RATE = .1 // this is per millisecond
     let SPRINT_RECOVERY_RATE = .05 // this is per millisecond
 
+    let killer = '';
+    let kills = 0;
 
+
+
+    Object.defineProperty(that, 'kills', {
+        get: () => kills,
+        set: value => kills = value
+    })
+
+    Object.defineProperty(that, 'killer', {
+        get: () => killer,
+        set: value => killer = value
+    })
 
 
     Object.defineProperty(that, 'SPRINT_DECREASE_RATE', {
@@ -142,7 +155,7 @@ MyGame.components.Player = function(mapLogic) {
     //------------------------------------------------------------------
     that.changeDirection = function(x, y, viewPort) {
         // direction = Math.atan2(y - (position.y * viewPort.height), x - (position.x * viewPort.width));
-        this.direction = Math.atan2(y - this.worldCordinates.y, x - this.worldCordinates.x);
+        direction = Math.atan2(y - this.worldCordinates.y, x - this.worldCordinates.x);
     };
 
     that.moveUp = function(elapsedTime) {
@@ -249,7 +262,7 @@ MyGame.components.Player = function(mapLogic) {
         }
 
         return cords;
-    }
+    };
 
     return that;
 };

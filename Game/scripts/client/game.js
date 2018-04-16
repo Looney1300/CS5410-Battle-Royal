@@ -10,8 +10,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
         myKeyboard = input.Keyboard(),
         myMouse = input.Mouse(),
         map = Map.create(),
-        smallMap = SmallMap.create();
-    map.setMap(smallMap.data);
+        // smallMap = SmallMap.create();
+        mediumMap = MediumMap.create();
+        map.setMap(mediumMap.data);
 
     let powerUptextures = {
         weapon: MyGame.assets['weapon'],
@@ -28,6 +29,16 @@ MyGame.main = (function(graphics, renderer, input, components) {
         emptyfire: MyGame.assets['emptyfire'],
         rapidFire: MyGame.assets['rapidFire'] 
     }
+    let killer_and_killed = {
+        killer: '',
+        killed: '',
+    };
+    let killStatsArray = [];
+    let killStat = {};
+    let killWasUpdated = false;
+    let killDisplayTime = 0;
+    //killer_and_killed[0] = 'banina';
+    //killer_and_killed[1] = 'fofina';
     let myModel = components.Player(map);
     let playerSelf = {
             model: myModel,
@@ -42,6 +53,12 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 spriteTime: [60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60]
             })
         },
+        miniMap = {
+            model: components.MiniMap(),
+            mapTexture: MyGame.assets['miniMapMedium'],
+            playerTexture: MyGame.assets['playerIcon']
+        },
+        mapIconTexture = MyGame.assets['mapIcons'],
         fov = components.FOV(),
         playerOthers = {},
         missiles = {},
@@ -194,6 +211,14 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.model.SPRINT_DECREASE_RATE = data.SPRINT_DECREASE_RATE;
         playerSelf.model.SPRINT_RECOVERY_RATE = data.SPRINT_RECOVERY_RATE;
         playerSelf.hasBullets = data.hasBullets;
+
+        playerSelf.model.kills = data.kills;
+        playerSelf.model.killer = data.killer;
+
+
+
+
+
         playerSelf.model.userName = data.userName;
         playerSelf.hasRapidFire = data.hasRapidFire;
 
@@ -228,9 +253,26 @@ MyGame.main = (function(graphics, renderer, input, components) {
         let memory = Queue.create();
         while (!messageHistory.empty) {
             let message = messageHistory.dequeue();
+            // console.log('-----> ',message.type,' <-----');
+            switch (message.type) {
+                case 'move-up':
+                    playerSelf.model.moveUp(message.elapsedTime);
+                    break;
+                case 'move-left':
+                    playerSelf.model.moveLeft(message.elapsedTime);
+                    break;
+                case 'move-right':
+                    playerSelf.model.moveRight(message.elapsedTime);
+                    break;
+                case 'move-down':
+                    playerSelf.model.moveDown(message.elapsedTime);
+                    break;
+                    
+            }
             memory.enqueue(message);
         }
         messageHistory = memory;
+
     }
 
     //------------------------------------------------------------------
@@ -239,9 +281,13 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //
     //------------------------------------------------------------------
     function updatePlayerOther(data) {
+        
         if (playerOthers.hasOwnProperty(data.clientId)) {
             let model = playerOthers[data.clientId].model;
             model.goal.updateWindow = data.updateWindow;
+
+            model.kills = data.kills;
+            model.killer = data.killer;
 
             model.goal.worldCordinates.x = data.worldCordinates.x;
             model.goal.worldCordinates.y = data.worldCordinates.y;
@@ -256,7 +302,24 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 sounds.die.play();
             }
             playerOthers[data.clientId].is_alive = data.is_alive;
+            model.is_alive = data.is_alive;
+            model.userName = data.userName;
+            //console.log(data.is_alive);
+
+            if(!model.is_alive && model.wasNewlyKilled){
+                model.wasNewlyKilled = false;
+
+                let tempKillStat = Object.create(killer_and_killed);
+                tempKillStat.killer = model.userName;
+                //console.log(model.userName);
+                tempKillStat.killed = model.killer;
+                killStatsArray.push(tempKillStat);
+                
+            }
         }
+
+
+        //console.log(data.is_alive);
     }
 
     //------------------------------------------------------------------
@@ -412,6 +475,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.texture.worldCordinates.y = playerSelf.model.worldCordinates.y;
         playerSelf.texture.update(elapsedTime,viewPort);
         fov.update(playerSelf.model);
+        miniMap.model.update(playerSelf.model, null, viewPort);
         for (let id in playerOthers) {
             playerOthers[id].model.update(elapsedTime, viewPort);
             playerOthers[id].texture.worldCordinates.x = playerOthers[id].model.state.worldCordinates.x;
@@ -456,29 +520,44 @@ MyGame.main = (function(graphics, renderer, input, components) {
     // Render the current state of the game simulation
     //
     //------------------------------------------------------------------
-    function render() {
+    function render(elapsedTime) {
+        if(killDisplayTime <= 0){
+            if(killStatsArray.length != 0){
+                // someone died!
+                killStat = killStatsArray.pop();
+                killDisplayTime = 3;
+            }
+        }
+        //console.log(killStat);
+        killDisplayTime = killDisplayTime - (elapsedTime/1000);
+
         graphics.clear();
         renderer.ViewPortal.render();
         renderer.FOV.render(fov);
-        renderer.Player.render(playerSelf.model,playerSelf.texture);
+        renderer.Player.render(playerSelf.model,playerSelf.texture, killStat, killDisplayTime);
         for (let id in playerOthers) {
             let player = playerOthers[id];
-            renderer.PlayerRemote.render(player.model,player.texture);
+            //console.log(player.model.is_alive);
+            if(player.model.is_alive){
+                renderer.PlayerRemote.render(player.model, player.texture);
+                continue;
+            }
         }
-
+        
         for(let power = 0; power<powerUps.length; power++){
             //console.log(powerUps[power].type);
             renderer.PowerUp.render(powerUps[power],MyGame.assets[powerUps[power].type]);
         }
         //powerUps.length = 0;
-
+        
         for (let missile in missiles) {
             renderer.Missile.render(missiles[missile],playerSelf.texture);
         }
-
+        
         for (let id in explosions) {
             renderer.AnimatedSprite.render(explosions[id]);
         }
+        renderer.MiniMap.render(miniMap.model, miniMap.mapTexture, miniMap.playerTexture, mapIconTexture);
     }
 
     //------------------------------------------------------------------
@@ -492,7 +571,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
 
         processInput(elapsedTime);
         update(elapsedTime);
-        render();
+        render(elapsedTime);
 
         requestAnimationFrame(gameLoop);
     };

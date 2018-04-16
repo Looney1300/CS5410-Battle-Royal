@@ -10,8 +10,9 @@ MyGame.graphics = (function() {
     let context = canvas.getContext('2d');
     
     let map = Map.create();
-    let smallMap = SmallMap.create();
-    map.setMap(smallMap.data);
+    // let smallMap = SmallMap.create();
+    let medium = MediumMap.create();
+    map.setMap(medium.data);
     let image = new Image();
     image.src = map.mapFile.tilesets[1].image;
     let viewPort = MyGame.components.ViewPortal();
@@ -76,8 +77,8 @@ MyGame.graphics = (function() {
     }
 
     function updateCanvas() {
-        canvas.width = 700;
-        canvas.height = 700;
+        canvas.width = 600;
+        canvas.height = 600;
     }
 
     //------------------------------------------------------------------
@@ -207,12 +208,38 @@ MyGame.graphics = (function() {
                 (localCenter.y - localSize.height / 2) - (localSize.height/2),
                 localSize.width,
                 localSize.height/5);
-            
         }
-
-        
-
     };
+
+    function drawGameStatus(printArr){
+        context.font = "bold 40px Arial";
+        context.fillStyle = 'red';
+        context.fillText(printArr.killer,0,canvas.height/20);
+        context.fillText('was killed by',0,canvas.height/10);
+        context.fillText(printArr.killed,0,canvas.height/6.5);
+    };
+
+    //------------------------------------------------------------------
+    //
+    // Draw a portion of an image on the canvasd
+    //
+    //------------------------------------------------------------------
+    function drawCroppedImage(texture, cord, size, clipping){
+        context.drawImage(texture, clipping.x, clipping.y, clipping.size.width, clipping.size.height,
+            cord.x * viewPort.width, cord.y * viewPort.height, 
+            size.width * viewPort.width, size.height * viewPort.height);
+    }
+
+    //------------------------------------------------------------------
+    //
+    // Draw a time at a specific place on the canvas
+    //
+    //------------------------------------------------------------------
+    function drawTime(time, cord) {
+        context.font = "12px Arial";
+        context.fillStyle = "#ffffff";
+        context.fillText(time, cord.x * viewPort.width, cord.y * viewPort.height);
+    }
 
     //------------------------------------------------------------------
     //
@@ -443,9 +470,12 @@ MyGame.graphics = (function() {
         saveContext: saveContext,
         restoreContext: restoreContext,
         rotateCanvas: rotateCanvas,
+        drawGameStatus: drawGameStatus,
         drawMapPortion: drawMapPortion,
         drawFOV : drawFOV,
         drawImage: drawImage,
+        drawCroppedImage: drawCroppedImage,
+        drawTime: drawTime,
         drawHealth: drawHealth,
         drawImageSpriteSheet: drawImageSpriteSheet,
         drawCircle: drawCircle,
