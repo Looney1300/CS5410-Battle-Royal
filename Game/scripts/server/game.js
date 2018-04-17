@@ -341,7 +341,6 @@ function update(elapsedTime, currentTime) {
     for (let missile = 0; missile < activeMissiles.length; missile++) {
         let hit = false;
         if (!map.isValid(activeMissiles[missile].worldCordinates.y, activeMissiles[missile].worldCordinates.x)){
-            console.log('bullet hit something');
             hit = true;
             // hits.push({
             //     clientId: null,
