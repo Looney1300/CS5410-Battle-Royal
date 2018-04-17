@@ -1,52 +1,51 @@
-
-
-    let random = require ('../utilities/random');
-    
-MyGame.components.Shield = function(map, startDiameterAsPercentOfMapWidth, minutesBetweenShieldMoves){
+MyGame.components.Shield = function(){
     'use strict';
     let that = {};
-    let firstRadius = map.mapWidth * startDiameterAsPercentOfMapWidth/2;
-    let currentRadius = map.mapWidth*10;
-    let nextRadius = firstRadius;
-    let worldCordinates = {x: map.mapWidth/2, y: map.mapWidth/2};
+    let radius = 0;
+    let nextRadius = 0;
+    let worldCordinates = {x: 0, y: 0};
     let position = {x: 0, y: 0};
-    let waitTime = 1000 * 60 * minutesBetweenShieldMoves;
-    let timeTilNextShield = waitTime;
-    let percentLessEachShrink = .14;
+    let timeTilNextShield = 0;
     let nextPosition = {};
-    let shieldMovesDone = 0;
-    let shieldMovesTotal = 4;
 
     Object.defineProperty(that, 'position', {
-        get: () => position
+        get: () => position,
+        set: (value) => { position = value }
     });
 
     Object.defineProperty(that, 'worldCordinates', {
-        get: () => worldCordinates
+        get: () => worldCordinates,
+        set: (value) => { worldCordinates = value }
     });
 
     Object.defineProperty(that, 'nextWorldCordinates', {
-        get: () => nextPosition
+        get: () => nextPosition,
+        set: (value) => { nextPosition = value }
     });
 
     Object.defineProperty(that, 'radius', {
-        get: () => currentRadius
+        get: () => radius,
+        set: (value) => { radius = value }
     });
 
     Object.defineProperty(that, 'collision_radius', {
-        get: () => currentRadius
+        get: () => radius,
+        set: (value) => { radius = value }
     });
 
     Object.defineProperty(that, 'timeTilNextShield', {
-        get: () => timeTilNextShield
+        get: () => timeTilNextShield,
+        set: (value) => { timeTilNextShield = value }
     });
 
     Object.defineProperty(that, 'nextRadius', {
-        get: () => nextRadius
+        get: () => nextRadius,
+        set: (value) => { nextRadius = value }
     });
 
-    that.update = function(elapsedTime){
-        // position.x +=
+    that.update = function(elapsedTime, viewPort){
+        position.x = .5 - (viewPort.center.x - worldCordinates.x)/viewPort.width;
+        position.y = .5 - (viewPort.center.y - worldCordinates.y)/viewPort.height;
     }
 
     return that;
