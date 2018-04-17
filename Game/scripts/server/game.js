@@ -340,6 +340,15 @@ function update(elapsedTime, currentTime) {
     keepMissiles = [];
     for (let missile = 0; missile < activeMissiles.length; missile++) {
         let hit = false;
+        if (!map.isValid(activeMissiles[missile].worldCordinates.y, activeMissiles[missile].worldCordinates.x)){
+            console.log('bullet hit something');
+            hit = true;
+            // hits.push({
+            //     clientId: null,
+            //     missileId: activeMissiles[missile].id,
+            //     hit_location: activeMissiles[missile].worldCordinates
+            // });
+        }
         for (let clientId in activeClients) {
             //
             // Don't allow a missile to hit the player it was fired from.
