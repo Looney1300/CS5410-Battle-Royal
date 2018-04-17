@@ -46,10 +46,6 @@ MyGame.components.FOV = function(){
     get: () => secondPoint
   });
 
-  function area(x1, y1, x2, y2, x3, y3) {
-    return Math.abs((x1*(y2-y3) + x2*(y3-y1)+ x3*(y1-y2))/2.0);
-  }
-
   that.update = function(player) {
     center.x = player.position.x;
     center.y = player.position.y;
@@ -58,16 +54,6 @@ MyGame.components.FOV = function(){
     firstPoint.y = center.y + (length * Math.sin(direction - width)/1000);
     secondPoint.x = center.x + (length * Math.cos(direction + width)/1000);
     secondPoint.y = center.y + (length * Math.sin(direction + width)/1000);
-  }
-
-  that.inFOV = function(player) {
-    console.log(player);
-    let a = area(center.x, center.y, firstPoint.x, firstPoint.y, secondPoint.x, secondPoint.y);
-    let a1 = area(player.model.state.position.x, player.model.state.position.y, firstPoint.x, firstPoint.y, secondPoint.x, secondPoint.y);
-    let a2 = area(center.x, center.y, player.model.state.position.x, player.model.state.position.y, secondPoint.x, secondPoint.y);
-    let a3 = area(center.x, center.y, firstPoint.x, firstPoint.y, player.model.state.position.x, player.model.state.position.y);
-
-    return (a == a1 + a2 + a3);
   }
 
   that.widen = function () {
