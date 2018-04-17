@@ -35,9 +35,14 @@ MyGame.loader = (function() {
             message: 'Utilities loaded',
             onComplete: null,
         }, 
+        // {
+        //     scripts: ['../shared/maps/SmallMap'],
+        //     message: 'Small Map loaded',
+        //     onComplete: null
+        // },
         {
-            scripts: ['../shared/maps/SmallMap'],
-            message: 'Small Map loaded',
+            scripts: ['../shared/maps/medium'],
+            message: 'Medium Map loaded',
             onComplete: null
         },
         {
@@ -51,7 +56,7 @@ MyGame.loader = (function() {
             onComplete: null
         }, 
         {
-            scripts: ['components/player', 'components/player-remote', 'components/missile', 'components/animated-sprite', 'components/view-portal', 'components/fov'],
+            scripts: ['components/player', 'components/player-remote', 'components/missile','components/powerup', 'components/animated-sprite', 'components/view-portal', 'components/fov', 'components/mini-map'],
             message: 'Player models loaded',
             onComplete: null
         }, 
@@ -61,7 +66,7 @@ MyGame.loader = (function() {
             onComplete: null
         }, 
         {
-            scripts: ['rendering/player', 'rendering/player-remote', 'rendering/missile', 'rendering/animated-sprite', 'rendering/view-portal', 'rendering/fov'],
+            scripts: ['rendering/player', 'rendering/player-remote', 'rendering/missile', 'rendering/powerup', 'rendering/animated-sprite', 'rendering/view-portal', 'rendering/fov', 'rendering/mini-map'],
             message: 'Renderers loaded',
             onComplete: null
         }, 
@@ -139,7 +144,96 @@ MyGame.loader = (function() {
         {
             key: 'explosion',
             source: 'assets/explosion.png'
+        },
+        {
+            key: 'miniMapMedium',
+            source: 'assets/mediumMapImage.png'
+        },
+        {
+            key: 'mapIcons',
+            source: 'assets/powers.png'
+        },
+        {
+            key: 'playerIcon',
+            source: 'assets/white-cursor.png'
+        },
+        {
+            key: 'clientIdleNoGun',
+            source: 'assets/Character_Sprites/user_flashlight_idle.png'
+        },
+        {
+            key: 'clientIdleGun',
+            source: 'assets/Character_Sprites/user_rifle_idle.png'
+        },
+        {
+            key: 'clientMoveNoGun',
+            source: 'assets/Character_Sprites/user_flashlight_move.png'
+        },
+        {
+            key: 'clientMoveGun',
+            source: 'assets/Character_Sprites/user_rifle_move.png'
+        },
+        {
+            key: 'enemyIdleNoGun',
+            source: 'assets/Character_Sprites/enemy_flashlight_idle.png'
+        },
+        {
+            key: 'enemyIdleGun',
+            source: 'assets/Character_Sprites/enemy_rifle_idle.png'
+        },
+        {
+            key: 'enemyMoveNoGun',
+            source: 'assets/Character_Sprites/enemy_flashlight_move.png'
+        },
+        {
+            key: 'enemyMoveGun',
+            source: 'assets/Character_Sprites/enemy_rifle_move.png'
+        },
+        {
+            key: 'weapon',
+            source: 'assets/Powerups/weapon_powerup.png'
+        },
+        {
+            key: 'fire-rate',
+            source: 'assets/Powerups/increased_fire_rate.png'
+        },
+        {
+            key: 'fire-range',
+            source: 'assets/Powerups/increased_range.png'
+        },
+        {
+            key: 'health',
+            source: 'assets/Powerups/health_powerup.png'
+        },
+        {
+            key: 'ammo',
+            source: 'assets/Powerups/ammo.png'
+        },
+        {
+            key: 'die',
+            source: 'assets/Sounds/die.mp3'
+        },
+        {
+            key: 'background',
+            source: 'assets/Sounds/background.mp3'
+        },
+        {
+            key: 'gunshot',
+            source: 'assets/Sounds/gunshot.mp3'
+        },
+        {
+            key: 'emptyfire',
+            source: 'assets/Sounds/emptyfire.mp3'
+        },
+        {
+            key: 'hit',
+            source: 'assets/Sounds/hit.mp3'
+        },
+        {
+            key: 'rapidFire',
+            source: 'assets/Sounds/rapidFire.mp3'
         }
+
     ];
 
     //------------------------------------------------------------------

@@ -7,13 +7,26 @@
 
 let present = require('present');
 let Player = require('./player');
+let PowerUp = require('./powerup');
 let Missile = require('./missile');
 let NetworkIds = require('../shared/network-ids');
 let Queue = require('../shared/queue.js');
 let mapLogic = require('../shared/map');
-let mapFile = require('../shared/maps/SmallMap');
+let mapFile = require('../shared/maps/medium');
+// let mapFile = require('../shared/maps/SmallMap');
 let CryptoJS = require('crypto-js');
 let fs = require('fs');
+
+
+
+let weaponPowerUps = [];
+let fire_ratePowerUps = [];
+let fire_rangePowerUps = [];
+let healthPowerUps = [];
+let ammoPowerUps = [];
+let pPerPlayer = 5;
+
+
 
 const SIMULATION_UPDATE_RATE_MS = 50;
 const STATE_UPDATE_RATE_MS = 20;
@@ -28,6 +41,50 @@ let nextMissileId = 1;
 let map = mapLogic.create();
 map.setMap(mapFile);
 let salt = 'xnBZngGg*+FhQz??V6FMjfd9G4m5w^z8P*6';
+//this is being hard coded for now until I figure out a better solution
+let playerSize = {width: 80, height: 80};
+
+
+
+
+function createWeaponPowerUp(){
+    let tempwpu = PowerUp.create(map,'weapon');
+    weaponPowerUps.push(tempwpu);  
+};
+function createFireRatePowerUp(){
+    let tempfrpu = PowerUp.create(map,'fire-rate');
+    fire_ratePowerUps.push(tempfrpu);
+};
+function createFireRangePowerUp(){
+    let tempfrapu = PowerUp.create(map,'fire-range');
+    fire_rangePowerUps.push(tempfrapu);
+};
+function createHealthPowerUp(){
+    let temphpu = PowerUp.create(map,'health');
+    healthPowerUps.push(temphpu);
+};
+function createAmmoPowerUp(){
+    let tempapu = PowerUp.create(map,'ammo');
+    ammoPowerUps.push(tempapu);
+};
+
+function updatePowerUps(){
+    while(weaponPowerUps.length < pPerPlayer){
+        createWeaponPowerUp();
+    };
+    while(fire_ratePowerUps.length < pPerPlayer){
+        createFireRatePowerUp();
+    };
+    while(fire_rangePowerUps.length < pPerPlayer){
+        createFireRangePowerUp();
+    };
+    while(healthPowerUps.length < pPerPlayer){
+        createHealthPowerUp()
+    };
+    while(ammoPowerUps.length < pPerPlayer){
+        createAmmoPowerUp();
+    };
+};
 
 //------------------------------------------------------------------
 //
@@ -35,18 +92,41 @@ let salt = 'xnBZngGg*+FhQz??V6FMjfd9G4m5w^z8P*6';
 //
 //------------------------------------------------------------------
 function createMissile(clientId, playerModel) {
-    let missile = Missile.create({
-        id: nextMissileId++,
-        clientId: clientId,
-        worldCordinates: {
-            x: playerModel.worldCordinates.x,
-            y: playerModel.worldCordinates.y
-        },
-        direction: playerModel.direction,
-        speed: playerModel.speed
-    });
+    if(!playerModel.is_alive){
+        return;
+    }
+    if(playerModel.has_gun){
+        if(playerModel.firedAShot()){
+            let offset = calcXYBulletOffset(playerModel.direction,playerSize);
+            let tempmistime = playerModel.missileTime;
+            if(playerModel.has_long_range){
+                tempmistime = 2*tempmistime;
+                //console.log('!!!!!!!!!');
+            }
+            let missile = Missile.create({
+                id: nextMissileId++,
+                clientId: clientId,
+                worldCordinates: {
+                    x: playerModel.worldCordinates.x + offset.x,
+                    y: playerModel.worldCordinates.y - offset.y
+                },
+                timeRemaining: tempmistime,
+                direction: playerModel.direction,
+                speed: playerModel.speed*2
+            });
+            newMissiles.push(missile);
+        }
+    }
+}
 
-    newMissiles.push(missile);
+function createRapidMissile(clientId, playerModel){
+    if(playerModel.has_rapid_fire){
+        createMissile(clientId, playerModel);
+    }
+}
+
+function sprint(clientId, playerModel){
+    playerModel.isSprinting = true;
 }
 
 //------------------------------------------------------------------
@@ -65,6 +145,9 @@ function processInput(elapsedTime) {
     while (!processMe.empty) {
         let input = processMe.dequeue();
         let client = activeClients[input.clientId];
+        if(client == undefined){
+            break;
+        }
         client.lastMessageId = input.message.id;
         switch (input.message.type) {
             case NetworkIds.INPUT_MOVE_UP:
@@ -88,6 +171,12 @@ function processInput(elapsedTime) {
             case NetworkIds.INPUT_FIRE:
                 createMissile(input.clientId, client.player);
                 break;
+            case NetworkIds.INPUT_RAPIDFIRE:
+                createRapidMissile(input.clientId, client.player);
+                break;
+            case NetworkIds.INPUT_SPRINT:
+                sprint(input.clientId, client.player);
+                break;
             case NetworkIds.MOUSE_MOVE:
                 client.player.changeDirection(input.message.x, input.message.y, input.message.viewPort);
                 break;
@@ -110,14 +199,113 @@ function collided(obj1, obj2) {
     return distance <= radii;
 }
 
+
+function calcXYBulletOffset(direction,imageSize){
+    let offsetX = null;
+    let offsetY = null;
+    //these are hard coded for now, essentially the 20 is 1/4 the actual size of the image, and the 8 is 1/10 the actual size of the image
+    if (direction < 0){
+        offsetX = (imageSize.width/4)*Math.cos(-direction) + (imageSize.width/10);
+    }
+    else{
+        offsetX = (imageSize.width/4)*Math.cos(-direction) - (imageSize.width/10);
+    }
+    if (Math.abs(direction) < (Math.PI/2)){
+        offsetY = (imageSize.height/4)*Math.sin(-direction) - (imageSize.height/10); //this value depends on the direction
+    }
+    else {
+        offsetY = (imageSize.height/4)*Math.sin(-direction) + (imageSize.height/10);
+    }
+    return {
+        x: offsetX,
+        y: offsetY
+    }
+}
 //------------------------------------------------------------------
 //
 // Update the simulation of the game.
 //
 //------------------------------------------------------------------
 function update(elapsedTime, currentTime) {
+
+
+    // In update we need to ensure we have pPerPlayer of each powerup
+
+    updatePowerUps();
+    // Powerups are created, now we need to do collision detection on them.
+    // need to check if any clients ran over the power ups.
+    // We need to check every client against every powerup.
+
     for (let clientId in activeClients) {
-        activeClients[clientId].player.update(currentTime);
+        if(!activeClients[clientId].player.is_alive){
+            continue;
+        }
+        for(let weapon = weaponPowerUps.length - 1; weapon >= 0; weapon-- ){
+            if(collided(activeClients[clientId].player,weaponPowerUps[weapon])){
+                // if they collided give the reward and remove the powerup from the player.
+                if(activeClients[clientId].player.has_gun){
+                    continue;
+                }
+                console.log('the player ran over a weapon!');
+                activeClients[clientId].player.foundGun();
+                weaponPowerUps.splice(weapon,1);
+            }
+        }
+
+        for(let fire_rate = fire_ratePowerUps.length - 1; fire_rate >= 0; fire_rate-- ){
+            if(collided(activeClients[clientId].player,fire_ratePowerUps[fire_rate])){
+                // if they collided give the reward and remove the powerup from the player.
+                if(activeClients[clientId].player.has_rapid_fire){
+                    continue;
+                }
+                console.log('the player ran over a fire-rate!');
+                activeClients[clientId].player.foundRapidFire();
+                fire_ratePowerUps.splice(fire_rate,1);
+            }
+        }
+
+        for(let fire_range = fire_rangePowerUps.length - 1; fire_range >= 0; fire_range-- ){
+            if(collided(activeClients[clientId].player,fire_rangePowerUps[fire_range])){
+                // if they collided give the reward and remove the powerup from the player.
+                if(activeClients[clientId].player.has_long_range){
+                    continue;
+                }
+                console.log('the player ran over a fire_range!');
+                activeClients[clientId].player.foundLongRange();
+                fire_rangePowerUps.splice(fire_range,1);
+            }
+        }
+
+        for(let health = healthPowerUps.length - 1; health >= 0; health-- ){
+            if(collided(activeClients[clientId].player,healthPowerUps[health])){
+                // if they collided give the reward and remove the powerup from the player.
+                if(activeClients[clientId].player.life_remaining >= 100){
+                    continue;
+                }
+                console.log('the player ran over a health!');
+                activeClients[clientId].player.foundMedPack();
+                healthPowerUps.splice(health,1);
+            }
+        }
+
+        for(let ammo = ammoPowerUps.length - 1; ammo >= 0; ammo-- ){
+            if(collided(activeClients[clientId].player,ammoPowerUps[ammo])){
+                // if they collided give the reward and remove the powerup from the player.
+                if(activeClients[clientId].player.ammo_remaining >= 100){
+                    continue;
+                }
+                console.log('the player ran over a ammo!');
+                activeClients[clientId].player.foundAmmoPack();
+                ammoPowerUps.splice(ammo,1);
+            }
+        }
+    }
+
+    // Now that we have checked every powerup against every player
+
+    for (let clientId in activeClients) {
+        //Question about currentTime vs elapsedTime, what should be put right here?
+        activeClients[clientId].player.update(elapsedTime);
     }
 
     for (let missile = 0; missile < newMissiles.length; missile++) {
@@ -146,7 +334,10 @@ function update(elapsedTime, currentTime) {
             if (clientId !== activeMissiles[missile].clientId) {
                 if (collided(activeMissiles[missile], activeClients[clientId].player)) {
                     // This is player who was hit.
-                    activeClients[clientId].player.wasHit();
+                    if(!activeClients[clientId].player.is_alive){
+                        continue;
+                    }
+                    activeClients[clientId].player.wasHit(activeClients[activeMissiles[missile].clientId].player);
                     activeClients[activeMissiles[missile].clientId].player.scoredAHit();
                     hit = true;
                     hits.push({
@@ -214,7 +405,19 @@ function updateClients(elapsedTime) {
             score: client.player.score,
             life_remaining: client.player.life_remaining,
             is_alive: client.player.is_alive,
-            updateWindow: lastUpdate
+            isSprinting: client.player.isSprinting,
+            sprintEnergy: client.player.sprintEnergy,
+            SPRINT_FACTOR: client.player.SPRINT_FACTOR,
+            SPRINT_DECREASE_RATE: client.player.SPRINT_DECREASE_RATE,
+            SPRINT_RECOVERY_RATE: client.player.SPRINT_RECOVERY_RATE,
+            kills: client.player.kills,
+            userName: client.player.userName,
+            killer: client.player.killer,
+            updateWindow: lastUpdate,
+            userName: client.player.userName,
+            hasWeapon: client.player.has_gun,
+            hasBullets: client.player.ammo_remaining > 0,
+            hasRapidFire: client.player.has_rapid_fire,
         };
         if (client.player.reportUpdate) {
             client.socket.emit(NetworkIds.UPDATE_SELF, update);
@@ -234,6 +437,68 @@ function updateClients(elapsedTime) {
         for (let missile = 0; missile < missileMessages.length; missile++) {
             client.socket.emit(NetworkIds.MISSILE_NEW, missileMessages[missile]);
         }
+
+        // HERE SINCE WE ARE SCROLLING THROUGH EVERY CLIENT, LETS TELL EVERY CLIENT WHERE EVERY
+        // POWER UP IS EVERY UPDATE. What do we need to send to the client? Just the type... and
+        // its location.
+
+        let powerUpArray = [];
+
+        for(let weapon = weaponPowerUps.length - 1; weapon >= 0; weapon-- ){
+            let pUp = {
+                worldCordinates: weaponPowerUps[weapon].worldCordinates,
+                type: weaponPowerUps[weapon].type,
+                radius: weaponPowerUps[weapon].radius
+            }
+            powerUpArray.push(pUp);
+        }
+
+        for(let fire_rate = fire_ratePowerUps.length - 1; fire_rate >= 0; fire_rate-- ){
+            let pUp = {
+                worldCordinates: fire_ratePowerUps[fire_rate].worldCordinates,
+                type: fire_ratePowerUps[fire_rate].type,
+                radius: fire_ratePowerUps[fire_rate].radius
+            }
+            powerUpArray.push(pUp);
+        }
+
+        for(let fire_range = fire_rangePowerUps.length - 1; fire_range >= 0; fire_range-- ){
+            let pUp = {
+                worldCordinates: fire_rangePowerUps[fire_range].worldCordinates,
+                type: fire_rangePowerUps[fire_range].type,
+                radius: fire_rangePowerUps[fire_range].radius
+            }
+            powerUpArray.push(pUp);
+        }
+
+        for(let health = healthPowerUps.length - 1; health >= 0; health-- ){
+            let pUp = {
+                worldCordinates: healthPowerUps[health].worldCordinates,
+                type: healthPowerUps[health].type,
+                radius: healthPowerUps[health].radius
+            }
+            powerUpArray.push(pUp);
+        }
+
+        for(let ammo = ammoPowerUps.length - 1; ammo >= 0; ammo-- ){
+            let pUp = {
+                worldCordinates: ammoPowerUps[ammo].worldCordinates,
+                type: ammoPowerUps[ammo].type,
+                radius: ammoPowerUps[ammo].radius
+            }
+            powerUpArray.push(pUp);
+        }
+
+        // Now that we have built the powerup array we need to send it to the clients
+        // one piece at a time.
+
+        for (let powerUp = 0; powerUp < powerUpArray.length; powerUp++){
+            powerUpArray[powerUp].indexId = powerUp;
+            client.socket.emit(NetworkIds.POWER_UP_LOC, powerUpArray[powerUp]);
+        }
+
+        powerUpArray.length = 0;
+
 
         //
         // Report any missile hits to this client
@@ -301,7 +566,8 @@ function initializeSocketIO(httpServer) {
                     worldCordinates: newPlayer.worldCordinates,
                     rotateRate: newPlayer.rotateRate,
                     speed: newPlayer.speed,
-                    size: newPlayer.size
+                    size: newPlayer.size,
+                    position: newPlayer.position,
                 });
 
                 //
@@ -312,7 +578,8 @@ function initializeSocketIO(httpServer) {
                     worldCordinates: client.player.worldCordinates,
                     rotateRate: client.player.rotateRate,
                     speed: client.player.speed,
-                    size: client.player.size
+                    size: client.player.size,
+                    position: newPlayer.position,
                 });
             }
         }
@@ -337,23 +604,25 @@ function initializeSocketIO(httpServer) {
     
     let users = [];
     let minChatterSizeHasBeenReached = false;
+    let chatterBoxSize = 0;
     io.on('connection', function(socket) {
         console.log('Connection established: ', socket.id);
         //
         // Create an entry in our list of connected clients
-        let newPlayer = Player.create(map);
-        newPlayer.clientId = socket.id;
-        activeClients[socket.id] = {
-            socket: socket,
-            player: newPlayer
-        };
-        socket.emit(NetworkIds.CONNECT_ACK, {
-            direction: newPlayer.direction,
-            worldCordinates: newPlayer.worldCordinates,
-            size: newPlayer.size,
-            rotateRate: newPlayer.rotateRate,
-            speed: newPlayer.speed
-        });
+        let newPlayerName = '';
+        // let newPlayer = Player.create(map);
+        // newPlayer.clientId = socket.id;
+        // activeClients[socket.id] = {
+        //     socket: socket,
+        //     player: newPlayer
+        // };
+        // socket.emit(NetworkIds.CONNECT_ACK, {
+        //     direction: newPlayer.direction,
+        //     worldCordinates: newPlayer.worldCordinates,
+        //     size: newPlayer.size,
+        //     rotateRate: newPlayer.rotateRate,
+        //     speed: newPlayer.speed
+        // });
 
         socket.on(NetworkIds.INPUT, data => {
             inputQueue.enqueue({
@@ -362,35 +631,75 @@ function initializeSocketIO(httpServer) {
             });
         });
 
+        socket.on('readyplayerone',function(){
+            let newPlayer = Player.create(map);
+            //let newPowerUp = PowerUp.create(map,'ammo');
+            //console.log(newPowerUp);
+            newPlayer.clientId = socket.id;
+            newPlayer.userName = newPlayerName;
+            activeClients[socket.id] = {
+                socket: socket,
+                player: newPlayer
+            };
+            socket.emit(NetworkIds.CONNECT_ACK, {
+                direction: newPlayer.direction,
+                worldCordinates: newPlayer.worldCordinates,
+                size: newPlayer.size,
+                rotateRate: newPlayer.rotateRate,
+                speed: newPlayer.speed
+            });
+            notifyConnect(socket, newPlayer);
+        });
+
         socket.on('disconnect', function() {
             console.log('connection lost: ', socket.id);
             delete activeClients[socket.id];
             notifyDisconnect(socket.id);
         });
 
-        notifyConnect(socket, newPlayer);
+        socket.on('exitedchat', function(data) {
+            //Send message to everyone
+            //io.sockets.emit('newmsg', data);
+            chatterBoxSize--;
+            let index = users.indexOf(data);
+            if (index > -1) {
+                users.splice(index, 1);
+                console.log('we spliced!');
+            }
+            console.log(chatterBoxSize);
+         });
+        
+        
 
 
         socket.on('setUsername', function(data) {
+            console.log('This should happen !!!!!!!!');
+            chatterBoxSize += 1;
+            console.log(chatterBoxSize);
             //console.log(data);
-            let chatterBoxSize = 0;
+            //let chatterBoxSize = 0;
             
             if(users.indexOf(data) > -1) {
-               socket.emit('userExists', data + ' username is taken! Try some other username.');
+                console.log('if part: ', data);
+               //socket.emit('userExists', data + ' username is taken! Try some other username.');
+               socket.emit('userSet', {username: data});
             } else {
+                console.log('else part: ', data);
                users.push(data);
-               activeClients[socket.id].player.menuState = 'chatting';
+               //activeClients[socket.id].player.menuState = 'chatting';
                //console.log(activeClients[socket.id].player.state);
                socket.emit('userSet', {username: data});
+               
+               
             }
 
             if(!minChatterSizeHasBeenReached){
-                for (let clientId in activeClients) {
-                    if(activeClients[clientId].player.menuState == 'chatting'){
-                        chatterBoxSize++;
-                        console.log('we counted a chatter.');
-                    }
-                }
+                // for (let clientId in activeClients) {
+                //     if(activeClients[clientId].player.menuState == 'chatting'){
+                //         chatterBoxSize++;
+                //         console.log('we counted a chatter.');
+                //     }
+                // }
                 if(chatterBoxSize > 2){
                     console.log('The countdown has begun.');
                     minChatterSizeHasBeenReached = true;
@@ -415,7 +724,7 @@ function initializeSocketIO(httpServer) {
                     }, 1000);
                 }
                 else {
-                    chatterBoxSize = 0;
+                    //chatterBoxSize = 0;
                 }
             }
 
@@ -426,11 +735,11 @@ function initializeSocketIO(httpServer) {
          
          socket.on('msg', function(data) {
             //Send message to everyone
+            console.log(data);
             io.sockets.emit('newmsg', data);
          });
 
          socket.on(NetworkIds.HIGH_SCORES, data => {
-            //console.log("Got a high scores request from the user!");
             var fs = require('fs');
             var obj;
             fs.readFile('../Game/data/highscores.json', 'utf8', function (err, fileData) {
@@ -443,9 +752,9 @@ function initializeSocketIO(httpServer) {
          });
 
          socket.on(NetworkIds.VALID_USER, data => {
-             //console.log("Got a login users request");
-             console.log(data.name,data.password);
              if (validUser(data.name,data.password)){
+                newPlayerName = data.name;
+                //newPlayer.userName = data.name;
                 socket.emit(NetworkIds.VALID_USER, null);
              }
              else{
@@ -454,12 +763,13 @@ function initializeSocketIO(httpServer) {
          });
 
          socket.on(NetworkIds.VALID_CREATE_USER, data => {
-             //console.log("Got a create users request");
              if(validCreateUser(data.name,data.password)){
-                 socket.emit(NetworkIds.VALID_CREATE_USER,null);
+                 newPlayerName = data.name;
+                //newPlayer.userName = data.name;
+                socket.emit(NetworkIds.VALID_CREATE_USER,null);
              }
              else {
-                 socket.emit(NetworkIds.INVALID_CREATE_USER, null);
+                socket.emit(NetworkIds.INVALID_CREATE_USER, null);
              }
          })
          
@@ -485,7 +795,6 @@ function initialize(httpServer) {
 function validUser(uName,uPassword){
     var obj = JSON.parse(fs.readFileSync('../Game/data/users.json', 'utf8'));
     for (var i = 0; i < obj.length; ++i){
-        console.log(CryptoJS.AES.decrypt(obj[i].password, salt).toString(CryptoJS.enc.Utf8));
         if (obj[i].name == uName && CryptoJS.AES.decrypt(obj[i].password, salt).toString(CryptoJS.enc.Utf8) == uPassword){
             return true;
         }
@@ -494,7 +803,6 @@ function validUser(uName,uPassword){
 }
 
 function validCreateUser(uName,uPassword){ 
-    console.log('checking for valid create user');
     var obj = JSON.parse(fs.readFileSync('../Game/data/users.json', 'utf8'));
     for (var i = 0; i < obj.length; ++i){
         if (obj[i].name == uName){

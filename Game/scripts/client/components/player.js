@@ -20,6 +20,9 @@ MyGame.components.Player = function(mapLogic) {
         width: 0.05,
         height: 0.05
     };
+
+    let userName = '';
+
     let direction = 0;
     let rotateRate = 0;
     let speed = 0;
@@ -28,12 +31,53 @@ MyGame.components.Player = function(mapLogic) {
     let width = 600;
 
 
-
+    let hasBullets = false;
     let score = 0;
     let life_remaining = 0;
     let is_alive = true;
+    let isSprinting = false;
+    let hasWeapon = false;
+    let hasRapidFire = false;
+    let sprintEnergy = 100;
+    let SPRINT_FACTOR = 2; // how fast to sprint vs regular speed
+    let SPRINT_DECREASE_RATE = .1 // this is per millisecond
+    let SPRINT_RECOVERY_RATE = .05 // this is per millisecond
+
+    let killer = '';
+    let kills = 0;
 
 
+
+    Object.defineProperty(that, 'kills', {
+        get: () => kills,
+        set: value => kills = value
+    })
+
+    Object.defineProperty(that, 'killer', {
+        get: () => killer,
+        set: value => killer = value
+    })
+
+
+    Object.defineProperty(that, 'SPRINT_DECREASE_RATE', {
+        get: () => SPRINT_DECREASE_RATE,
+        set: value => SPRINT_DECREASE_RATE = value
+    })
+
+    Object.defineProperty(that, 'SPRINT_RECOVERY_RATE', {
+        get: () => SPRINT_RECOVERY_RATE,
+        set: value => SPRINT_RECOVERY_RATE = value
+    })
+
+    Object.defineProperty(that, 'isSprinting', {
+        get: () => isSprinting,
+        set: value => isSprinting = value
+    })
+
+    Object.defineProperty(that, 'sprintEnergy', {
+        get: () => sprintEnergy,
+        set: value => sprintEnergy = value
+    })
 
 
     Object.defineProperty(that, 'score', {
@@ -53,6 +97,11 @@ MyGame.components.Player = function(mapLogic) {
         set: (value) => { is_alive = value }
     });
 
+    Object.defineProperty(that, 'hasWeapon', {
+        get: () => hasWeapon,
+        set: (value) => { hasWeapon = value }
+    });
+
 
     Object.defineProperty(that, 'direction', {
         get: () => direction,
@@ -70,7 +119,11 @@ MyGame.components.Player = function(mapLogic) {
     });
 
     Object.defineProperty(that, 'position', {
-        get: () => position
+        get: () => position,
+        set: cords => {
+            position.x = cords.x;
+            position.y = cords.y;
+        }
     });
 
     Object.defineProperty(that, 'worldCordinates', {
@@ -85,6 +138,16 @@ MyGame.components.Player = function(mapLogic) {
         get: () => size
     });
 
+    Object.defineProperty(that, 'hasBullets', {
+        get: () => hasBullets,
+        set: value => hasBullets = value
+    });
+
+    Object.defineProperty(that, 'hasRapidFire', {
+        get: () => hasRapidFire,
+        set: value => hasRapidFire = value
+    });
+
     //------------------------------------------------------------------
     //
     // Public function that moves the player's current direction.
@@ -92,32 +155,52 @@ MyGame.components.Player = function(mapLogic) {
     //------------------------------------------------------------------
     that.changeDirection = function(x, y, viewPort) {
         // direction = Math.atan2(y - (position.y * viewPort.height), x - (position.x * viewPort.width));
-        this.direction = Math.atan2(y - this.worldCordinates.y, x - this.worldCordinates.x);
+        direction = Math.atan2(y - this.worldCordinates.y, x - this.worldCordinates.x);
     };
 
     that.moveUp = function(elapsedTime) {
-        let move = speed * elapsedTime;
+        let tempSpeed = speed;
+        if (isSprinting && sprintEnergy > 0){
+            tempSpeed *= SPRINT_FACTOR;
+            sprintEnergy -= SPRINT_DECREASE_RATE * elapsedTime;
+        }
+        let move = tempSpeed * elapsedTime;
         if (map.isValid(this.worldCordinates.y - move, this.worldCordinates.x)){
             this.worldCordinates.y -= move;
         }
     };
 
     that.moveDown = function(elapsedTime) {
-        let move = speed * elapsedTime;
+        let tempSpeed = speed;
+        if (isSprinting && sprintEnergy > 0){
+            tempSpeed *= SPRINT_FACTOR;
+            sprintEnergy -= SPRINT_DECREASE_RATE * elapsedTime;
+        }
+        let move = tempSpeed * elapsedTime;
         if (map.isValid(this.worldCordinates.y + move, this.worldCordinates.x)){
             this.worldCordinates.y += move;
         }
     };
 
     that.moveLeft = function(elapsedTime) {
-        let move = speed * elapsedTime;
+        let tempSpeed = speed;
+        if (isSprinting && sprintEnergy > 0){
+            tempSpeed *= SPRINT_FACTOR;
+            sprintEnergy -= SPRINT_DECREASE_RATE * elapsedTime;
+        }
+        let move = tempSpeed * elapsedTime;
         if (map.isValid(this.worldCordinates.y, this.worldCordinates.x - move)){
             this.worldCordinates.x -= move;
         }
     };
 
     that.moveRight = function(elapsedTime) {
-        let move = speed * elapsedTime;
+        let tempSpeed = speed;
+        if (isSprinting && sprintEnergy > 0){
+            tempSpeed *= SPRINT_FACTOR;
+            sprintEnergy -= SPRINT_DECREASE_RATE * elapsedTime;
+        }
+        let move = tempSpeed * elapsedTime;
         if (map.isValid(this.worldCordinates.y, this.worldCordinates.x + move)){
             this.worldCordinates.x += move;
         }
@@ -142,20 +225,14 @@ MyGame.components.Player = function(mapLogic) {
     };
 
     that.update = function(elapsedTime, viewPort) {
-        let diffX = (Math.abs(viewPort.center.x - this.worldCordinates.x))/viewPort.width;
-        let diffY = (Math.abs(viewPort.center.y - this.worldCordinates.y))/viewPort.height;
-        if (this.worldCordinates.x < viewPort.center.x){
-            this.position.x = 0.5 - diffX;
+        if (sprintEnergy < 100 && !isSprinting){
+            sprintEnergy += SPRINT_RECOVERY_RATE * elapsedTime;
         }
-        else {
-            this.position.x = 0.5 + diffX;
-        }
-        if (this.worldCordinates.y < viewPort.center.y) {
-            this.position.y = 0.5 - diffY;
-        }
-        else {
-            this.position.y = 0.5 + diffY;
-        }
+        isSprinting = false;
+        let diffX = (viewPort.center.x - this.worldCordinates.x)/viewPort.width;
+        let diffY = (viewPort.center.y - this.worldCordinates.y)/viewPort.height;
+        this.position.x = 0.5 - diffX;
+        this.position.y = 0.5 - diffY;
     };
 
     //------------------------------------------------------------------
@@ -185,7 +262,7 @@ MyGame.components.Player = function(mapLogic) {
         }
 
         return cords;
-    }
+    };
 
     return that;
 };
