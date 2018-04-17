@@ -697,7 +697,7 @@ function initializeSocketIO(httpServer) {
             for (let clientId in activeClients) {
                 let client = activeClients[clientId];
                 let pushed = {
-                    me: client.player.userName,
+                    name: client.player.userName,
                     score: client.player.score,
                     kills: client.player.kills,
                     killer: client.player.killer

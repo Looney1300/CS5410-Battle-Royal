@@ -237,6 +237,10 @@ MyGame.loader = (function() {
         {
             key: 'rapidFire',
             source: 'assets/Sounds/rapidFire.mp3'
+        },
+        {
+            key: 'gameover',
+            source: 'assets/Sounds/gameover/mp3'
         }
 
     ];
