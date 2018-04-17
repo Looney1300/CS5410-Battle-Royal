@@ -16,7 +16,7 @@ let mapFile = require('../shared/maps/medium');
 // let mapFile = require('../shared/maps/SmallMap');
 let CryptoJS = require('crypto-js');
 let fs = require('fs');
-let Shield = require('../shared/shield');
+let Shield = require('./shield');
 
 
 
