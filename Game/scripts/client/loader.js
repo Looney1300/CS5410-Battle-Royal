@@ -240,7 +240,7 @@ MyGame.loader = (function() {
         },
         {
             key: 'gameover',
-            source: 'assets/Sounds/gameover/mp3'
+            source: 'assets/Sounds/gameover.mp3'
         }
 
     ];
