@@ -14,7 +14,14 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
         mediumMap = MediumMap.create();
         map.setMap(mediumMap.data);
 
-    let shield = {center: {x: 0, y: 0}};
+    let shield = {
+        center: {x: 0, y: 0},
+        radius: 0,
+        worldCordinates: {x: 0, y: 0},
+        nextRadius: 0,
+        nextWorldCordinates: {x: 0, y: 0},
+        position: {}
+    };
     let DISTANCE_TO_DETECT_PARTICLES = 400;
 
     let powerUptextures = {
