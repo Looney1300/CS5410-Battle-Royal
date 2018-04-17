@@ -9,7 +9,7 @@ MyGame.renderer.AnimatedSprite = (function(graphics) {
 
     that.render = function(sprite) {
         // right now center is the world coords
-        console.log(sprite);
+        //console.log(sprite);
         graphics.drawImageSpriteSheet(
             sprite.spriteSheet,
             { width: sprite.pixelWidth, height: sprite.pixelHeight },

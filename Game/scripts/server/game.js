@@ -112,7 +112,7 @@ function createMissile(clientId, playerModel) {
                 },
                 timeRemaining: tempmistime,
                 direction: playerModel.direction,
-                speed: playerModel.speed
+                speed: playerModel.speed*2
             });
             newMissiles.push(missile);
         }
@@ -337,7 +337,7 @@ function update(elapsedTime, currentTime) {
                     if(!activeClients[clientId].player.is_alive){
                         continue;
                     }
-                    activeClients[clientId].player.wasHit();
+                    activeClients[clientId].player.wasHit(activeClients[activeMissiles[missile].clientId].player);
                     activeClients[activeMissiles[missile].clientId].player.scoredAHit();
                     hit = true;
                     hits.push({
@@ -410,8 +410,14 @@ function updateClients(elapsedTime) {
             SPRINT_FACTOR: client.player.SPRINT_FACTOR,
             SPRINT_DECREASE_RATE: client.player.SPRINT_DECREASE_RATE,
             SPRINT_RECOVERY_RATE: client.player.SPRINT_RECOVERY_RATE,
+            kills: client.player.kills,
+            userName: client.player.userName,
+            killer: client.player.killer,
             updateWindow: lastUpdate,
-            userName: client.player.userName
+            userName: client.player.userName,
+            hasWeapon: client.player.has_gun,
+            hasBullets: client.player.ammo_remaining > 0,
+            hasRapidFire: client.player.has_rapid_fire,
         };
         if (client.player.reportUpdate) {
             client.socket.emit(NetworkIds.UPDATE_SELF, update);
