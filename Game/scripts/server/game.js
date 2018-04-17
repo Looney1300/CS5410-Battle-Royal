@@ -328,7 +328,7 @@ function update(elapsedTime, currentTime) {
     keepMissiles = [];
     for (let missile = 0; missile < activeMissiles.length; missile++) {
         let hit = false;
-        if (map.isValid(activeMissiles[missile].worldCordinates.y, activeMissiles[missile].worldCordinates.x)){
+        if (!map.isValid(activeMissiles[missile].worldCordinates.y, activeMissiles[missile].worldCordinates.x)){
             console.log('bullet hit something');
             hit = true;
             // hits.push({

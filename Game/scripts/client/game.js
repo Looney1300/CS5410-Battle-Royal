@@ -495,7 +495,12 @@ MyGame.main = (function(graphics, renderer, input, components) {
 
         let removeMissiles = [];
         for (let missile in missiles) {
-            if (!missiles[missile].update(elapsedTime, viewPort)) {
+            if (!map.isValid(missiles[missile].worldCordinates.y, missiles[missile].worldCordinates.x)){
+                removeMissiles.push(missiles[missile]);
+                console.log('bullet hit something');
+                //particleEffect
+            }
+            else if (!missiles[missile].update(elapsedTime, viewPort)) {
                 removeMissiles.push(missiles[missile]);
             }
         }
