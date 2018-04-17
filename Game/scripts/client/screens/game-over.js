@@ -22,6 +22,7 @@ MyGame.screens['game-over'] = (function() {
           table.innerHTML += "<tr><td>" + data[i].name + "</td><td>" + data[i].score  + "</td><td>" + data[i].kills + "</td><td>" + data[i].killer + "</td></tr>";
         }
       });
+      MyGame.assets['die'].pause();
       MyGame.assets['gameover'].play();
       table.innerHTML = "<tr><th>Name:</th><th>Score:</th><th>Kills:</th><th>Killer:</th></tr>"; //name score kills killer
     }
