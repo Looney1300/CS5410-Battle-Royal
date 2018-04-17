@@ -82,6 +82,11 @@ MyGame.loader = (function() {
             onComplete: null,
         },
         {
+            scripts: ['./screens/game-over'],
+            message: ['game-over screen loaded'],
+            onComplete: null,
+        },
+        {
             scripts: ['./screens/startup'],
             message: ['startup screen loaded'],
             onComplete: null,

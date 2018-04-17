@@ -36,6 +36,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
     };
     let killStatsArray = [];
     let killStat = {};
+    let quit = false;
     let killWasUpdated = false;
     let killDisplayTime = 0;
     //killer_and_killed[0] = 'banina';
@@ -81,6 +82,12 @@ MyGame.main = (function(graphics, renderer, input, components) {
             type: NetworkIds.POWER_UP_LOC,
             data: data
         });
+    });
+
+    socket.on(NetworkIds.GAME_OVER, function(){
+        //console.log('working very hard!!!');
+        quit = true;
+        MyGame.pregame.showScreen('game-over');
     });
 
     
@@ -573,8 +580,10 @@ MyGame.main = (function(graphics, renderer, input, components) {
         processInput(elapsedTime);
         update(elapsedTime);
         render(elapsedTime);
-
-        requestAnimationFrame(gameLoop);
+        if(!quit){
+            requestAnimationFrame(gameLoop);
+        }
+        
     };
 
 

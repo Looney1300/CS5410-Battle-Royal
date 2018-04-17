@@ -16,7 +16,7 @@ MyGame.screens['main-menu'] = (function() {
             
         document.getElementById('id-join-room').addEventListener(
             'click',
-			function() {MyGame.assets['background'].puase(); MyGame.pregame.showScreen('join-room'); });
+			function() {MyGame.assets['background'].pause(); MyGame.pregame.showScreen('join-room'); });
 
 		document.getElementById('id-about').addEventListener(
 			'click',

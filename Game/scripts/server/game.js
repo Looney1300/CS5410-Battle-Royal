@@ -229,6 +229,11 @@ function calcXYBulletOffset(direction,imageSize){
 function update(elapsedTime, currentTime) {
 
 
+    
+
+    
+
+
     // In update we need to ensure we have pPerPlayer of each powerup
 
     updatePowerUps();
@@ -361,6 +366,41 @@ function update(elapsedTime, currentTime) {
 //
 //------------------------------------------------------------------
 function updateClients(elapsedTime) {
+
+    let liveCount = 0;
+
+    for (let clientId in activeClients) {
+        let client = activeClients[clientId];
+        //Question about currentTime vs elapsedTime, what should be put right here?
+
+        if(!client.player.is_alive){
+            
+        }
+        else{
+            liveCount++;
+        }
+       
+    }
+    if(liveCount == 1){
+        for (let clientId in activeClients) {
+            let client = activeClients[clientId];
+            client.socket.emit(NetworkIds.GAME_OVER, '');
+        }
+        quit = true;
+    }
+    for (let clientId in activeClients) {
+        let client = activeClients[clientId];
+    
+       //console.log(client.player.userName);
+    }
+
+
+
+
+
+
+
+
     //
     // For demonstration purposes, network updates run at a slower rate than
     // the game simulation.
@@ -651,6 +691,25 @@ function initializeSocketIO(httpServer) {
             notifyConnect(socket, newPlayer);
         });
 
+        socket.on(NetworkIds.SCORE_REQ,function(){
+            //console.log('I am here in the server');
+            let gameStatsOver = [];
+            for (let clientId in activeClients) {
+                let client = activeClients[clientId];
+                let pushed = {
+                    me: client.player.userName,
+                    score: client.player.score,
+                    kills: client.player.kills,
+                    killer: client.player.killer
+                };
+                gameStatsOver.push(pushed);
+                
+
+            }
+
+            socket.emit(NetworkIds.SCORE_RES,gameStatsOver)
+        });
+
         socket.on('disconnect', function() {
             console.log('connection lost: ', socket.id);
             delete activeClients[socket.id];
@@ -700,7 +759,7 @@ function initializeSocketIO(httpServer) {
                 //         console.log('we counted a chatter.');
                 //     }
                 // }
-                if(chatterBoxSize > 2){
+                if(chatterBoxSize >= 2){
                     console.log('The countdown has begun.');
                     minChatterSizeHasBeenReached = true;
                     io.sockets.emit('BeginCountDown');
