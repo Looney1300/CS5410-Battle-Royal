@@ -15,6 +15,7 @@
         let nextPosition = {};
         let shieldMovesDone = 0;
         let shieldMovesTotal = 4;
+        let gameStarted = false;
 
         //Prep the next position with a valid randomly selected position
         let valid = false;
@@ -68,7 +69,14 @@
             get: () => nextRadius
         });
 
+        Object.defineProperty(that, 'gameStarted', {
+            set: (value) => gameStarted = value
+        });
+
         that.update = function(elapsedTime){
+            if (!gameStarted){
+                return false;
+            }
             if (shieldMovesDone > shieldMovesTotal){
                 return false;
             }
