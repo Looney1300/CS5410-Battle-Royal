@@ -10,7 +10,6 @@ MyGame.renderer.FOV = (function(graphics) {
   that.render = function(fov) {
     graphics.saveContext();
     graphics.drawFOV(fov);
-    graphics.restoreContext();
   }
 
   return that;

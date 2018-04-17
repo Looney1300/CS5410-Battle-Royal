@@ -535,15 +535,15 @@ MyGame.main = (function(graphics, renderer, input, components) {
         graphics.clear();
         renderer.ViewPortal.render();
         renderer.FOV.render(fov);
-        renderer.Player.render(playerSelf.model,playerSelf.texture, killStat, killDisplayTime);
         for (let id in playerOthers) {
             let player = playerOthers[id];
-            //console.log(player.model.is_alive);
             if(player.model.is_alive){
                 renderer.PlayerRemote.render(player.model, player.texture);
                 continue;
             }
         }
+        graphics.disableFOVClipping();
+        renderer.Player.render(playerSelf.model,playerSelf.texture, killStat, killDisplayTime);
         
         for(let power = 0; power<powerUps.length; power++){
             //console.log(powerUps[power].type);
