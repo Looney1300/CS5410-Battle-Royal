@@ -15,6 +15,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
         map.setMap(mediumMap.data);
 
     let shield = {center: {x: 0, y: 0}};
+    let DISTANCE_TO_DETECT_PARTICLES = 400;
 
     let powerUptextures = {
         weapon: MyGame.assets['weapon'],
@@ -301,7 +302,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
             //If the status of is_alive changed, they died.
             if (model.is_alive !== data.is_alive){
                 console.log(model.is_alive, data.is_alive);
-                particles.playerDied(data.worldCordinates, data.direction);
+                particles.playerDied(data.worldCordinates, data.direction, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);
             }
             model.kills = data.kills;
             model.killer = data.killer;
@@ -357,7 +358,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
             timeRemaining: data.timeRemaining
         });
 
-        particles.shotSmoke(data.worldCordinates, data.direction);        
+        particles.shotSmoke(data.worldCordinates, data.direction, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);        
         //only play this sound if it is within a certain distance of me. So gunshots from other players can be heard, if they are less than 1000 units away from me.
         //This allows the user to hear gunshots that are slightly outside of his viewing window.
         if (inRange(data.worldCordinates,playerSelf.model.worldCordinates) && rapidSound){
@@ -388,9 +389,9 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
                 spriteCount: 6,
                 spriteTime: [ 80, 55, 30, 30, 30, 2000]
             });
-            particles.enemyHit(data.hit_location);
+            particles.enemyHit(data.hit_location, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);
         }else{
-            particles.playerSelfDied(data.hit_location, playerSelf.model.direction);
+            particles.playerSelfDied(data.hit_location, playerSelf.model.direction, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);
         }
         //
         // explosions[nextExplosionId] = components.AnimatedSprite({
@@ -433,8 +434,8 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
         shield.timeTilNextShield = data.timeTilNextShield;
         shield.center.x = .5 - (viewPort.center.x - data.worldCordinates.x)/viewPort.width;
         shield.center.y = .5 - (viewPort.center.y - data.worldCordinates.y)/viewPort.height;
-        if (shield.radius !== r && data.radius < 3*map.mapWidth){
-            particles.shieldSparks(data.worldCordinates, data.radius, data.timeTilNextShield, viewPort);
+        if (data.radius < 3*map.mapWidth){
+            particles.shieldSparks(data.worldCordinates, data.radius, 100, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);
         }
         shield.radius = r;
     };
@@ -548,8 +549,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
         for (let missile in missiles) {
             if (!map.isValid(missiles[missile].worldCordinates.y, missiles[missile].worldCordinates.x)){
                 removeMissiles.push(missiles[missile]);
-                console.log('bullet hit something');
-                //particleEffect
+                particles.hitBuilding(missiles[missile].worldCordinates, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);                
             }
             else if (!missiles[missile].update(elapsedTime, viewPort)) {
                 removeMissiles.push(missiles[missile]);
