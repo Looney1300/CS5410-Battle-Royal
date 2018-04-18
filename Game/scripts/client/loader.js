@@ -51,17 +51,12 @@ MyGame.loader = (function() {
             onComplete: null
         },
         {
-            scripts: ['../shared/shield'],
-            message: 'Shield loaded',
-            onComplete: null
-        },
-        {
             scripts: ['input'],
             message: 'Input loaded',
             onComplete: null
         }, 
         {
-            scripts: ['components/player', 'components/player-remote', 'components/missile','components/powerup', 'components/animated-sprite', 'components/view-portal', 'components/fov', 'components/mini-map'],
+            scripts: ['components/player', 'components/player-remote', 'components/missile','components/powerup', 'components/animated-sprite', 'components/view-portal', 'components/fov', 'components/mini-map', 'components/shield'],
             message: 'Player models loaded',
             onComplete: null
         }, 

@@ -227,7 +227,20 @@ MyGame.particleSystem = (function(graphics){
 // one of these effects is needed, graphics functions take care of conversion.
 //
 // --------------------------------------------------------
-MyGame.particleSystem.playerDied = function(location, direction){
+function particleIsInside(location, center, maxD){
+    if (Math.abs(location.x-center.x) > maxD){
+        return false;
+    }
+    else if(Math.abs(location.y-center.y) > maxD){
+        return false;
+    }
+    return true;
+}
+
+MyGame.particleSystem.playerDied = function(location, direction, viewPortCenter, maxD){
+    if (!particleIsInside(location, viewPortCenter, maxD)){
+        return;
+    }
     let shotDirection = direction;
     let dx = Math.cos(shotDirection);
     let dy = Math.sin(shotDirection);
@@ -291,7 +304,10 @@ MyGame.particleSystem.playerDied = function(location, direction){
     MyGame.particleSystem.ParticleEffect(particleSpec3);
 };
 
-MyGame.particleSystem.playerSelfDied = function(location, direction){
+MyGame.particleSystem.playerSelfDied = function(location, direction, viewPortCenter, maxD){
+    if (!particleIsInside(location, viewPortCenter, maxD)){
+        return;
+    }
     let shotDirection = direction;
     let dx = Math.cos(shotDirection);
     let dy = Math.sin(shotDirection);
@@ -356,8 +372,10 @@ MyGame.particleSystem.playerSelfDied = function(location, direction){
     MyGame.particleSystem.ParticleEffect(particleSpec3);
 };
 
-MyGame.particleSystem.enemyHit = function(location){
-    
+MyGame.particleSystem.enemyHit = function(location, viewPortCenter, maxD){
+    if (!particleIsInside(location, viewPortCenter, maxD)){
+        return;
+    }
     let particleSpec = {
         drawUsing: MyGame.graphics.Circle,
         x: location.x,
@@ -379,7 +397,10 @@ MyGame.particleSystem.enemyHit = function(location){
     MyGame.particleSystem.ParticleEffect(particleSpec);
 };
 
-MyGame.particleSystem.shotSmoke = function(location, direction){
+MyGame.particleSystem.shotSmoke = function(location, direction, viewPortCenter, maxD){
+    // if (!particleIsInside(location, viewPortCenter, maxD)){
+    //     return;
+    // }
     let shotDirection = direction;
     while (shotDirection > 2*Math.PI){
         shotDirection -= 2*Math.PI;
@@ -430,52 +451,51 @@ MyGame.particleSystem.shotSmoke = function(location, direction){
     
 };
 
-MyGame.particleSystem.shieldSparks = function(center, radius, duration){
-    let SPARKSPERCIRCUMFRANCEUNIT = .2;
+MyGame.particleSystem.shieldSparks = function(center, radius, duration, viewPortCenter, maxD){
+    let SPARKSPERCIRCUMFRANCEUNIT = .025;
     for (let i=0; i<radius*Math.PI*SPARKSPERCIRCUMFRANCEUNIT; ++i){
         let cvec = nextCircleVector(radius);
-        let particleSpec = {
-            // drawUsing: MyGame.graphics.Rectangle,
-            drawUsing: MyGame.graphics.Texture,
-            x: center.x + cvec.x,
-            y: center.y + cvec.y,
-            particlesPerSec: 1,
-            // fill: Color.addAlpha(Color.blue, .3),
-            // stroke: Color.addAlpha(Color.blue, .3),
-            imageSrc: 'assets/spark.png',
-            rotationMax: 4,
-            lifetime: {mean: 1000, std: 500},
-            speed: {mean: 15, std: 5},
-            size: {mean: .01, std: .005},
-            specifyDirection: {angle: Math.atan2(cvec.y, cvec.x) + Math.PI, std: .5},
-            onTop: true,
-            gravity: 0,
-            duration: duration,
+        //If inside extended viewport, then add a particle effect there.
+        if (particleIsInside({x:center.x + cvec.x, y:center.y + cvec.y}, viewPortCenter, maxD)){
+            let particleSpec = {
+                drawUsing: MyGame.graphics.Texture,
+                x: center.x + cvec.x,
+                y: center.y + cvec.y,
+                particlesPerSec: 1,
+                imageSrc: 'assets/spark.png',
+                rotationMax: 4,
+                lifetime: {mean: 1000, std: 500},
+                speed: {mean: 15, std: 5},
+                size: {mean: .01, std: .005},
+                specifyDirection: {angle: Math.atan2(cvec.y, cvec.x) + Math.PI, std: .5},
+                onTop: true,
+                gravity: 0,
+                duration: duration,
+            }
+            MyGame.particleSystem.ParticleEffect(particleSpec);
         }
-        MyGame.particleSystem.ParticleEffect(particleSpec);
     }
 };
 
-MyGame.particleSystem.buildingHit = function(location){
+MyGame.particleSystem.hitBuilding = function(location, viewPortCenter, maxD){
+    if (!particleIsInside(location, viewPortCenter, maxD)){
+        return;
+    }
     let particleSpec = {
         drawUsing: MyGame.graphics.Rectangle,
-        x: location.x - .02,
-        y: location.y - .02,
-        xMax: location.x + .02,
-        yMax: location.y + .02,
-        particlesPerSec: 40,
+        x: location.x,
+        y: location.y,
+        particlesPerSec: 100,
         // imageSrc: 'bubble1b.png',
-        fill: Color.green,
-        stroke: Color.brown,
-        lineWidth: 2,
-        rotationMax: 1,
-        lifetime: {mean: 1500, std: 100},
-        speed: {mean: 20, std: 10},
-        size: {mean: .01, std: .001},
+        fill: Color.yellow,
+        rotationMax: 4,
+        lifetime: {mean: 80, std: 30},
+        speed: {mean: 100, std: 20},
+        size: {mean: .002, std: .0005},
         onTop: true,
         gravity: 0,
         disappear: true,
-        duration: 500,
+        duration: 50,
     }
 
     MyGame.particleSystem.ParticleEffect(particleSpec);
