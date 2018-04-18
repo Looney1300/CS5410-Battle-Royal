@@ -25,7 +25,7 @@ let fire_ratePowerUps = [];
 let fire_rangePowerUps = [];
 let healthPowerUps = [];
 let ammoPowerUps = [];
-let pPerPlayer = 20;
+let pPerPlayer = 5;
 
 
 
@@ -78,7 +78,7 @@ function createAmmoPowerUp(){
 };
 
 function updatePowerUps(){
-    while(weaponPowerUps.length < pPerPlayer){
+    while(weaponPowerUps.length < (4*pPerPlayer)){
         createWeaponPowerUp();
     };
     while(fire_ratePowerUps.length < pPerPlayer){
@@ -87,10 +87,10 @@ function updatePowerUps(){
     while(fire_rangePowerUps.length < pPerPlayer){
         createFireRangePowerUp();
     };
-    while(healthPowerUps.length < pPerPlayer){
+    while(healthPowerUps.length < 4*pPerPlayer){
         createHealthPowerUp()
     };
-    while(ammoPowerUps.length < pPerPlayer){
+    while(ammoPowerUps.length < 4*pPerPlayer){
         createAmmoPowerUp();
     };
 };
