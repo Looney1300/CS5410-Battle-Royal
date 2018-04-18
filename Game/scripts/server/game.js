@@ -25,7 +25,7 @@ let fire_ratePowerUps = [];
 let fire_rangePowerUps = [];
 let healthPowerUps = [];
 let ammoPowerUps = [];
-let pPerPlayer = 5;
+let pPerPlayer = 20;
 
 
 
@@ -420,11 +420,13 @@ function update(elapsedTime, currentTime) {
 function updateClients(elapsedTime) {
 
     let liveCount = 0;
+    let playerCount = 0;
 
     for (let clientId in activeClients) {
         let client = activeClients[clientId];
         //Question about currentTime vs elapsedTime, what should be put right here?
 
+        playerCount++;
         if(!client.player.is_alive){
             
         }
@@ -433,7 +435,7 @@ function updateClients(elapsedTime) {
         }
        
     }
-    if(liveCount == 1){
+    if((liveCount <= 1) && (playerCount > 0)){
         for (let clientId in activeClients) {
             let client = activeClients[clientId];
             client.socket.emit(NetworkIds.GAME_OVER, '');
