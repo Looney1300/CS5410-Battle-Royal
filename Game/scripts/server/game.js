@@ -129,6 +129,36 @@ function sprint(clientId, playerModel){
     playerModel.isSprinting = true;
 }
 
+function updateHighScores(){
+    var fs = require('fs');
+    //read in all the high scores from the file
+    var obj = JSON.parse(fs.readFileSync('../Game/data/highscores.json', 'utf8'));
+    //then figure out the proper ordering and rewrite the top 20.
+    for (let clientId in activeClients) {
+        let client = activeClients[clientId];
+        let pushed = {
+            name: client.player.userName,
+            score: client.player.score,
+            kills: client.player.kills,
+            killer: client.player.killer
+        };
+        obj.push({
+            name: client.player.userName,
+            score: client.player.score
+        });
+
+    }
+    //sort the scores
+    obj.sort((a, b) => parseInt(b.score) - parseFloat(a.score));
+    //write the top 20 back to the file
+    var newList = [];
+    for (var i = 0; i < 20 && i < obj.length; ++i){
+        newList.push(obj[i]);
+    }    
+
+    fs.writeFileSync('../Game/data/highscores.json',JSON.stringify(newList));
+}
+
 //------------------------------------------------------------------
 //
 // Process the network inputs we have received since the last time
@@ -386,6 +416,7 @@ function updateClients(elapsedTime) {
             let client = activeClients[clientId];
             client.socket.emit(NetworkIds.GAME_OVER, '');
         }
+        updateHighScores();
         quit = true;
     }
     for (let clientId in activeClients) {
