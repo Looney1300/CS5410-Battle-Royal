@@ -25,7 +25,7 @@ let fire_ratePowerUps = [];
 let fire_rangePowerUps = [];
 let healthPowerUps = [];
 let ammoPowerUps = [];
-let pPerPlayer = 5;
+let pPerPlayer = 20;
 
 
 
