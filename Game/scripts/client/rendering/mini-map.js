@@ -17,15 +17,30 @@ MyGame.renderer.MiniMap = (function(graphics) {
   let cord = {
     x: 0.05,
     y: 0.05
-  }
+  };
   let size = {
     width: 0.03,
     height: 0.03
+  };
+  let localShield = {
+    center: {
+      x: 0,
+      y: 0
+    },
+    radius: 0
   }
 
-  that.render = function(miniMap, mapTexture, playerTexture, mapIconTexture) {
+  that.render = function(miniMap, mapTexture, playerTexture, mapIconTexture, bleuMapTexture, shield, viewPort, playerCount) {
     
+    graphics.drawImage(bleuMapTexture, miniMap.center, miniMap.size);
+    //clipping
+    graphics.saveContext();
+    localShield.center = miniMap.convertToMiniMapCords(shield.center, viewPort);
+    localShield.radius = miniMap.convertRadius(shield.radius);
+    graphics.drawMiniMapCircle(localShield);
     graphics.drawImage(mapTexture, miniMap.center, miniMap.size);
+    graphics.disableMiniMapClipping();
+    //icons below map
     cord.x = miniMap.center.x - (miniMap.size.width / 2);
     cord.y = miniMap.center.y + (miniMap.size.height / 2) + 0.01;
     clipping.x = 128;
@@ -41,10 +56,10 @@ MyGame.renderer.MiniMap = (function(graphics) {
     graphics.drawCroppedImage(mapIconTexture, cord, size, clipping);
     cord.x += 0.04;
     cord.y += 0.02;
-    graphics.drawTime('100', cord);
+    graphics.drawTime(playerCount + 1, cord);
     graphics.saveContext();
-    graphics.rotateCanvas(miniMap.player, miniMap.player.direction);
-    graphics.drawImage(playerTexture, miniMap.player, miniMap.player.size);
+    graphics.rotateCanvas(miniMap.player.center, miniMap.player.direction);
+    graphics.drawImage(playerTexture, miniMap.player.center, miniMap.player.size);
     graphics.restoreContext();
   };
 

@@ -60,7 +60,16 @@ MyGame.main = (function(graphics, renderer, input, components) {
             playerTexture: MyGame.assets['playerIcon']
         },
         mapIconTexture = MyGame.assets['mapIcons'],
+        blueMapTexture = MyGame.assets['blueMap'],
+        shield = {
+            center: {
+                x: 1600,
+                y: 1600
+            },
+            radius: 1500
+        },
         fov = components.FOV(),
+        playersAliveCount = 0,
         playerOthers = {},
         missiles = {},
         powerUps = [],
@@ -535,9 +544,11 @@ MyGame.main = (function(graphics, renderer, input, components) {
         graphics.clear();
         renderer.ViewPortal.render();
         renderer.FOV.render(fov);
+        playersAliveCount = 0;
         for (let id in playerOthers) {
             let player = playerOthers[id];
             if(player.model.is_alive){
+                playersAliveCount += 1;
                 renderer.PlayerRemote.render(player.model, player.texture);
                 continue;
             }
@@ -558,7 +569,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         for (let id in explosions) {
             renderer.AnimatedSprite.render(explosions[id]);
         }
-        renderer.MiniMap.render(miniMap.model, miniMap.mapTexture, miniMap.playerTexture, mapIconTexture);
+        renderer.MiniMap.render(miniMap.model, miniMap.mapTexture, miniMap.playerTexture, mapIconTexture, blueMapTexture, shield, viewPort, playersAliveCount);
     }
 
     //------------------------------------------------------------------

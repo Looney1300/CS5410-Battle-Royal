@@ -154,6 +154,10 @@ MyGame.loader = (function() {
             source: 'assets/powers.png'
         },
         {
+            key: 'blueMap',
+            source: 'assets/mediumMapImageBlue.png'
+        },
+        {
             key: 'playerIcon',
             source: 'assets/white-cursor.png'
         },

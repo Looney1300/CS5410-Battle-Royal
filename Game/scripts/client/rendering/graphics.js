@@ -8,7 +8,8 @@ MyGame.graphics = (function() {
 
     let canvas = document.getElementById('canvas-main');
     let context = canvas.getContext('2d');
-    let clipping = false;
+    let fovClipping = false;
+    let miniMapClipping = false;
     
     let map = Map.create();
     // let smallMap = SmallMap.create();
@@ -150,16 +151,16 @@ MyGame.graphics = (function() {
         context.lineWidth = 2;
         context.strokeStyle = '#666666';
         context.stroke();
-        if(!clipping){
+        if(!fovClipping){
             context.clip();
-            clipping = true;
+            fovClipping = true;
         }
     }
 
     function disableFOVClipping() {
-        if (clipping){
+        if (fovClipping){
             context.restore();
-            clipping = false;
+            fovClipping = false;
         }
     }
 
@@ -289,6 +290,24 @@ MyGame.graphics = (function() {
         context.closePath();
         context.fillStyle = color;
         context.fill();
+    }
+
+    function drawMiniMapCircle(shield) {
+        if(!miniMapClipping){
+            miniMapClipping = true;
+            context.beginPath();
+            context.arc(shield.center.x * viewPort.width, shield.center.y * viewPort.height, shield.radius, 0, 2*Math.PI);
+            context.closePath();
+            context.stroke();
+            context.clip();
+        }
+    }
+
+    function disableMiniMapClipping() {
+        if (miniMapClipping){
+            context.restore();
+            miniMapClipping = false;
+        }
     }
 
     //------------------------------------------------------------------
@@ -484,6 +503,8 @@ MyGame.graphics = (function() {
         rotateCanvas: rotateCanvas,
         drawGameStatus: drawGameStatus,
         drawMapPortion: drawMapPortion,
+        drawMiniMapCircle : drawMiniMapCircle,
+        disableMiniMapClipping : disableMiniMapClipping,
         drawFOV : drawFOV,
         disableFOVClipping : disableFOVClipping,
         drawImage: drawImage,
