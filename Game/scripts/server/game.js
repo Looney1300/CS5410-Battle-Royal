@@ -421,20 +421,19 @@ function update(elapsedTime, currentTime) {
 function updateClients(elapsedTime) {
 
     let liveCount = 0;
+    let playerCount = 0;
 
     for (let clientId in activeClients) {
         let client = activeClients[clientId];
         //Question about currentTime vs elapsedTime, what should be put right here?
 
-        if(!client.player.is_alive){
-            
-        }
-        else{
+        playerCount++;
+        if(client.player.is_alive){
             liveCount++;
         }
        
     }
-    if(liveCount == 1){
+    if(((liveCount <= 1) && (playerCount > 0))){
         for (let clientId in activeClients) {
             let client = activeClients[clientId];
             client.socket.emit(NetworkIds.GAME_OVER, '');
