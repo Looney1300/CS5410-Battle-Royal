@@ -62,11 +62,10 @@ MyGame.main = (function(graphics, renderer, input, components) {
         mapIconTexture = MyGame.assets['mapIcons'],
         blueMapTexture = MyGame.assets['blueMap'],
         shield = {
-            center: {
-                x: 1600,
-                y: 1600
-            },
-            radius: 1500
+            radius: 1600,
+            worldCordinates: {x: 1600,y: 1600},
+            nextRadius: 500,
+            nextWorldCordinates: {x: 1600, y: 1600}
         },
         fov = components.FOV(),
         playersAliveCount = 0,

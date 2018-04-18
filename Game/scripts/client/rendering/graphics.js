@@ -293,12 +293,15 @@ MyGame.graphics = (function() {
     }
 
     function drawMiniMapCircle(shield) {
-        if(!miniMapClipping){
+        context.beginPath();
+        context.arc(shield.center.x * viewPort.width, shield.center.y * viewPort.height, shield.radius, 0, 2*Math.PI);
+        context.closePath();
+        context.stroke();
+    }
+
+    function enableMiniMapClipping() {
+        if (!miniMapClipping) {
             miniMapClipping = true;
-            context.beginPath();
-            context.arc(shield.center.x * viewPort.width, shield.center.y * viewPort.height, shield.radius, 0, 2*Math.PI);
-            context.closePath();
-            context.stroke();
             context.clip();
         }
     }
@@ -504,6 +507,7 @@ MyGame.graphics = (function() {
         drawGameStatus: drawGameStatus,
         drawMapPortion: drawMapPortion,
         drawMiniMapCircle : drawMiniMapCircle,
+        enableMiniMapClipping: enableMiniMapClipping,
         disableMiniMapClipping : disableMiniMapClipping,
         drawFOV : drawFOV,
         disableFOVClipping : disableFOVClipping,

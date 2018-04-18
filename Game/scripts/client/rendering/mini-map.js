@@ -22,7 +22,15 @@ MyGame.renderer.MiniMap = (function(graphics) {
     width: 0.03,
     height: 0.03
   };
+
   let localShield = {
+    center: {
+      x: 0,
+      y: 0
+    },
+    radius: 0
+  }
+  let localNextShield = {
     center: {
       x: 0,
       y: 0
@@ -32,14 +40,24 @@ MyGame.renderer.MiniMap = (function(graphics) {
 
   that.render = function(miniMap, mapTexture, playerTexture, mapIconTexture, bleuMapTexture, shield, viewPort, playerCount) {
     
-    graphics.drawImage(bleuMapTexture, miniMap.center, miniMap.size);
-    //clipping
-    graphics.saveContext();
-    localShield.center = miniMap.convertToMiniMapCords(shield.center, viewPort);
-    localShield.radius = miniMap.convertRadius(shield.radius);
-    graphics.drawMiniMapCircle(localShield);
-    graphics.drawImage(mapTexture, miniMap.center, miniMap.size);
-    graphics.disableMiniMapClipping();
+    if (shield.radius <= 1600){
+      graphics.drawImage(bleuMapTexture, miniMap.center, miniMap.size);
+      //clipping
+      graphics.saveContext();
+      localShield.center = miniMap.convertToMiniMapCords(shield.worldCordinates, viewPort);
+      localShield.radius = miniMap.convertRadius(shield.radius);
+      graphics.drawMiniMapCircle(localShield);
+      graphics.enableMiniMapClipping();
+      graphics.drawImage(mapTexture, miniMap.center, miniMap.size);
+      graphics.disableMiniMapClipping();
+    }
+    else {
+      graphics.drawImage(mapTexture, miniMap.center, miniMap.size);
+    }
+    //next shield
+    localNextShield.center = miniMap.convertToMiniMapCords(shield.nextWorldCordinates, viewPort);
+    localNextShield.radius = miniMap.convertRadius(shield.nextRadius);
+    graphics.drawMiniMapCircle(localNextShield);
     //icons below map
     cord.x = miniMap.center.x - (miniMap.size.width / 2);
     cord.y = miniMap.center.y + (miniMap.size.height / 2) + 0.01;
