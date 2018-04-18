@@ -44,6 +44,7 @@ let salt = 'xnBZngGg*+FhQz??V6FMjfd9G4m5w^z8P*6';
 //this is being hard coded for now until I figure out a better solution
 let playerSize = {width: 80, height: 80};
 
+let loggedInPlayers = [];
 
 
 
@@ -744,6 +745,12 @@ function initializeSocketIO(httpServer) {
         socket.on('disconnect', function() {
             console.log('connection lost: ', socket.id);
             delete activeClients[socket.id];
+            for (var i = 0; i < loggedInPlayers.length; ++i){
+                if (loggedInPlayers[i].id == socket.id){
+                    loggedInPlayers.splice(i,1);
+                    break;
+                }
+            }
             notifyDisconnect(socket.id);
         });
 
@@ -844,6 +851,10 @@ function initializeSocketIO(httpServer) {
          socket.on(NetworkIds.VALID_USER, data => {
              if (validUser(data.name,data.password)){
                 newPlayerName = data.name;
+                loggedInPlayers.push({
+                    name: data.name,
+                    id: socket.id
+                });
                 //newPlayer.userName = data.name;
                 socket.emit(NetworkIds.VALID_USER, null);
              }
@@ -855,6 +866,10 @@ function initializeSocketIO(httpServer) {
          socket.on(NetworkIds.VALID_CREATE_USER, data => {
              if(validCreateUser(data.name,data.password)){
                  newPlayerName = data.name;
+                 loggedInPlayers.push({
+                     name: data.name,
+                     id: socket.id
+                 });
                 //newPlayer.userName = data.name;
                 socket.emit(NetworkIds.VALID_CREATE_USER,null);
              }
@@ -884,12 +899,18 @@ function initialize(httpServer) {
 
 function validUser(uName,uPassword){
     var obj = JSON.parse(fs.readFileSync('../Game/data/users.json', 'utf8'));
+    var valid = false;
     for (var i = 0; i < obj.length; ++i){
         if (obj[i].name == uName && CryptoJS.AES.decrypt(obj[i].password, salt).toString(CryptoJS.enc.Utf8) == uPassword){
-            return true;
+            valid = true;
         }
     }
-    return false;
+    for (var i = 0; i < loggedInPlayers.length; ++i){
+        if (uName == loggedInPlayers[i].name){
+            return false;
+        }
+    }
+    return valid;
 }
 
 function validCreateUser(uName,uPassword){ 
