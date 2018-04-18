@@ -8,6 +8,7 @@ MyGame.graphics = (function() {
 
     let canvas = document.getElementById('canvas-main');
     let context = canvas.getContext('2d');
+    let clipping = false;
     
     let map = Map.create();
     // let smallMap = SmallMap.create();
@@ -144,12 +145,23 @@ MyGame.graphics = (function() {
     function drawFOV(fov) {
         context.beginPath();
         context.moveTo(fov.center.x * viewPort.width, fov.center.y * viewPort.height);
-        context.lineTo(fov.center.x * viewPort.width + (fov.length * Math.cos(fov.direction - fov.width)), fov.center.y * viewPort.height + (fov.length * Math.sin(fov.direction - fov.width)));
-        context.lineTo(fov.center.x * viewPort.width + (fov.length * Math.cos(fov.direction + fov.width)), fov.center.y * viewPort.height + (fov.length * Math.sin(fov.direction + fov.width)));
+        context.lineTo(fov.firstPoint.x * viewPort.width, fov.firstPoint.y * viewPort.height);
+        context.lineTo(fov.secondPoint.x * viewPort.width, fov.secondPoint.y * viewPort.height);
         context.closePath();
         context.lineWidth = 2;
         context.strokeStyle = '#666666';
         context.stroke();
+        if(!clipping){
+            context.clip();
+            clipping = true;
+        }
+    }
+
+    function disableFOVClipping() {
+        if (clipping){
+            context.restore();
+            clipping = false;
+        }
     }
 
     //------------------------------------------------------------------
@@ -514,6 +526,7 @@ MyGame.graphics = (function() {
         drawGameStatus: drawGameStatus,
         drawMapPortion: drawMapPortion,
         drawFOV : drawFOV,
+        disableFOVClipping : disableFOVClipping,
         drawImage: drawImage,
         drawCroppedImage: drawCroppedImage,
         drawTime: drawTime,

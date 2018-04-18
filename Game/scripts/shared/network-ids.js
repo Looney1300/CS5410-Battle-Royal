@@ -116,6 +116,18 @@
             value: 'shield-move',
             writable: false
         },
+        'GAME_OVER' : {
+            value: 'game-over',
+            writable: false
+        },
+        'SCORE_REQ' : {
+            value: 'score-request',
+            writable: false
+        },
+        'SCORE_RES' : {
+            value: 'score-response',
+            writable: false
+        },
         
     });
 

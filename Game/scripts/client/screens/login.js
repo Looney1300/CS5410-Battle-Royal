@@ -12,7 +12,7 @@ MyGame.screens['login'] = (function() {
 		});
 
 		socket.on(NetworkIds.INVALID_USER, data =>{
-			window.alert("Error Invalid Credentials! Username or password incorrect!");
+			window.alert("Error Invalid Credentials! Username or password incorrect, or user is already logged in!");
 			clearFields();
 		});
 
@@ -46,11 +46,6 @@ MyGame.screens['login'] = (function() {
 	function run() {
 		console.log('running login screen');
 		clearFields();
-		//this is just temporary to make logging in faster.
-		var name = document.getElementById('userName');
-		var password = document.getElementById('userPassword');
-		name.value = "Testy";
-		password.value = "Testing1";
 	}
 
 	return {

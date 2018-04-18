@@ -38,6 +38,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
     };
     let killStatsArray = [];
     let killStat = {};
+    let quit = false;
     let killWasUpdated = false;
     let killDisplayTime = 0;
     //killer_and_killed[0] = 'banina';
@@ -91,6 +92,12 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
             type: NetworkIds.SHIELD_MOVE,
             data: data
         });
+    });
+    
+    socket.on(NetworkIds.GAME_OVER, function(){
+        //console.log('working very hard!!!');
+        quit = true;
+        MyGame.pregame.showScreen('game-over');
     });
 
     
@@ -591,15 +598,15 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
         graphics.clear();
         renderer.ViewPortal.render();
         renderer.FOV.render(fov);
-        renderer.Player.render(playerSelf.model,playerSelf.texture, killStat, killDisplayTime);
         for (let id in playerOthers) {
             let player = playerOthers[id];
-            //console.log(player.model.is_alive);
             if(player.model.is_alive){
                 renderer.PlayerRemote.render(player.model, player.texture);
                 continue;
             }
         }
+        graphics.disableFOVClipping();
+        renderer.Player.render(playerSelf.model,playerSelf.texture, killStat, killDisplayTime);
         
         for(let power = 0; power<powerUps.length; power++){
             //console.log(powerUps[power].type);
@@ -631,8 +638,10 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
         processInput(elapsedTime);
         update(elapsedTime);
         render(elapsedTime);
-
-        requestAnimationFrame(gameLoop);
+        if(!quit){
+            requestAnimationFrame(gameLoop);
+        }
+        
     };
 
 

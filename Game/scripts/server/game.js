@@ -50,6 +50,7 @@ let salt = 'xnBZngGg*+FhQz??V6FMjfd9G4m5w^z8P*6';
 //this is being hard coded for now until I figure out a better solution
 let playerSize = {width: 80, height: 80};
 
+let loggedInPlayers = [];
 
 
 
@@ -134,6 +135,36 @@ function createRapidMissile(clientId, playerModel){
 
 function sprint(clientId, playerModel){
     playerModel.isSprinting = true;
+}
+
+function updateHighScores(){
+    var fs = require('fs');
+    //read in all the high scores from the file
+    var obj = JSON.parse(fs.readFileSync('../Game/data/highscores.json', 'utf8'));
+    //then figure out the proper ordering and rewrite the top 20.
+    for (let clientId in activeClients) {
+        let client = activeClients[clientId];
+        let pushed = {
+            name: client.player.userName,
+            score: client.player.score,
+            kills: client.player.kills,
+            killer: client.player.killer
+        };
+        obj.push({
+            name: client.player.userName,
+            score: client.player.score
+        });
+
+    }
+    //sort the scores
+    obj.sort((a, b) => parseInt(b.score) - parseFloat(a.score));
+    //write the top 20 back to the file
+    var newList = [];
+    for (var i = 0; i < 20 && i < obj.length; ++i){
+        newList.push(obj[i]);
+    }    
+
+    fs.writeFileSync('../Game/data/highscores.json',JSON.stringify(newList));
 }
 
 //------------------------------------------------------------------
@@ -235,6 +266,11 @@ function calcXYBulletOffset(direction,imageSize){
 //------------------------------------------------------------------
 function update(elapsedTime, currentTime) {
     shield.update(elapsedTime);
+
+    
+
+    
+
 
     // In update we need to ensure we have pPerPlayer of each powerup
 
@@ -382,6 +418,42 @@ function update(elapsedTime, currentTime) {
 //
 //------------------------------------------------------------------
 function updateClients(elapsedTime) {
+
+    let liveCount = 0;
+
+    for (let clientId in activeClients) {
+        let client = activeClients[clientId];
+        //Question about currentTime vs elapsedTime, what should be put right here?
+
+        if(!client.player.is_alive){
+            
+        }
+        else{
+            liveCount++;
+        }
+       
+    }
+    if(liveCount == 1){
+        for (let clientId in activeClients) {
+            let client = activeClients[clientId];
+            client.socket.emit(NetworkIds.GAME_OVER, '');
+        }
+        updateHighScores();
+        quit = true;
+    }
+    for (let clientId in activeClients) {
+        let client = activeClients[clientId];
+    
+       //console.log(client.player.userName);
+    }
+
+
+
+
+
+
+
+
     //
     // For demonstration purposes, network updates run at a slower rate than
     // the game simulation.
@@ -685,9 +757,34 @@ function initializeSocketIO(httpServer) {
             notifyConnect(socket, newPlayer);
         });
 
+        socket.on(NetworkIds.SCORE_REQ,function(){
+            //console.log('I am here in the server');
+            let gameStatsOver = [];
+            for (let clientId in activeClients) {
+                let client = activeClients[clientId];
+                let pushed = {
+                    name: client.player.userName,
+                    score: client.player.score,
+                    kills: client.player.kills,
+                    killer: client.player.killer
+                };
+                gameStatsOver.push(pushed);
+                
+
+            }
+
+            socket.emit(NetworkIds.SCORE_RES,gameStatsOver)
+        });
+
         socket.on('disconnect', function() {
             console.log('connection lost: ', socket.id);
             delete activeClients[socket.id];
+            for (var i = 0; i < loggedInPlayers.length; ++i){
+                if (loggedInPlayers[i].id == socket.id){
+                    loggedInPlayers.splice(i,1);
+                    break;
+                }
+            }
             notifyDisconnect(socket.id);
         });
 
@@ -734,7 +831,7 @@ function initializeSocketIO(httpServer) {
                 //         console.log('we counted a chatter.');
                 //     }
                 // }
-                if(chatterBoxSize > 2){
+                if(chatterBoxSize >= 2){
                     console.log('The countdown has begun.');
                     minChatterSizeHasBeenReached = true;
                     io.sockets.emit('BeginCountDown');
@@ -788,6 +885,10 @@ function initializeSocketIO(httpServer) {
          socket.on(NetworkIds.VALID_USER, data => {
              if (validUser(data.name,data.password)){
                 newPlayerName = data.name;
+                loggedInPlayers.push({
+                    name: data.name,
+                    id: socket.id
+                });
                 //newPlayer.userName = data.name;
                 socket.emit(NetworkIds.VALID_USER, null);
              }
@@ -799,6 +900,10 @@ function initializeSocketIO(httpServer) {
          socket.on(NetworkIds.VALID_CREATE_USER, data => {
              if(validCreateUser(data.name,data.password)){
                  newPlayerName = data.name;
+                 loggedInPlayers.push({
+                     name: data.name,
+                     id: socket.id
+                 });
                 //newPlayer.userName = data.name;
                 socket.emit(NetworkIds.VALID_CREATE_USER,null);
              }
@@ -828,12 +933,18 @@ function initialize(httpServer) {
 
 function validUser(uName,uPassword){
     var obj = JSON.parse(fs.readFileSync('../Game/data/users.json', 'utf8'));
+    var valid = false;
     for (var i = 0; i < obj.length; ++i){
         if (obj[i].name == uName && CryptoJS.AES.decrypt(obj[i].password, salt).toString(CryptoJS.enc.Utf8) == uPassword){
-            return true;
+            valid = true;
         }
     }
-    return false;
+    for (var i = 0; i < loggedInPlayers.length; ++i){
+        if (uName == loggedInPlayers[i].name){
+            return false;
+        }
+    }
+    return valid;
 }
 
 function validCreateUser(uName,uPassword){ 
