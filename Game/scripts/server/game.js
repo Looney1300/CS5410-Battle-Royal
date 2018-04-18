@@ -43,8 +43,8 @@ let map = mapLogic.create();
 map.setMap(mapFile);
 //Shield by passing the map, the percent of map width the first 
 // shield diameter will be, and how many minutes between shield moves.
-let FIRST_SHIELD_RADIUS = .78;
-let TIME_TO_MOVE_SHIELD = .1;
+let FIRST_SHIELD_RADIUS = map.mapWidth/1.5; //This is approximately just outside the corners of the map.
+let TIME_TO_MOVE_SHIELD = 2;
 let SHIELD_MOVES = 4;
 let SHRINK_DOWN_TO = .15;
 let shield = Shield.create(map, FIRST_SHIELD_RADIUS, TIME_TO_MOVE_SHIELD, SHRINK_DOWN_TO, SHIELD_MOVES);
