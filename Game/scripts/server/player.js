@@ -247,6 +247,20 @@ function createPlayer(mapLogic) {
 
     };
 
+    that.wasInShield = function(){
+        //console.log('client in shield');
+        reportUpdate = true;
+        life_remaining = life_remaining - 1;
+        if(life_remaining <= 0){
+            is_alive = false;
+        }
+        if(!is_alive){
+            life_remaining = 0;
+            killer = 'THE SHIELD!';
+            //console.log('I am dead!');
+        }
+    }
+
     that.wasHit = function(hitter){
         reportUpdate = true;
         life_remaining -= 10;
@@ -255,15 +269,8 @@ function createPlayer(mapLogic) {
         }
         if(!is_alive){
             life_remaining = 0;
-            //This shouldn't happen when the shield kills you.
-            if (hitter){
-                if (hitter.userName){
-                    killer = hitter.userName;
-                }
-                if (hitter.kills){
-                    hitter.kills++;
-                }
-            }
+            killer = hitter.userName;
+            hitter.kills++;
             //console.log('I am dead!');
         }
     };
