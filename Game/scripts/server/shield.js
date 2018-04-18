@@ -3,7 +3,7 @@
 
     let random = require ('../utilities/random');
     
-    exports.create = function(map, startDiameterAsPercentOfMapWidth, minutesBetweenShieldMoves){
+    exports.create = function(map, startDiameterAsPercentOfMapWidth, minutesBetweenShieldMoves, shrinkDownTo, shieldMovesTotal){
         let that = {};
         let firstRadius = map.mapWidth * startDiameterAsPercentOfMapWidth/2;
         let currentRadius = map.mapWidth*10;
@@ -11,10 +11,9 @@
         let position = {x: map.mapWidth/2, y: map.mapWidth/2};
         let waitTime = 1000 * 60 * minutesBetweenShieldMoves;
         let timeTilNextShield = waitTime;
-        let percentLessEachShrink = .14;
         let nextPosition = {};
         let shieldMovesDone = 0;
-        let shieldMovesTotal = 4;
+        let percentLessEachShrink = (startDiameterAsPercentOfMapWidth - shrinkDownTo)/shieldMovesTotal;
         let gameStarted = false;
 
         //Prep the next position with a valid randomly selected position
