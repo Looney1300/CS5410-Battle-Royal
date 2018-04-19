@@ -126,6 +126,14 @@ ul.menu li button:active {
 	text-align: left;
 }
 
+#ranklist{
+	height: 50%;
+}
+
+#rankTable th {
+	text-align: left;
+}
+
 
 #new-user-data{
 	text-align: center;

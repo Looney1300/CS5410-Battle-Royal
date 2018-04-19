@@ -56,7 +56,7 @@ MyGame.loader = (function() {
             onComplete: null
         }, 
         {
-            scripts: ['components/player', 'components/player-remote', 'components/missile','components/powerup', 'components/animated-sprite', 'components/view-portal', 'components/fov', 'components/mini-map'],
+            scripts: ['components/player', 'components/player-remote', 'components/missile','components/powerup', 'components/animated-sprite', 'components/view-portal', 'components/fov', 'components/mini-map', 'components/shield'],
             message: 'Player models loaded',
             onComplete: null
         }, 
@@ -71,6 +71,21 @@ MyGame.loader = (function() {
             onComplete: null
         }, 
         {
+            scripts: ['../utilities/colors'],
+            message: 'Colors loaded',
+            onComplete: null
+        },
+        {
+            scripts: ['../utilities/random'],
+            message: 'Random loaded',
+            onComplete: null
+        },
+        {
+            scripts: ['particles'],
+            message: 'Particle System loaded',
+            onComplete: null
+        },
+        {
             scripts: ['game'],
             message: 'Gameplay model loaded',
             onComplete: null
@@ -79,6 +94,11 @@ MyGame.loader = (function() {
         {
             scripts: ['./screens/main-menu'],
             message: 'main menu screen loaded',
+            onComplete: null,
+        },
+        {
+            scripts: ['./screens/game-over'],
+            message: ['game-over screen loaded'],
             onComplete: null,
         },
         {
@@ -162,6 +182,14 @@ MyGame.loader = (function() {
             source: 'assets/white-cursor.png'
         },
         {
+            key: 'blood',
+            source: 'assets/blood.png'
+        },
+        {
+            key: 'bloodsplosion',
+            source: 'assets/bloodsplosion.png'
+        },
+        {
             key: 'clientIdleNoGun',
             source: 'assets/Character_Sprites/user_flashlight_idle.png'
         },
@@ -236,6 +264,10 @@ MyGame.loader = (function() {
         {
             key: 'rapidFire',
             source: 'assets/Sounds/rapidFire.mp3'
+        },
+        {
+            key: 'gameover',
+            source: 'assets/Sounds/gameover.mp3'
         }
 
     ];

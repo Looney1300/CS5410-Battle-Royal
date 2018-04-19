@@ -3,7 +3,7 @@
 // This function provides the "game" code.
 //
 //------------------------------------------------------------------
-MyGame.main = (function(graphics, renderer, input, components) {
+MyGame.main = (function(graphics, renderer, input, components, particles) {
     'use strict';
 
     let lastTimeStamp = performance.now(),
@@ -13,6 +13,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
         // smallMap = SmallMap.create();
         mediumMap = MediumMap.create();
         map.setMap(mediumMap.data);
+
+    let shield = components.Shield();
+    let DISTANCE_TO_DETECT_PARTICLES = 400;
 
     let powerUptextures = {
         weapon: MyGame.assets['weapon'],
@@ -36,6 +39,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
     };
     let killStatsArray = [];
     let killStat = {};
+    let quit = false;
     let killWasUpdated = false;
     let killDisplayTime = 0;
     //killer_and_killed[0] = 'banina';
@@ -89,6 +93,20 @@ MyGame.main = (function(graphics, renderer, input, components) {
             type: NetworkIds.POWER_UP_LOC,
             data: data
         });
+    });
+
+        
+    socket.on(NetworkIds.SHIELD_MOVE, data => {
+        networkQueue.enqueue({
+            type: NetworkIds.SHIELD_MOVE,
+            data: data
+        });
+    });
+    
+    socket.on(NetworkIds.GAME_OVER, function(){
+        //console.log('working very hard!!!');
+        quit = true;
+        MyGame.pregame.showScreen('game-over');
     });
 
     
@@ -175,6 +193,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         model.goal.worldCordinates.y = data.worldCordinates.y;
         model.goal.direction = data.direction;
         model.goal.updateWindow = 21;
+        model.is_alive = true;
 
         model.size.x = data.size.x;
         model.size.y = data.size.y;
@@ -290,11 +309,16 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //
     //------------------------------------------------------------------
     function updatePlayerOther(data) {
-        
+
         if (playerOthers.hasOwnProperty(data.clientId)) {
             let model = playerOthers[data.clientId].model;
             model.goal.updateWindow = data.updateWindow;
 
+            //If the status of is_alive changed, they died.
+            if (model.is_alive !== data.is_alive){
+                console.log(model.is_alive, data.is_alive);
+                particles.playerDied(data.worldCordinates, data.direction, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);
+            }
             model.kills = data.kills;
             model.killer = data.killer;
 
@@ -348,6 +372,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
             },
             timeRemaining: data.timeRemaining
         });
+
+        particles.shotSmoke(data.worldCordinates, data.direction, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);        
         //only play this sound if it is within a certain distance of me. So gunshots from other players can be heard, if they are less than 1000 units away from me.
         //This allows the user to hear gunshots that are slightly outside of his viewing window.
         if (inRange(data.worldCordinates,playerSelf.model.worldCordinates) && rapidSound){
@@ -368,14 +394,29 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //------------------------------------------------------------------
     function missileHit(data) {
         // data is the hits array
-        explosions[nextExplosionId] = components.AnimatedSprite({
-            id: nextExplosionId++,
-            spriteSheet: MyGame.assets['explosion'],
-            spriteSize: { width: 0.07, height: 0.07 },
-            spriteCenter: data.hit_location,
-            spriteCount: 16,
-            spriteTime: [ 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
-        });
+        //Only animate the blood if they are still alive.
+        if (playerSelf.is_alive){
+            explosions[nextExplosionId] = components.AnimatedSprite({
+                id: nextExplosionId++,
+                spriteSheet: MyGame.assets['bloodsplosion'],
+                spriteSize: { width: 0.035, height: 0.035 },
+                spriteCenter: data.hit_location,
+                spriteCount: 6,
+                spriteTime: [ 80, 55, 30, 30, 30, 2000]
+            });
+            particles.enemyHit(data.hit_location, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);
+        }else{
+            particles.playerSelfDied(data.hit_location, playerSelf.model.direction, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);
+        }
+        //
+        // explosions[nextExplosionId] = components.AnimatedSprite({
+        //     id: nextExplosionId++,
+        //     spriteSheet: MyGame.assets['explosion'],
+        //     spriteSize: { width: 0.07, height: 0.07 },
+        //     spriteCenter: data.hit_location,
+        //     spriteCount: 16,
+        //     spriteTime: [ 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
+        // });
         if (inRange(data.hit_location,playerSelf.model.worldCordinates)){
             sounds.hit.pause();
             sounds.hit.currentTime = 0;
@@ -399,6 +440,17 @@ MyGame.main = (function(graphics, renderer, input, components) {
         });
         powerUps[data.indexId] = tempPowerUp;
 
+    };
+
+    function shieldUpdate(data){
+        shield.radius = data.radius;
+        shield.worldCordinates = data.worldCordinates;
+        shield.nextRadius = data.nextRadius;
+        shield.nextWorldCordinates = data.nextWorldCordinates;
+        shield.timeTilNextShield = data.timeTilNextShield;
+        if (data.radius < 3*map.mapWidth){
+            particles.shieldSparks(data.worldCordinates, data.radius, 100, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);
+        }
     };
 
     //------------------------------------------------------------------
@@ -448,6 +500,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 case NetworkIds.POWER_UP_LOC:
                     powerUpdate(message.data);
                     break;
+                case NetworkIds.SHIELD_MOVE:
+                    shieldUpdate(message.data);
+                    break;
             }
         }
     }
@@ -478,6 +533,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //
     //------------------------------------------------------------------
     function update(elapsedTime) {
+        particles.update(elapsedTime);
+        shield.update(elapsedTime, viewPort);
+        
         viewPort.update(graphics, playerSelf.model.worldCordinates);
         playerSelf.model.update(elapsedTime, viewPort);
         playerSelf.texture.worldCordinates.x = playerSelf.model.worldCordinates.x;
@@ -503,7 +561,11 @@ MyGame.main = (function(graphics, renderer, input, components) {
 
         let removeMissiles = [];
         for (let missile in missiles) {
-            if (!missiles[missile].update(elapsedTime, viewPort)) {
+            if (!map.isValid(missiles[missile].worldCordinates.y, missiles[missile].worldCordinates.x)){
+                removeMissiles.push(missiles[missile]);
+                particles.hitBuilding(missiles[missile].worldCordinates, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);                
+            }
+            else if (!missiles[missile].update(elapsedTime, viewPort)) {
                 removeMissiles.push(missiles[missile]);
             }
         }
@@ -568,6 +630,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
         for (let id in explosions) {
             renderer.AnimatedSprite.render(explosions[id]);
         }
+        graphics.drawShield(shield.position, shield.radius/(viewPort.width*2), 'rgba(0,0,50,.5)');
+        particles.render(viewPort);
         renderer.MiniMap.render(miniMap.model, miniMap.mapTexture, miniMap.playerTexture, mapIconTexture, blueMapTexture, shield, viewPort, playersAliveCount);
     }
 
@@ -583,8 +647,10 @@ MyGame.main = (function(graphics, renderer, input, components) {
         processInput(elapsedTime);
         update(elapsedTime);
         render(elapsedTime);
-
-        requestAnimationFrame(gameLoop);
+        if(!quit){
+            requestAnimationFrame(gameLoop);
+        }
+        
     };
 
 
@@ -723,4 +789,4 @@ MyGame.main = (function(graphics, renderer, input, components) {
         socket: socket
     };
  
-}(MyGame.graphics, MyGame.renderer, MyGame.input, MyGame.components));
+}(MyGame.graphics, MyGame.renderer, MyGame.input, MyGame.components, MyGame.particleSystem));
