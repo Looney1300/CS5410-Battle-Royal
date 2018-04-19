@@ -314,7 +314,7 @@ MyGame.graphics = (function() {
     function drawMiniMapCircle(shield, shouldStroke) {
         context.beginPath();
         if (shield.radius < 0){
-            shield.radius = 0.1;
+            shield.radius = 0.000001;
         }
         context.arc(shield.center.x * viewPort.width, shield.center.y * viewPort.height, shield.radius, 0, 2*Math.PI);
         context.closePath();
