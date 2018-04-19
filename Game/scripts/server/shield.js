@@ -19,7 +19,6 @@
         let gameStarted = false;
         let diffX = 0;
         let diffY = 0;
-        console.log(firstRadius, waitTime, percentLessEachShrink, differenceInRadii, shrinkRate);
 
         //Prep the next position with a valid randomly selected position
         let valid = false;
