@@ -26,4 +26,4 @@ let Color = {
     green_dark: 'rgb(51, 76, 57)',
     red_dark: 'rgb(119, 40, 12)',
 
-}
+};

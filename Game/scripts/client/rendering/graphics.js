@@ -286,6 +286,7 @@ MyGame.graphics = (function() {
     //------------------------------------------------------------------
     function drawCircle(center, radius, color) {
         //console.log(center);
+        context.strokeStyle = "#ffffff";
         context.beginPath();
         context.arc(center.x * canvas.width, center.y * canvas.width, 2 * radius * canvas.width, 2 * Math.PI, false);
         context.closePath();
@@ -293,11 +294,33 @@ MyGame.graphics = (function() {
         context.fill();
     }
 
-    function drawMiniMapCircle(shield) {
+    function drawRectangle(center, size) {
+        let localCenter = {
+            x: center.x * viewPort.width,
+            y: center.y * viewPort.height
+        };
+        let localSize = {
+            width: size.width * viewPort.width,
+            height: size.height * viewPort.height
+        };
         context.beginPath();
+        context.rect(localCenter.x - localSize.width / 2,
+            localCenter.y - localSize.height / 2,
+            localSize.width,
+            localSize.height);
+        context.closePath();
+    }
+
+    function drawMiniMapCircle(shield, shouldStroke) {
+        context.beginPath();
+        if (shield.radius < 0){
+            shield.radius = 0.1;
+        }
         context.arc(shield.center.x * viewPort.width, shield.center.y * viewPort.height, shield.radius, 0, 2*Math.PI);
         context.closePath();
-        context.stroke();
+        if (shouldStroke){
+            context.stroke();
+        }
     }
 
     function enableMiniMapClipping() {
@@ -309,9 +332,10 @@ MyGame.graphics = (function() {
 
     function disableMiniMapClipping() {
         if (miniMapClipping){
-            context.restore();
             miniMapClipping = false;
+            context.restore();
         }
+    }
     // Circle, Rectangle, and Texture, are made for use by particleSystem.
     //------------------------------------------------------------------
     //
@@ -545,6 +569,7 @@ MyGame.graphics = (function() {
         rotateCanvas: rotateCanvas,
         drawGameStatus: drawGameStatus,
         drawMapPortion: drawMapPortion,
+        drawRectangle: drawRectangle,
         drawMiniMapCircle : drawMiniMapCircle,
         enableMiniMapClipping: enableMiniMapClipping,
         disableMiniMapClipping : disableMiniMapClipping,

@@ -38,26 +38,49 @@ MyGame.renderer.MiniMap = (function(graphics) {
     radius: 0
   }
 
+  function format(time) {
+    if (time < 10) {
+      time = "0" + time;
+    }
+    return time;
+  }
+
+  function milisecondsToTime(mili) {
+    let ms = mili % 1000;
+    mili = (mili - ms) / 1000;
+    let seconds = mili % 60;
+    mili = (mili - seconds) / 60;
+    let minutes = mili % 60;
+
+    return format(minutes) + ":" + format(seconds);
+  }
+
   that.render = function(miniMap, mapTexture, playerTexture, mapIconTexture, bleuMapTexture, shield, viewPort, playerCount) {
     
-    if (shield.radius <= 1600){
+    // if (shield.radius <= 1600){
+      
       graphics.drawImage(bleuMapTexture, miniMap.center, miniMap.size);
       //clipping
       graphics.saveContext();
       localShield.center = miniMap.convertToMiniMapCords(shield.worldCordinates, viewPort);
       localShield.radius = miniMap.convertRadius(shield.radius);
-      graphics.drawMiniMapCircle(localShield);
+      graphics.drawMiniMapCircle(localShield, false);
       graphics.enableMiniMapClipping();
       graphics.drawImage(mapTexture, miniMap.center, miniMap.size);
       graphics.disableMiniMapClipping();
-    }
-    else {
-      graphics.drawImage(mapTexture, miniMap.center, miniMap.size);
-    }
+      // graphics.restoreContext();
+      // }
+      // else {
+        // graphics.drawImage(mapTexture, miniMap.center, miniMap.size);
+        // }
     //next shield
     localNextShield.center = miniMap.convertToMiniMapCords(shield.nextWorldCordinates, viewPort);
     localNextShield.radius = miniMap.convertRadius(shield.nextRadius);
-    graphics.drawMiniMapCircle(localNextShield);
+    graphics.saveContext();
+    graphics.drawRectangle(miniMap.center, miniMap.size);
+    graphics.enableMiniMapClipping();
+    graphics.drawMiniMapCircle(localNextShield, true);
+    graphics.disableMiniMapClipping();
     //icons below map
     cord.x = miniMap.center.x - (miniMap.size.width / 2);
     cord.y = miniMap.center.y + (miniMap.size.height / 2) + 0.01;
@@ -66,7 +89,7 @@ MyGame.renderer.MiniMap = (function(graphics) {
     graphics.drawCroppedImage(mapIconTexture, cord, size, clipping);
     cord.x += 0.04;
     cord.y += 0.02;
-    graphics.drawTime('03:00', cord);
+    graphics.drawTime(milisecondsToTime(shield.timeTilNextShield), cord);
     cord.x += 0.08;
     cord.y -= 0.02;
     clipping.x = 64;
