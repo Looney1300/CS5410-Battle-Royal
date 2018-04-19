@@ -43,11 +43,11 @@ let map = mapLogic.create();
 map.setMap(mapFile);
 //Shield by passing the map, the percent of map width the first 
 // shield diameter will be, and how many minutes between shield moves.
-let FIRST_SHIELD_RADIUS = .78;
+let FIRST_SHIELD_DIAMETER = 1.333333; //This is approximately just outside the playable corners of the map.
 let TIME_TO_MOVE_SHIELD = 2;
-let SHIELD_MOVES = 4;
-let SHRINK_DOWN_TO = .15;
-let shield = Shield.create(map, FIRST_SHIELD_RADIUS, TIME_TO_MOVE_SHIELD, SHRINK_DOWN_TO, SHIELD_MOVES);
+let SHIELD_MOVES = 5;
+let SHRINK_DOWN_TO = 0;
+let shield = Shield.create(map, FIRST_SHIELD_DIAMETER, TIME_TO_MOVE_SHIELD, SHRINK_DOWN_TO, SHIELD_MOVES);
 let salt = 'xnBZngGg*+FhQz??V6FMjfd9G4m5w^z8P*6';
 //this is being hard coded for now until I figure out a better solution
 let playerSize = {width: 80, height: 80};

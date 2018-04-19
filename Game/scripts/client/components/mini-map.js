@@ -14,8 +14,10 @@ MyGame.components.MiniMap = function() {
       y: .13
     },
     player = {
-      x: 450,
-      y: 50,
+      center: {
+        x: 450,
+        y: 50
+      },
       direction: 0,
       size: {
         width: .025,
@@ -41,8 +43,8 @@ MyGame.components.MiniMap = function() {
     Object.defineProperty(that, 'player', {
       get: () => player,
       set: cords => {
-        player.x = cords.x,
-        player.y = cords.y
+        player.center.x = cords.x,
+        player.center.y = cords.y
       }
     });
     Object.defineProperty(that, 'size', {
@@ -53,16 +55,27 @@ MyGame.components.MiniMap = function() {
       }
     });
 
+    that.convertToMiniMapCords = function(cords, viewPort){
+      let localCords = {x: 0, y: 0};
+      localCords.x = (cords.x / 3200) * width + (center.x * 600 - (size.width*600/2));
+      localCords.y = (cords.y / 3200) * height + (center.y * 600 - (size.height*600/2));
+
+      localCords.x = localCords.x / viewPort.width;
+      localCords.y = localCords.y / viewPort.height;
+
+      return localCords;
+    }
+
+    that.convertRadius = function(radius) {
+      return (radius / 3200) * width;
+    }
+
     that.update = function(playerSelf, shield, viewPort) {
-      player.x = playerSelf.worldCordinates.x;
-      player.y = playerSelf.worldCordinates.y;
+      player.center.x = playerSelf.worldCordinates.x;
+      player.center.y = playerSelf.worldCordinates.y;
       player.direction = playerSelf.direction;
 
-      player.x = (player.x / 3200) * width + (center.x * 600 - (size.width*600/2));
-      player.y = (player.y / 3200) * height + (center.y * 600 - (size.height*600/2));
-
-      player.x = player.x / viewPort.width;
-      player.y = player.y / viewPort.height;
+      player.center = that.convertToMiniMapCords(player.center, viewPort);
     };
 
 
