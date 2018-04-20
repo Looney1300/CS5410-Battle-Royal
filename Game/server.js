@@ -25,8 +25,13 @@ function handleRequest(request, response) {
                     response.end('Server Error!');
                 } else {
                     let headers = {'Content-type': mimeTypes[path.extname(lookup)]};
-                    response.writeHead(200, headers);
-                    response.end(data);
+                    try {
+                        response.writeHead(200, headers);
+                        response.end(data);
+                    } catch(error) {
+                        console.log(error);
+                    }
+                    
                 }
             });
         } else {
