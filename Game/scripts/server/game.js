@@ -445,7 +445,7 @@ function updateClients(elapsedTime) {
 
 
 
-    if(updateClientInt%10==0){
+    if(updateClientInt%10==1){
         if(gameHasBegun){
             for (let clientId in activeClients) {
                 let client = activeClients[clientId];
