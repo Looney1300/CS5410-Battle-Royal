@@ -624,7 +624,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
         for (let id in explosions) {
             renderer.AnimatedSprite.render(explosions[id]);
         }
-        graphics.drawShield(shield.position, shield.radius/(viewPort.width*2), 'rgba(0,0,50,.5)');
+        graphics.drawShield(shield.position, shield.radius/(viewPort.width*2), 'rgba(0,0,75,.4)', map.mapWidth);
         particles.render(viewPort);
         renderer.MiniMap.render(miniMap.model, miniMap.mapTexture, miniMap.playerTexture, mapIconTexture, blueMapTexture, shield, viewPort, playersAliveCount);
     }
