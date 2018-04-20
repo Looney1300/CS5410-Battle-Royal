@@ -286,7 +286,6 @@ MyGame.graphics = (function() {
     //------------------------------------------------------------------
     function drawCircle(center, radius, color) {
         //console.log(center);
-        context.strokeStyle = "#ffffff";
         context.beginPath();
         context.arc(center.x * canvas.width, center.y * canvas.width, 2 * radius * canvas.width, 2 * Math.PI, false);
         context.closePath();
@@ -319,6 +318,7 @@ MyGame.graphics = (function() {
         context.arc(shield.center.x * viewPort.width, shield.center.y * viewPort.height, shield.radius, 0, 2*Math.PI);
         context.closePath();
         if (shouldStroke){
+            context.strokeStyle = "#ffffff";
             context.stroke();
         }
     }
