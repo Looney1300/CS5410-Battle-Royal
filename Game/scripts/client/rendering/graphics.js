@@ -342,11 +342,11 @@ MyGame.graphics = (function() {
     // Draw the shield into the local canvas coordinate system.
     //
     //------------------------------------------------------------------
-    function drawShield(center, radius, color) {
+    function drawShield(center, radius, color, mapWidth) {
 
         context.save();
         context.beginPath();
-        context.arc(center.x * canvas.width, center.y * canvas.width, 30000 * canvas.width, 0, 2 * Math.PI, false);
+        context.arc(center.x * canvas.width, center.y * canvas.width, 1.5 * mapWidth * canvas.width, 0, 2 * Math.PI, false);
         context.arc(center.x * canvas.width, center.y * canvas.width, 2 * radius * canvas.width, 0, 2 * Math.PI, true);
         context.closePath();
         context.fillStyle = color;
