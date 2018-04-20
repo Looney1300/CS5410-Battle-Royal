@@ -10,6 +10,12 @@ MyGame.screens['map-screen'] = (function() {
         let c = document.getElementById("canvasMapper");
         let context = c.getContext("2d");
         let image = document.getElementById('playerPicker');
+        let hasChosen = false;
+        let isInMap = true;
+
+
+
+        
 
         let xPos = 0;
         let yPos = 0;
@@ -23,16 +29,45 @@ MyGame.screens['map-screen'] = (function() {
             xPos = xPos*3200;
             yPos = yPos/500;
             yPos = yPos*3200;
-            //socket.emit('isValidStart','hitme!');
+            socket.emit('isValidStart',{x:xPos,y:yPos});
             console.log("x: " + xPos + " y: " + yPos); 
         }, false);
 
         socket.on('doTheThing',function(){
-            console.log('is it here?????');
-            MyGame.pregame.showScreen('game-play');
+            //console.log('is it here?????');
+            if(!hasChosen){
+                socket.emit('readyplayerone');
+                MyGame.pregame.showScreen('game-play');
+            }
+        });
+        socket.emit('preReadyPlayerOne');
+        socket.emit('inMapScreen');
+
+
+        socket.on('isValidRes',function(data){
+            if(isInMap){
+                // draw on the map
+                //console.log(data);
+                let tempx = data.x/3200;
+                tempx = tempx*500;
+                let tempy = data.y/3200;
+                tempy = tempy*500;
+                //console.log('hahahahah',tempx,' ',tempy);
+                context.fillStyle = '#FF0000';
+                context.fillRect(tempx,tempy,10,10);
+            }
         });
 
-        socket.emit('inMapScreen');
+
+
+        socket.on('isValidForYou',function(input){
+            hasChosen = true;
+            console.log(input);
+            socket.emit('readyplayerone',input);
+            MyGame.pregame.showScreen('game-play');
+
+        });
+
 
         
 

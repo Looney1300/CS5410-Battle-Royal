@@ -10,9 +10,9 @@ MyGame.screens['main-menu'] = (function() {
                 MyGame.pregame.showScreen('credits'); 
             });
 
-		document.getElementById('id-game-play').addEventListener(
-			'click',
-            function() { MyGame.assets['background'].pause(); MyGame.pregame.showScreen('game-play'); });
+		// document.getElementById('id-game-play').addEventListener(
+		// 	'click',
+        //     function() { MyGame.assets['background'].pause(); MyGame.pregame.showScreen('game-play'); });
             
         document.getElementById('id-join-room').addEventListener(
             'click',
