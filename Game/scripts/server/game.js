@@ -41,16 +41,16 @@ let inputQueue = Queue.create();
 let nextMissileId = 1;
 let map = mapLogic.create();
 map.setMap(mapFile);
+//this is being hard coded for now until I figure out a better solution
+let playerSize = {width: 80, height: 80};
 //Shield by passing the map, the percent of map width the first 
 // shield diameter will be, and how many minutes between shield moves.
 let FIRST_SHIELD_RADIUS = .78;
 let TIME_TO_MOVE_SHIELD = 2;
-let SHIELD_MOVES = 4;
-let SHRINK_DOWN_TO = .15;
-let shield = Shield.create(map, FIRST_SHIELD_RADIUS, TIME_TO_MOVE_SHIELD, SHRINK_DOWN_TO, SHIELD_MOVES);
+let SHIELD_MOVES = 5;
+let SHRINK_DOWN_TO = 0 - ( .5 * playerSize.width)/map.mapWidth; //Need to adjust for collision radius of players.
+let shield = Shield.create(map, FIRST_SHIELD_DIAMETER, TIME_TO_MOVE_SHIELD, SHRINK_DOWN_TO, SHIELD_MOVES);
 let salt = 'xnBZngGg*+FhQz??V6FMjfd9G4m5w^z8P*6';
-//this is being hard coded for now until I figure out a better solution
-let playerSize = {width: 80, height: 80};
 
 let loggedInPlayers = [];
 
@@ -490,13 +490,14 @@ function updateClients(elapsedTime) {
 
     // Send the shield and time remaining til it shrinks.
     for (let clientId in activeClients) {
-        activeClients[clientId].socket.emit(NetworkIds.SHIELD_MOVE, {
+        let shieldUpdate = {
             radius: shield.radius + 2*activeClients[clientId].player.collision_radius,
             nextRadius: shield.nextRadius + 2*activeClients[clientId].player.collision_radius,
             worldCordinates: shield.worldCordinates,
             nextWorldCordinates: shield.nextWorldCordinates,
             timeTilNextShield: shield.timeTilNextShield
-        });
+        };
+        activeClients[clientId].socket.emit(NetworkIds.SHIELD_MOVE, shieldUpdate);
     }
 
 
