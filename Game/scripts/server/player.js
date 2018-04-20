@@ -247,6 +247,20 @@ function createPlayer(mapLogic) {
 
     };
 
+    that.wasInShield = function(){
+        //console.log('client in shield');
+        reportUpdate = true;
+        life_remaining = life_remaining - 1;
+        if(life_remaining <= 0){
+            is_alive = false;
+        }
+        if(!is_alive){
+            life_remaining = 0;
+            killer = 'THE SHIELD!';
+            //console.log('I am dead!');
+        }
+    }
+
     that.wasHit = function(hitter){
         reportUpdate = true;
         life_remaining -= 10;
