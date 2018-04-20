@@ -9,6 +9,11 @@ MyGame.components.Shield = function(){
     let waitTime = 1000 * 60 * MINUTES_BETWEEN_SHIELD_MOVES;    
     let timeTilNextShield = 0;
     let nextWorldCordinates = {};
+    let differenceInRadii = radius - nextRadius;
+    let shrinkRate = differenceInRadii/(waitTime/2);
+    let diffX = nextWorldCordinates.x - worldCordinates.x;
+    let diffY = nextWorldCordinates.y - worldCordinates.y;
+
 
     Object.defineProperty(that, 'position', {
         get: () => position,
@@ -47,17 +52,14 @@ MyGame.components.Shield = function(){
 
     that.update = function(elapsedTime, viewPort){
         if (timeTilNextShield < waitTime/2){
-            //Find how much exactly to subtract from each new shield.
-            let differenceInRadii = radius - nextRadius;
-            //ShrinkRate is equal to the distance to travel divided by the time to travel
-            let shrinkRate = differenceInRadii/(waitTime/2);
-    
-            let gameStarted = false;
-            let diffX = nextWorldCordinates.x - worldCordinates.x;
-            let diffY = nextWorldCordinates.y - worldCordinates.y;
             worldCordinates.x += elapsedTime * diffX/(waitTime/2);
             worldCordinates.y += elapsedTime * diffY/(waitTime/2);
             radius -= elapsedTime * shrinkRate;
+        } else {
+            differenceInRadii = radius - nextRadius;
+            shrinkRate = differenceInRadii/(waitTime/2);
+            diffX = nextWorldCordinates.x - worldCordinates.x;
+            diffY = nextWorldCordinates.y - worldCordinates.y;
         }
         // Conversion to screen position.
         position.x = .5 - (viewPort.center.x - worldCordinates.x)/viewPort.width;

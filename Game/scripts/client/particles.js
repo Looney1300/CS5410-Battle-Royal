@@ -455,7 +455,7 @@ MyGame.particleSystem.shotSmoke = function(location, direction, viewPortCenter, 
 };
 
 MyGame.particleSystem.shieldSparks = function(center, radius, duration, viewPortCenter, maxD){
-    let SPARKSPERCIRCUMFRANCEUNIT = .0125;
+    let SPARKSPERCIRCUMFRANCEUNIT = .005;
     for (let i=0; i<radius*Math.PI*SPARKSPERCIRCUMFRANCEUNIT; ++i){
         let cvec = nextCircleVector(radius);
         //If inside extended viewport, then add a particle effect there.

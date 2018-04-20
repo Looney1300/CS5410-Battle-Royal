@@ -438,9 +438,6 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
         shield.nextRadius = data.nextRadius;
         shield.nextWorldCordinates = data.nextWorldCordinates;
         shield.timeTilNextShield = data.timeTilNextShield;
-        if (data.radius < 3*map.mapWidth){
-            particles.shieldSparks(data.worldCordinates, data.radius, 100, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);
-        }
     };
 
     //------------------------------------------------------------------
@@ -524,6 +521,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
     //------------------------------------------------------------------
     function update(elapsedTime) {
         particles.update(elapsedTime);
+        particles.shieldSparks(shield.worldCordinates, shield.radius, 100, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);        
         shield.update(elapsedTime, viewPort);
         
         viewPort.update(graphics, playerSelf.model.worldCordinates);
