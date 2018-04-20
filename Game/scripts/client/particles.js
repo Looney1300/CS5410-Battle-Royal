@@ -164,7 +164,7 @@ MyGame.particleSystem = (function(graphics){
             }
         }
         //Update updated particles.
-        for (let particle = 0; particle > particles.length; ++particle) {
+        for (let particle = 0; particle < particles.length; ++particle) {
             particles[particle].direction.y += (elapsedTime * particles[particle].gravity/1000);
             particles[particle].x += (elapsedTime * particles[particle].speed * particles[particle].direction.x);
             particles[particle].y += (elapsedTime * particles[particle].speed * particles[particle].direction.y);
