@@ -137,6 +137,11 @@ MyGame.loader = (function() {
             onComplete: null,
         },
         {
+            scripts: ['./screens/map-screen'],
+            message: 'map screen loaded',
+            onComplete: null,
+        },
+        {
             scripts: ['./screens/options'],
             message: 'options screen loaded',
             onComplete: null,

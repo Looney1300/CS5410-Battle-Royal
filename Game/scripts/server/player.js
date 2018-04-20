@@ -166,7 +166,8 @@ function createPlayer(mapLogic) {
     });
 
     Object.defineProperty(that, 'worldCordinates', {
-        get: () => worldCordinates
+        get: () => worldCordinates,
+        set: value => worldCordinates = value
     });
 
     //------------------------------------------------------------------
