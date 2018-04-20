@@ -43,11 +43,11 @@ let map = mapLogic.create();
 map.setMap(mapFile);
 //Shield by passing the map, the percent of map width the first 
 // shield diameter will be, and how many minutes between shield moves.
-let FIRST_SHIELD_DIAMETER = 1.333333; //This is approximately just outside the playable corners of the map.
+let FIRST_SHIELD_RADIUS = .78;
 let TIME_TO_MOVE_SHIELD = 2;
-let SHIELD_MOVES = 5;
-let SHRINK_DOWN_TO = 0;
-let shield = Shield.create(map, FIRST_SHIELD_DIAMETER, TIME_TO_MOVE_SHIELD, SHRINK_DOWN_TO, SHIELD_MOVES);
+let SHIELD_MOVES = 4;
+let SHRINK_DOWN_TO = .15;
+let shield = Shield.create(map, FIRST_SHIELD_RADIUS, TIME_TO_MOVE_SHIELD, SHRINK_DOWN_TO, SHIELD_MOVES);
 let salt = 'xnBZngGg*+FhQz??V6FMjfd9G4m5w^z8P*6';
 //this is being hard coded for now until I figure out a better solution
 let playerSize = {width: 80, height: 80};
@@ -713,22 +713,8 @@ function initializeSocketIO(httpServer) {
     let chatterBoxSize = 0;
     io.on('connection', function(socket) {
         console.log('Connection established: ', socket.id);
-        //
-        // Create an entry in our list of connected clients
+
         let newPlayerName = '';
-        // let newPlayer = Player.create(map);
-        // newPlayer.clientId = socket.id;
-        // activeClients[socket.id] = {
-        //     socket: socket,
-        //     player: newPlayer
-        // };
-        // socket.emit(NetworkIds.CONNECT_ACK, {
-        //     direction: newPlayer.direction,
-        //     worldCordinates: newPlayer.worldCordinates,
-        //     size: newPlayer.size,
-        //     rotateRate: newPlayer.rotateRate,
-        //     speed: newPlayer.speed
-        // });
 
         socket.on(NetworkIds.INPUT, data => {
             inputQueue.enqueue({
@@ -770,10 +756,7 @@ function initializeSocketIO(httpServer) {
                     killer: client.player.killer
                 };
                 gameStatsOver.push(pushed);
-                
-
             }
-
             socket.emit(NetworkIds.SCORE_RES,gameStatsOver)
         });
 
@@ -803,35 +786,26 @@ function initializeSocketIO(httpServer) {
         
         
 
+        socket.on('inMapScreen',function(){
+            var seconds_left = 5;
+            var interval = setInterval(function() {
+                --seconds_left;
+                if (seconds_left <= 0)
+                {
+                    console.log('the server has begun the game!!!');
+                    socket.emit('doTheThing');
+                    clearInterval(interval);
+                }
+            }, 1000);
+        })
+
 
         socket.on('setUsername', function(data) {
-            console.log('This should happen !!!!!!!!');
             chatterBoxSize += 1;
-            console.log(chatterBoxSize);
-            //console.log(data);
-            //let chatterBoxSize = 0;
-            
-            if(users.indexOf(data) > -1) {
-                console.log('if part: ', data);
-               //socket.emit('userExists', data + ' username is taken! Try some other username.');
-               socket.emit('userSet', {username: data});
-            } else {
-                console.log('else part: ', data);
-               users.push(data);
-               //activeClients[socket.id].player.menuState = 'chatting';
-               //console.log(activeClients[socket.id].player.state);
-               socket.emit('userSet', {username: data});
-               
-               
-            }
+            users.push(data);
+            socket.emit('userSet', {username: data});
 
             if(!minChatterSizeHasBeenReached){
-                // for (let clientId in activeClients) {
-                //     if(activeClients[clientId].player.menuState == 'chatting'){
-                //         chatterBoxSize++;
-                //         console.log('we counted a chatter.');
-                //     }
-                // }
                 if(chatterBoxSize >= 2){
                     console.log('The countdown has begun.');
                     minChatterSizeHasBeenReached = true;
@@ -839,32 +813,17 @@ function initializeSocketIO(httpServer) {
                     var seconds_left = 1;
                     var interval = setInterval(function() {
                         --seconds_left;
-                        //document.getElementById('joinroom').innerHTML += --seconds_left;
-                    
                         if (seconds_left <= 0)
                         {
-                            //document.getElementById('joinroom').innerHTML = 'You are ready';
                             console.log('the server has begun the game!!!');
-                            //gameHasBegun = true;
-                            // gameLoop(present(), 0);
-                            
                             clearInterval(interval);
-                            
-                            
-                            
                         }
                     }, 1000);
                 }
-                else {
-                    //chatterBoxSize = 0;
-                }
             }
-
-
-
-
          });
-         
+
+
          socket.on('msg', function(data) {
             //Send message to everyone
             console.log(data);
@@ -912,13 +871,6 @@ function initializeSocketIO(httpServer) {
                 socket.emit(NetworkIds.INVALID_CREATE_USER, null);
              }
          })
-         
-
-
-
-
-
-
     });
 }
 
