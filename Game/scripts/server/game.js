@@ -19,6 +19,8 @@ let fs = require('fs');
 let Shield = require('./shield');
 let gameHasBegun = false;
 
+let updateShieldInt = 0;
+let updateClientInt = 0;
 
 
 
@@ -32,7 +34,7 @@ let pPerPlayer = 5;
 
 
 const SIMULATION_UPDATE_RATE_MS = 50;
-const STATE_UPDATE_RATE_MS = 20;
+const STATE_UPDATE_RATE_MS = 100;
 let lastUpdate = 0;
 let quit = false;
 let activeClients = {};
@@ -62,18 +64,22 @@ function createWeaponPowerUp(){
     let tempwpu = PowerUp.create(map,'weapon');
     weaponPowerUps.push(tempwpu);  
 };
+
 function createFireRatePowerUp(){
     let tempfrpu = PowerUp.create(map,'fire-rate');
     fire_ratePowerUps.push(tempfrpu);
 };
+
 function createFireRangePowerUp(){
     let tempfrapu = PowerUp.create(map,'fire-range');
     fire_rangePowerUps.push(tempfrapu);
 };
+
 function createHealthPowerUp(){
     let temphpu = PowerUp.create(map,'health');
     healthPowerUps.push(temphpu);
 };
+
 function createAmmoPowerUp(){
     let tempapu = PowerUp.create(map,'ammo');
     ammoPowerUps.push(tempapu);
@@ -112,7 +118,6 @@ function createMissile(clientId, playerModel) {
             let tempmistime = playerModel.missileTime;
             if(playerModel.has_long_range){
                 tempmistime = 2*tempmistime;
-                //console.log('!!!!!!!!!');
             }
             let missile = Missile.create({
                 id: nextMissileId++,
@@ -137,7 +142,7 @@ function createRapidMissile(clientId, playerModel){
 }
 
 
-function sprint(clientId, playerModel){
+function sprint(playerModel){
     playerModel.isSprinting = true;
 }
 
@@ -217,7 +222,7 @@ function processInput(elapsedTime) {
                 createRapidMissile(input.clientId, client.player);
                 break;
             case NetworkIds.INPUT_SPRINT:
-                sprint(input.clientId, client.player);
+                sprint(client.player);
                 break;
             case NetworkIds.MOUSE_MOVE:
                 client.player.changeDirection(input.message.x, input.message.y, input.message.viewPort);
@@ -273,92 +278,84 @@ function update(elapsedTime, currentTime) {
 
     
 
+    if(updateShieldInt%10 == 0){
+
+        updatePowerUps();
+    }
+
+    updateShieldInt++;
+   
+
+    
+
     
 
 
-    // In update we need to ensure we have pPerPlayer of each powerup
-
-    updatePowerUps();
-    // Powerups are created, now we need to do collision detection on them.
-    // need to check if any clients ran over the power ups.
-    // We need to check every client against every powerup.
-
     for (let clientId in activeClients) {
-        if(!collided(activeClients[clientId].player, shield)){
-            // Um... Is this how I make the client die when they aren't in the shield?
-            activeClients[clientId].player.wasInShield(); // bookmark
-        }
-
         if(!activeClients[clientId].player.is_alive){
             continue;
         }
-        for(let weapon = weaponPowerUps.length - 1; weapon >= 0; weapon-- ){
-            if(collided(activeClients[clientId].player,weaponPowerUps[weapon])){
-                // if they collided give the reward and remove the powerup from the player.
-                if(activeClients[clientId].player.has_gun){
-                    continue;
+        if(!collided(activeClients[clientId].player, shield)){
+            activeClients[clientId].player.wasInShield(); // bookmark
+        }
+
+        if(!activeClients[clientId].player.has_gun){
+            for(let weapon = weaponPowerUps.length - 1; weapon >= 0; weapon-- ){
+                if(collided(activeClients[clientId].player,weaponPowerUps[weapon])){
+                    activeClients[clientId].player.foundGun();
+                    weaponPowerUps.splice(weapon,1);
                 }
-                console.log('the player ran over a weapon!');
-                activeClients[clientId].player.foundGun();
-                weaponPowerUps.splice(weapon,1);
             }
         }
 
-        for(let fire_rate = fire_ratePowerUps.length - 1; fire_rate >= 0; fire_rate-- ){
-            if(collided(activeClients[clientId].player,fire_ratePowerUps[fire_rate])){
-                // if they collided give the reward and remove the powerup from the player.
-                if(activeClients[clientId].player.has_rapid_fire){
-                    continue;
+        if(!activeClients[clientId].player.has_rapid_fire){
+            for(let fire_rate = fire_ratePowerUps.length - 1; fire_rate >= 0; fire_rate-- ){
+                if(collided(activeClients[clientId].player,fire_ratePowerUps[fire_rate])){
+                    // if they collided give the reward and remove the powerup from the player.
+                    activeClients[clientId].player.foundRapidFire();
+                    fire_ratePowerUps.splice(fire_rate,1);
                 }
-                console.log('the player ran over a fire-rate!');
-                activeClients[clientId].player.foundRapidFire();
-                fire_ratePowerUps.splice(fire_rate,1);
             }
         }
-
-        for(let fire_range = fire_rangePowerUps.length - 1; fire_range >= 0; fire_range-- ){
-            if(collided(activeClients[clientId].player,fire_rangePowerUps[fire_range])){
-                // if they collided give the reward and remove the powerup from the player.
-                if(activeClients[clientId].player.has_long_range){
-                    continue;
+       
+        if(!activeClients[clientId].player.has_long_range){
+            for(let fire_range = fire_rangePowerUps.length - 1; fire_range >= 0; fire_range-- ){
+                if(collided(activeClients[clientId].player,fire_rangePowerUps[fire_range])){
+                    // if they collided give the reward and remove the powerup from the player.
+                    activeClients[clientId].player.foundLongRange();
+                    fire_rangePowerUps.splice(fire_range,1);
                 }
-                console.log('the player ran over a fire_range!');
-                activeClients[clientId].player.foundLongRange();
-                fire_rangePowerUps.splice(fire_range,1);
             }
         }
-
-        for(let health = healthPowerUps.length - 1; health >= 0; health-- ){
-            if(collided(activeClients[clientId].player,healthPowerUps[health])){
-                // if they collided give the reward and remove the powerup from the player.
-                if(activeClients[clientId].player.life_remaining >= 100){
-                    continue;
+      
+        if(activeClients[clientId].player.life_remaining < 100){
+            for(let health = healthPowerUps.length - 1; health >= 0; health-- ){
+                if(collided(activeClients[clientId].player,healthPowerUps[health])){
+                    // if they collided give the reward and remove the powerup from the player.
+                    activeClients[clientId].player.foundMedPack();
+                    healthPowerUps.splice(health,1);
                 }
-                console.log('the player ran over a health!');
-                activeClients[clientId].player.foundMedPack();
-                healthPowerUps.splice(health,1);
             }
         }
+        
 
-        for(let ammo = ammoPowerUps.length - 1; ammo >= 0; ammo-- ){
-            if(collided(activeClients[clientId].player,ammoPowerUps[ammo])){
-                // if they collided give the reward and remove the powerup from the player.
-                if(activeClients[clientId].player.ammo_remaining >= 100){
-                    continue;
+        if(activeClients[clientId].player.ammo_remaining < 100){
+            for(let ammo = ammoPowerUps.length - 1; ammo >= 0; ammo-- ){
+                if(collided(activeClients[clientId].player,ammoPowerUps[ammo])){
+                    // if they collided give the reward and remove the powerup from the player.
+                    activeClients[clientId].player.foundAmmoPack();
+                    ammoPowerUps.splice(ammo,1);
                 }
-                console.log('the player ran over a ammo!');
-                activeClients[clientId].player.foundAmmoPack();
-                ammoPowerUps.splice(ammo,1);
             }
         }
-    }
-
-    // Now that we have checked every powerup against every player
-
-    for (let clientId in activeClients) {
-        //Question about currentTime vs elapsedTime, what should be put right here?
         activeClients[clientId].player.update(elapsedTime);
     }
+
+
+
+
+
+
 
     for (let missile = 0; missile < newMissiles.length; missile++) {
         newMissiles[missile].update(elapsedTime);
@@ -366,27 +363,19 @@ function update(elapsedTime, currentTime) {
 
     let keepMissiles = [];
     for (let missile = 0; missile < activeMissiles.length; missile++) {
-        //
-        // If update returns false, that means the missile lifetime ended and
-        // we don't keep it around any longer.
         if (activeMissiles[missile].update(elapsedTime)) {
             keepMissiles.push(activeMissiles[missile]);
         }
     }
     activeMissiles = keepMissiles;
-
-    //
-    // Check to see if any missiles collide with any players (no friendly fire)
     keepMissiles = [];
+
+
     for (let missile = 0; missile < activeMissiles.length; missile++) {
         let hit = false;
         if (!map.isValid(activeMissiles[missile].worldCordinates.y, activeMissiles[missile].worldCordinates.x)){
             hit = true;
-            // hits.push({
-            //     clientId: null,
-            //     missileId: activeMissiles[missile].id,
-            //     hit_location: activeMissiles[missile].worldCordinates
-            // });
+            //continue;
         }
         for (let clientId in activeClients) {
             //
@@ -408,12 +397,28 @@ function update(elapsedTime, currentTime) {
                 }
             }
         }
+
+
+
+
+
         if (!hit) {
             keepMissiles.push(activeMissiles[missile]);
         }
     }
     activeMissiles = keepMissiles;
+
+
 }
+
+
+
+
+
+
+
+
+
 
 //------------------------------------------------------------------
 //
@@ -428,42 +433,6 @@ function updateClients(elapsedTime) {
 
 
 
-
-    if(gameHasBegun){
-        for (let clientId in activeClients) {
-            let client = activeClients[clientId];
-            //Question about currentTime vs elapsedTime, what should be put right here?
-    
-            playerCount++;
-            if(client.player.is_alive){
-                liveCount++;
-            }
-           
-        }
-        if(((liveCount <= 1) && (playerCount > 0))){
-            for (let clientId in activeClients) {
-                let client = activeClients[clientId];
-                client.socket.emit(NetworkIds.GAME_OVER, '');
-            }
-            updateHighScores();
-            quit = true;
-        }
-        for (let clientId in activeClients) {
-            let client = activeClients[clientId];
-        
-           //console.log(client.player.userName);
-        }
-    }
-
-
-
-
-
-
-
-
-
-
     //
     // For demonstration purposes, network updates run at a slower rate than
     // the game simulation.
@@ -472,6 +441,121 @@ function updateClients(elapsedTime) {
     if (lastUpdate < STATE_UPDATE_RATE_MS) {
         return;
     }
+
+
+
+
+    if(updateClientInt%10==0){
+        if(gameHasBegun){
+            for (let clientId in activeClients) {
+                let client = activeClients[clientId];
+                //Question about currentTime vs elapsedTime, what should be put right here?
+        
+                playerCount++;
+                if(client.player.is_alive){
+                    liveCount++;
+                }
+               
+            }
+            if(((liveCount <= 1) && (playerCount > 0))){
+                for (let clientId in activeClients) {
+                    let client = activeClients[clientId];
+                    client.socket.emit(NetworkIds.GAME_OVER, '');
+                }
+                updateHighScores();
+                quit = true;
+            }
+        }
+
+
+        for (let clientId in activeClients) {
+            let shieldUpdate = {
+                radius: shield.radius + 2*activeClients[clientId].player.collision_radius,
+                nextRadius: shield.nextRadius + 2*activeClients[clientId].player.collision_radius,
+                worldCordinates: shield.worldCordinates,
+                nextWorldCordinates: shield.nextWorldCordinates,
+                timeTilNextShield: shield.timeTilNextShield
+            };
+            activeClients[clientId].socket.emit(NetworkIds.SHIELD_MOVE, shieldUpdate);
+        }
+
+
+
+
+        for (let clientId in activeClients) {
+            let client = activeClients[clientId];
+
+            let powerUpArray = [];
+
+            for(let weapon = weaponPowerUps.length - 1; weapon >= 0; weapon-- ){
+                let pUp = {
+                    worldCordinates: weaponPowerUps[weapon].worldCordinates,
+                    type: weaponPowerUps[weapon].type,
+                    radius: weaponPowerUps[weapon].radius
+                }
+                powerUpArray.push(pUp);
+            }
+    
+            for(let fire_rate = fire_ratePowerUps.length - 1; fire_rate >= 0; fire_rate-- ){
+                let pUp = {
+                    worldCordinates: fire_ratePowerUps[fire_rate].worldCordinates,
+                    type: fire_ratePowerUps[fire_rate].type,
+                    radius: fire_ratePowerUps[fire_rate].radius
+                }
+                powerUpArray.push(pUp);
+            }
+    
+            for(let fire_range = fire_rangePowerUps.length - 1; fire_range >= 0; fire_range-- ){
+                let pUp = {
+                    worldCordinates: fire_rangePowerUps[fire_range].worldCordinates,
+                    type: fire_rangePowerUps[fire_range].type,
+                    radius: fire_rangePowerUps[fire_range].radius
+                }
+                powerUpArray.push(pUp);
+            }
+    
+            for(let health = healthPowerUps.length - 1; health >= 0; health-- ){
+                let pUp = {
+                    worldCordinates: healthPowerUps[health].worldCordinates,
+                    type: healthPowerUps[health].type,
+                    radius: healthPowerUps[health].radius
+                }
+                powerUpArray.push(pUp);
+            }
+    
+            for(let ammo = ammoPowerUps.length - 1; ammo >= 0; ammo-- ){
+                let pUp = {
+                    worldCordinates: ammoPowerUps[ammo].worldCordinates,
+                    type: ammoPowerUps[ammo].type,
+                    radius: ammoPowerUps[ammo].radius
+                }
+                powerUpArray.push(pUp);
+            }
+    
+            // Now that we have built the powerup array we need to send it to the clients
+            // one piece at a time.
+    
+            for (let powerUp = 0; powerUp < powerUpArray.length; powerUp++){
+                powerUpArray[powerUp].indexId = powerUp;
+                client.socket.emit(NetworkIds.POWER_UP_LOC, powerUpArray[powerUp]);
+            }
+    
+            powerUpArray.length = 0;
+        }
+       
+
+    }
+    updateClientInt++;
+
+
+
+
+
+
+
+
+
+
 
     //
     // Build the missile messages one time, then reuse inside the loop
@@ -499,16 +583,7 @@ function updateClients(elapsedTime) {
     newMissiles.length = 0;
 
     // Send the shield and time remaining til it shrinks.
-    for (let clientId in activeClients) {
-        let shieldUpdate = {
-            radius: shield.radius + 2*activeClients[clientId].player.collision_radius,
-            nextRadius: shield.nextRadius + 2*activeClients[clientId].player.collision_radius,
-            worldCordinates: shield.worldCordinates,
-            nextWorldCordinates: shield.nextWorldCordinates,
-            timeTilNextShield: shield.timeTilNextShield
-        };
-        activeClients[clientId].socket.emit(NetworkIds.SHIELD_MOVE, shieldUpdate);
-    }
+
 
 
     for (let clientId in activeClients) {
@@ -519,7 +594,6 @@ function updateClients(elapsedTime) {
             direction: client.player.direction,
             worldCordinates: client.player.worldCordinates,
             speed: client.player.speed,
-            score: client.player.score,
             life_remaining: client.player.life_remaining,
             is_alive: client.player.is_alive,
             isSprinting: client.player.isSprinting,
@@ -528,7 +602,6 @@ function updateClients(elapsedTime) {
             SPRINT_DECREASE_RATE: client.player.SPRINT_DECREASE_RATE,
             SPRINT_RECOVERY_RATE: client.player.SPRINT_RECOVERY_RATE,
             kills: client.player.kills,
-            userName: client.player.userName,
             killer: client.player.killer,
             updateWindow: lastUpdate,
             userName: client.player.userName,
@@ -559,62 +632,7 @@ function updateClients(elapsedTime) {
         // POWER UP IS EVERY UPDATE. What do we need to send to the client? Just the type... and
         // its location.
 
-        let powerUpArray = [];
-
-        for(let weapon = weaponPowerUps.length - 1; weapon >= 0; weapon-- ){
-            let pUp = {
-                worldCordinates: weaponPowerUps[weapon].worldCordinates,
-                type: weaponPowerUps[weapon].type,
-                radius: weaponPowerUps[weapon].radius
-            }
-            powerUpArray.push(pUp);
-        }
-
-        for(let fire_rate = fire_ratePowerUps.length - 1; fire_rate >= 0; fire_rate-- ){
-            let pUp = {
-                worldCordinates: fire_ratePowerUps[fire_rate].worldCordinates,
-                type: fire_ratePowerUps[fire_rate].type,
-                radius: fire_ratePowerUps[fire_rate].radius
-            }
-            powerUpArray.push(pUp);
-        }
-
-        for(let fire_range = fire_rangePowerUps.length - 1; fire_range >= 0; fire_range-- ){
-            let pUp = {
-                worldCordinates: fire_rangePowerUps[fire_range].worldCordinates,
-                type: fire_rangePowerUps[fire_range].type,
-                radius: fire_rangePowerUps[fire_range].radius
-            }
-            powerUpArray.push(pUp);
-        }
-
-        for(let health = healthPowerUps.length - 1; health >= 0; health-- ){
-            let pUp = {
-                worldCordinates: healthPowerUps[health].worldCordinates,
-                type: healthPowerUps[health].type,
-                radius: healthPowerUps[health].radius
-            }
-            powerUpArray.push(pUp);
-        }
-
-        for(let ammo = ammoPowerUps.length - 1; ammo >= 0; ammo-- ){
-            let pUp = {
-                worldCordinates: ammoPowerUps[ammo].worldCordinates,
-                type: ammoPowerUps[ammo].type,
-                radius: ammoPowerUps[ammo].radius
-            }
-            powerUpArray.push(pUp);
-        }
-
-        // Now that we have built the powerup array we need to send it to the clients
-        // one piece at a time.
-
-        for (let powerUp = 0; powerUp < powerUpArray.length; powerUp++){
-            powerUpArray[powerUp].indexId = powerUp;
-            client.socket.emit(NetworkIds.POWER_UP_LOC, powerUpArray[powerUp]);
-        }
-
-        powerUpArray.length = 0;
+        
 
 
         //

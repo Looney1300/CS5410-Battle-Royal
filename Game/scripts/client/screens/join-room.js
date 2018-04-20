@@ -44,7 +44,9 @@ MyGame.screens['join-room'] = (function() {
             var msg = document.getElementById('message').value;
             if(msg) {
               socket.emit('msg', {message: msg, user: user});
+              document.getElementById('message').value = "";
             }
+
         });
       });
     

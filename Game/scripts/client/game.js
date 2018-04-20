@@ -237,10 +237,6 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
         playerSelf.model.kills = data.kills;
         playerSelf.model.killer = data.killer;
 
-
-
-
-
         playerSelf.model.userName = data.userName;
         playerSelf.hasRapidFire = data.hasRapidFire;
 
@@ -310,7 +306,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
 
             //If the status of is_alive changed, they died.
             if (model.is_alive !== data.is_alive){
-                console.log(model.is_alive, data.is_alive);
+                //console.log(model.is_alive, data.is_alive);
                 particles.playerDied(data.worldCordinates, data.direction, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);
             }
             model.kills = data.kills;
