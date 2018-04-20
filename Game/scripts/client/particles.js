@@ -164,11 +164,10 @@ MyGame.particleSystem = (function(graphics){
             }
         }
         //Update updated particles.
-        for (let particle = (particles.length-1); particle >= 0; --particle) {
+        for (let particle = 0; particle > particles.length; ++particle) {
             particles[particle].direction.y += (elapsedTime * particles[particle].gravity/1000);
             particles[particle].x += (elapsedTime * particles[particle].speed * particles[particle].direction.x);
             particles[particle].y += (elapsedTime * particles[particle].speed * particles[particle].direction.y);
-            // console.log(particles[0]);
             
             if (particles[particle].disappear){
                 let transparency = 1-(particles[particle].alive/particles[particle].lifetime);
@@ -456,7 +455,7 @@ MyGame.particleSystem.shotSmoke = function(location, direction, viewPortCenter, 
 };
 
 MyGame.particleSystem.shieldSparks = function(center, radius, duration, viewPortCenter, maxD){
-    let SPARKSPERCIRCUMFRANCEUNIT = .025;
+    let SPARKSPERCIRCUMFRANCEUNIT = .0125;
     for (let i=0; i<radius*Math.PI*SPARKSPERCIRCUMFRANCEUNIT; ++i){
         let cvec = nextCircleVector(radius);
         //If inside extended viewport, then add a particle effect there.
