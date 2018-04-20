@@ -154,9 +154,17 @@ MyGame.particleSystem = (function(graphics){
 
     // UpdateParticles updates the particles and removes them when dead, and their corresponding graphics.
     function updateParticles(elapsedTime){
-        //Loop through particles
+        //Loop through particles backwards to find ones to remove.
         for (let particle = (particles.length-1); particle >= 0; --particle) {
             particles[particle].alive += elapsedTime;
+            //Check if they are still alive before updating them.
+            if (particles[particle].alive > particles[particle].lifetime) {
+                particles.splice(particle, 1);
+                particleGraphics.splice(particle, 1);
+            }
+        }
+        //Update updated particles.
+        for (let particle = (particles.length-1); particle >= 0; --particle) {
             particles[particle].direction.y += (elapsedTime * particles[particle].gravity/1000);
             particles[particle].x += (elapsedTime * particles[particle].speed * particles[particle].direction.x);
             particles[particle].y += (elapsedTime * particles[particle].speed * particles[particle].direction.y);
@@ -176,10 +184,6 @@ MyGame.particleSystem = (function(graphics){
             }
             if (particles[particle].hasOwnProperty('rotationRate')){
                 particles[particle].rotation += (elapsedTime * particles[particle].rotationRate/1000);
-            }
-            if (particles[particle].alive > particles[particle].lifetime) {
-                particles.splice(particle, 1);
-                particleGraphics.splice(particle, 1);
             }
         }
         //Add any new particles from ActiveParticleEffects and remove finished effects
