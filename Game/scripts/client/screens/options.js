@@ -51,8 +51,6 @@ MyGame.screens['options'] = (function(input) {
     document.getElementById('moveRight').name = input.KeyEvent.DOM_VK_D;
     document.getElementById('moveUp').name = input.KeyEvent.DOM_VK_W;
     document.getElementById('moveDown').name = input.KeyEvent.DOM_VK_S;
-    document.getElementById('extendFOV').name = input.KeyEvent.DOM_VK_Q;
-    document.getElementById('shortenFOV').name = input.KeyEvent.DOM_VK_E;
     document.getElementById('rapidFire').name = input.KeyEvent.DOM_VK_V;
     document.getElementById('fire').name = input.KeyEvent.DOM_VK_SPACE;
     document.getElementById('sprint').name = input.KeyEvent.DOM_VK_SHIFT;
@@ -66,8 +64,6 @@ MyGame.screens['options'] = (function(input) {
     assignKeyButton('moveRight');
     assignKeyButton('moveUp');
     assignKeyButton('moveDown');
-    assignKeyButton('extendFOV');
-    assignKeyButton('shortenFOV');
     assignKeyButton('rapidFire');
     assignKeyButton('fire');
     assignKeyButton('sprint');
