@@ -103,11 +103,6 @@ function updatePowerUps(){
     };
 };
 
-//------------------------------------------------------------------
-//
-// Used to create a missile in response to user input.
-//
-//------------------------------------------------------------------
 function createMissile(clientId, playerModel) {
     if(!playerModel.is_alive){
         return;
@@ -140,7 +135,6 @@ function createRapidMissile(clientId, playerModel){
         createMissile(clientId, playerModel);
     }
 }
-
 
 function sprint(playerModel){
     playerModel.isSprinting = true;
@@ -176,12 +170,38 @@ function updateHighScores(){
     fs.writeFileSync('../Game/data/highscores.json',JSON.stringify(newList));
 }
 
-//------------------------------------------------------------------
-//
-// Process the network inputs we have received since the last time
-// the game loop was processed.
-//
-//------------------------------------------------------------------
+function collided(obj1, obj2) {
+    let distance = Math.sqrt(Math.pow(obj1.worldCordinates.x - obj2.worldCordinates.x, 2) 
+    + Math.pow(obj1.worldCordinates.y - obj2.worldCordinates.y, 2));
+    let radii = obj1.collision_radius + obj2.collision_radius;
+    //console.log('carnage is being detected -->',distance, ' sum:' ,radii);
+
+    return distance <= radii;
+}
+
+function calcXYBulletOffset(direction,imageSize){
+    let offsetX = null;
+    let offsetY = null;
+    //these are hard coded for now, essentially the 20 is 1/4 the actual size of the image, and the 8 is 1/10 the actual size of the image
+    if (direction < 0){
+        offsetX = (imageSize.width/4)*Math.cos(-direction) + (imageSize.width/10);
+    }
+    else{
+        offsetX = (imageSize.width/4)*Math.cos(-direction) - (imageSize.width/10);
+    }
+    if (Math.abs(direction) < (Math.PI/2)){
+        offsetY = (imageSize.height/4)*Math.sin(-direction) - (imageSize.height/10); //this value depends on the direction
+    }
+    else {
+        offsetY = (imageSize.height/4)*Math.sin(-direction) + (imageSize.height/10);
+    }
+    return {
+        x: offsetX,
+        y: offsetY
+    }
+}
+
+
 function processInput(elapsedTime) {
     //
     // Double buffering on the queue so we don't asynchronously receive inputs
@@ -231,48 +251,8 @@ function processInput(elapsedTime) {
     }
 }
 
-//------------------------------------------------------------------
-//
-// Utility function to perform a hit test between two objects.  The
-// objects must have a worldCordinates: { x: , y: } property and collision_radius property.
-//
-//------------------------------------------------------------------
-function collided(obj1, obj2) {
-    let distance = Math.sqrt(Math.pow(obj1.worldCordinates.x - obj2.worldCordinates.x, 2) 
-    + Math.pow(obj1.worldCordinates.y - obj2.worldCordinates.y, 2));
-    let radii = obj1.collision_radius + obj2.collision_radius;
-    //console.log('carnage is being detected -->',distance, ' sum:' ,radii);
-
-    return distance <= radii;
-}
 
 
-function calcXYBulletOffset(direction,imageSize){
-    let offsetX = null;
-    let offsetY = null;
-    //these are hard coded for now, essentially the 20 is 1/4 the actual size of the image, and the 8 is 1/10 the actual size of the image
-    if (direction < 0){
-        offsetX = (imageSize.width/4)*Math.cos(-direction) + (imageSize.width/10);
-    }
-    else{
-        offsetX = (imageSize.width/4)*Math.cos(-direction) - (imageSize.width/10);
-    }
-    if (Math.abs(direction) < (Math.PI/2)){
-        offsetY = (imageSize.height/4)*Math.sin(-direction) - (imageSize.height/10); //this value depends on the direction
-    }
-    else {
-        offsetY = (imageSize.height/4)*Math.sin(-direction) + (imageSize.height/10);
-    }
-    return {
-        x: offsetX,
-        y: offsetY
-    }
-}
-//------------------------------------------------------------------
-//
-// Update the simulation of the game.
-//
-//------------------------------------------------------------------
 function update(elapsedTime, currentTime) {
     shield.update(elapsedTime);
 
@@ -412,19 +392,6 @@ function update(elapsedTime, currentTime) {
 }
 
 
-
-
-
-
-
-
-
-
-//------------------------------------------------------------------
-//
-// Send state of the game to any connected clients.
-//
-//------------------------------------------------------------------
 function updateClients(elapsedTime) {
 
     let liveCount = 0;
@@ -655,11 +622,7 @@ function updateClients(elapsedTime) {
     lastUpdate = 0;
 }
 
-//------------------------------------------------------------------
-//
-// Server side game loop
-//
-//------------------------------------------------------------------
+
 function gameLoop(currentTime, elapsedTime) {
     processInput(elapsedTime);
     update(elapsedTime, currentTime);
