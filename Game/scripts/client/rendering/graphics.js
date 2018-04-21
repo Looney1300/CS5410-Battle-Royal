@@ -319,6 +319,7 @@ MyGame.graphics = (function() {
         context.closePath();
         if (shouldStroke){
             context.strokeStyle = "#ffffff";
+            context.lineWidth = 1;
             context.stroke();
         }
     }

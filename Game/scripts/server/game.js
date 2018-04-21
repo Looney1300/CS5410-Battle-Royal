@@ -119,14 +119,14 @@ function createMissile(clientId, playerModel) {
             if(playerModel.has_long_range){
                 tempmistime = 2*tempmistime;
             }
-            let dx = Math.cos(playerModel.direction) * 5;
-            let dy = Math.sin(playerModel.direction) * 5;
+            let dx = Math.cos(playerModel.direction);
+            let dy = Math.sin(playerModel.direction);
             let missile = Missile.create({
                 id: nextMissileId++,
                 clientId: clientId,
                 worldCordinates: {
-                    x: playerModel.worldCordinates.x + offset.x + dx,
-                    y: playerModel.worldCordinates.y - offset.y - dy
+                    x: playerModel.worldCordinates.x + offset.x * .5, //- (offset.x * dx),
+                    y: playerModel.worldCordinates.y - offset.y * .5 //(offset.y * 2 * dy)
                 },
                 timeRemaining: tempmistime,
                 direction: playerModel.direction,
