@@ -560,7 +560,6 @@ function updateClients(elapsedTime) {
             SPRINT_FACTOR: client.player.SPRINT_FACTOR,
             SPRINT_DECREASE_RATE: client.player.SPRINT_DECREASE_RATE,
             SPRINT_RECOVERY_RATE: client.player.SPRINT_RECOVERY_RATE,
-            kills: client.player.kills,
             killer: client.player.killer,
             updateWindow: lastUpdate,
             userName: client.player.userName,

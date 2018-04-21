@@ -162,8 +162,8 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
 
         playerSelf.model.worldCordinates = data.worldCordinates;
 
-        playerSelf.model.size.x = data.size.x;
-        playerSelf.model.size.y = data.size.y;
+        // playerSelf.model.size.x = data.size.x;
+        // playerSelf.model.size.y = data.size.y;
 
         playerSelf.model.direction = data.direction;
         playerSelf.model.speed = data.speed;
@@ -181,16 +181,16 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         model.state.worldCordinates.x = data.worldCordinates.x;
         model.state.worldCordinates.y = data.worldCordinates.y;
         model.state.direction = data.direction;
-        model.state.lastUpdate = performance.now();
+        //model.state.lastUpdate = performance.now();
 
         model.goal.worldCordinates.x = data.worldCordinates.x;
         model.goal.worldCordinates.y = data.worldCordinates.y;
         model.goal.direction = data.direction;
-        model.goal.updateWindow = 21;
+        model.goal.updateWindow = data.update;
         model.is_alive = true;
 
-        model.size.x = data.size.x;
-        model.size.y = data.size.y;
+        // model.size.x = data.size.x;
+        // model.size.y = data.size.y;
 
         playerOthers[data.clientId] = {
             model: model,
@@ -235,7 +235,6 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         playerSelf.model.SPRINT_RECOVERY_RATE = data.SPRINT_RECOVERY_RATE;
         playerSelf.hasBullets = data.hasBullets;
 
-        playerSelf.model.kills = data.kills;
         playerSelf.model.killer = data.killer;
 
         playerSelf.model.userName = data.userName;
@@ -310,9 +309,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
                 //console.log(model.is_alive, data.is_alive);
                 particles.playerDied(data.worldCordinates, data.direction, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);
             }
-            model.kills = data.kills;
             model.killer = data.killer;
-
             model.goal.worldCordinates.x = data.worldCordinates.x;
             model.goal.worldCordinates.y = data.worldCordinates.y;
             model.goal.direction = data.direction;
