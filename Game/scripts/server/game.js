@@ -29,11 +29,13 @@ let fire_ratePowerUps = [];
 let fire_rangePowerUps = [];
 let healthPowerUps = [];
 let ammoPowerUps = [];
-let pPerPlayer = 5;
+let pPerPlayer = 1;
+let powerRun = true;
+let powerUpsChanged = true;
 
 
 
-const SIMULATION_UPDATE_RATE_MS = 50;
+const SIMULATION_UPDATE_RATE_MS = 33;
 const STATE_UPDATE_RATE_MS = 100;
 let lastUpdate = 0;
 let quit = false;
@@ -179,6 +181,12 @@ function collided(obj1, obj2) {
     return distance <= radii;
 }
 
+function isInRange(obj1, obj2){
+    let distance = Math.sqrt(Math.pow(obj1.worldCordinates.x - obj2.worldCordinates.x, 2) 
+    + Math.pow(obj1.worldCordinates.y - obj2.worldCordinates.y, 2));
+    return distance <= 700;
+}
+
 function calcXYBulletOffset(direction,imageSize){
     let offsetX = null;
     let offsetY = null;
@@ -256,34 +264,32 @@ function processInput(elapsedTime) {
 function update(elapsedTime, currentTime) {
     shield.update(elapsedTime);
 
-    
-
-    if(updateShieldInt%10 == 0){
-
+    if(powerRun){
         updatePowerUps();
-    }
-
-    updateShieldInt++;
-   
-
-    
-
-    
+        powerRun = false;
+        console.log('powerruncheck');
+    }   
 
 
     for (let clientId in activeClients) {
         if(!activeClients[clientId].player.is_alive){
             continue;
         }
+
         if(!collided(activeClients[clientId].player, shield)){
             activeClients[clientId].player.wasInShield(); // bookmark
+        }
+
+        if(!activeClients[clientId].player.is_alive){
+            continue;
         }
 
         if(!activeClients[clientId].player.has_gun){
             for(let weapon = weaponPowerUps.length - 1; weapon >= 0; weapon-- ){
                 if(collided(activeClients[clientId].player,weaponPowerUps[weapon])){
-                    activeClients[clientId].player.foundGun();
-                    weaponPowerUps.splice(weapon,1);
+                    activeClients[clientId].player.has_gun = true;
+                    weaponPowerUps[weapon].movePowerUp();
+                    powerUpsChanged = true;
                 }
             }
         }
@@ -291,9 +297,9 @@ function update(elapsedTime, currentTime) {
         if(!activeClients[clientId].player.has_rapid_fire){
             for(let fire_rate = fire_ratePowerUps.length - 1; fire_rate >= 0; fire_rate-- ){
                 if(collided(activeClients[clientId].player,fire_ratePowerUps[fire_rate])){
-                    // if they collided give the reward and remove the powerup from the player.
-                    activeClients[clientId].player.foundRapidFire();
-                    fire_ratePowerUps.splice(fire_rate,1);
+                    activeClients[clientId].player.has_rapid_fire = true;
+                    fire_ratePowerUps[fire_rate].movePowerUp();
+                    powerUpsChanged = true;
                 }
             }
         }
@@ -301,9 +307,9 @@ function update(elapsedTime, currentTime) {
         if(!activeClients[clientId].player.has_long_range){
             for(let fire_range = fire_rangePowerUps.length - 1; fire_range >= 0; fire_range-- ){
                 if(collided(activeClients[clientId].player,fire_rangePowerUps[fire_range])){
-                    // if they collided give the reward and remove the powerup from the player.
-                    activeClients[clientId].player.foundLongRange();
-                    fire_rangePowerUps.splice(fire_range,1);
+                    activeClients[clientId].player.has_long_range = true;
+                    fire_rangePowerUps[fire_range].movePowerUp();
+                    powerUpsChanged = true;
                 }
             }
         }
@@ -311,9 +317,9 @@ function update(elapsedTime, currentTime) {
         if(activeClients[clientId].player.life_remaining < 100){
             for(let health = healthPowerUps.length - 1; health >= 0; health-- ){
                 if(collided(activeClients[clientId].player,healthPowerUps[health])){
-                    // if they collided give the reward and remove the powerup from the player.
                     activeClients[clientId].player.foundMedPack();
-                    healthPowerUps.splice(health,1);
+                    healthPowerUps[health].movePowerUp();
+                    powerUpsChanged = true;
                 }
             }
         }
@@ -322,9 +328,9 @@ function update(elapsedTime, currentTime) {
         if(activeClients[clientId].player.ammo_remaining < 100){
             for(let ammo = ammoPowerUps.length - 1; ammo >= 0; ammo-- ){
                 if(collided(activeClients[clientId].player,ammoPowerUps[ammo])){
-                    // if they collided give the reward and remove the powerup from the player.
                     activeClients[clientId].player.foundAmmoPack();
-                    ammoPowerUps.splice(ammo,1);
+                    ammoPowerUps[ammo].movePowerUp();
+                    powerUpsChanged = true;
                 }
             }
         }
@@ -377,18 +383,11 @@ function update(elapsedTime, currentTime) {
                 }
             }
         }
-
-
-
-
-
         if (!hit) {
             keepMissiles.push(activeMissiles[missile]);
         }
     }
     activeMissiles = keepMissiles;
-
-
 }
 
 
@@ -409,10 +408,13 @@ function updateClients(elapsedTime) {
         return;
     }
 
+    if(gameHasBegun && (!powerUpsChanged)){
+        powerUpsChanged = true;
+    }
 
 
 
-    if(updateClientInt%10==1){
+    if(updateClientInt%10==0){
         if(gameHasBegun){
             for (let clientId in activeClients) {
                 let client = activeClients[clientId];
@@ -434,7 +436,6 @@ function updateClients(elapsedTime) {
             }
         }
 
-
         for (let clientId in activeClients) {
             let shieldUpdate = {
                 radius: shield.radius + 2*activeClients[clientId].player.collision_radius,
@@ -445,10 +446,12 @@ function updateClients(elapsedTime) {
             };
             activeClients[clientId].socket.emit(NetworkIds.SHIELD_MOVE, shieldUpdate);
         }
+    }
+    updateClientInt++;
 
 
 
-
+    if(powerUpsChanged){
         for (let clientId in activeClients) {
             let client = activeClients[clientId];
 
@@ -509,19 +512,8 @@ function updateClients(elapsedTime) {
     
             powerUpArray.length = 0;
         }
-       
-
+        powerUpsChanged = false;
     }
-    updateClientInt++;
-
-
-
-
-
-
-
-
-
 
 
     //
@@ -578,32 +570,21 @@ function updateClients(elapsedTime) {
         };
         if (client.player.reportUpdate) {
             client.socket.emit(NetworkIds.UPDATE_SELF, update);
-
-            //
             // Notify all other connected clients about every
             // other connected client status...but only if they are updated.
             for (let otherId in activeClients) {
                 if (otherId !== clientId) {
-                    activeClients[otherId].socket.emit(NetworkIds.UPDATE_OTHER, update);
+                    if(client.player.is_alive){
+                        if(isInRange(client.player, activeClients[otherId].player)){
+                            activeClients[otherId].socket.emit(NetworkIds.UPDATE_OTHER, update);
+                        }
+                    }
                 }
             }
         }
-
-        //
-        // Report any new missiles to the active clients
         for (let missile = 0; missile < missileMessages.length; missile++) {
             client.socket.emit(NetworkIds.MISSILE_NEW, missileMessages[missile]);
         }
-
-        // HERE SINCE WE ARE SCROLLING THROUGH EVERY CLIENT, LETS TELL EVERY CLIENT WHERE EVERY
-        // POWER UP IS EVERY UPDATE. What do we need to send to the client? Just the type... and
-        // its location.
-
-        
-
-
-        //
-        // Report any missile hits to this client
         for (let hit = 0; hit < hits.length; hit++) {
             client.socket.emit(NetworkIds.MISSILE_HIT, hits[hit]);
         }
@@ -612,13 +593,7 @@ function updateClients(elapsedTime) {
     for (let clientId in activeClients) {
         activeClients[clientId].player.reportUpdate = false;
     }
-
-    //
-    // Don't need these anymore, clean up
     hits.length = 0;
-    //
-    // Reset the elapsedt time since last update so we can know
-    // when to put out the next update.
     lastUpdate = 0;
 }
 

@@ -222,6 +222,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
     //
     //------------------------------------------------------------------
     function updatePlayerSelf(data) {
+        //console.log('x: ',data.worldCordinates.x, ' y: ',data.worldCordinates.y);
         
         playerSelf.model.direction = data.direction;
         playerSelf.model.worldCordinates.x = data.worldCordinates.x;
