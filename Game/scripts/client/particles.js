@@ -154,13 +154,20 @@ MyGame.particleSystem = (function(graphics){
 
     // UpdateParticles updates the particles and removes them when dead, and their corresponding graphics.
     function updateParticles(elapsedTime){
-        //Loop through particles
+        //Loop through particles backwards to find ones to remove.
         for (let particle = (particles.length-1); particle >= 0; --particle) {
             particles[particle].alive += elapsedTime;
+            //Check if they are still alive before updating them.
+            if (particles[particle].alive > particles[particle].lifetime) {
+                particles.splice(particle, 1);
+                particleGraphics.splice(particle, 1);
+            }
+        }
+        //Update updated particles.
+        for (let particle = 0; particle < particles.length; ++particle) {
             particles[particle].direction.y += (elapsedTime * particles[particle].gravity/1000);
             particles[particle].x += (elapsedTime * particles[particle].speed * particles[particle].direction.x);
             particles[particle].y += (elapsedTime * particles[particle].speed * particles[particle].direction.y);
-            // console.log(particles[0]);
             
             if (particles[particle].disappear){
                 let transparency = 1-(particles[particle].alive/particles[particle].lifetime);
@@ -176,10 +183,6 @@ MyGame.particleSystem = (function(graphics){
             }
             if (particles[particle].hasOwnProperty('rotationRate')){
                 particles[particle].rotation += (elapsedTime * particles[particle].rotationRate/1000);
-            }
-            if (particles[particle].alive > particles[particle].lifetime) {
-                particles.splice(particle, 1);
-                particleGraphics.splice(particle, 1);
             }
         }
         //Add any new particles from ActiveParticleEffects and remove finished effects
@@ -452,7 +455,7 @@ MyGame.particleSystem.shotSmoke = function(location, direction, viewPortCenter, 
 };
 
 MyGame.particleSystem.shieldSparks = function(center, radius, duration, viewPortCenter, maxD){
-    let SPARKSPERCIRCUMFRANCEUNIT = .025;
+    let SPARKSPERCIRCUMFRANCEUNIT = .005;
     for (let i=0; i<radius*Math.PI*SPARKSPERCIRCUMFRANCEUNIT; ++i){
         let cvec = nextCircleVector(radius);
         //If inside extended viewport, then add a particle effect there.
