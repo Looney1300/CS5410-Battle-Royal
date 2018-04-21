@@ -246,8 +246,6 @@ MyGame.input.KeyEvent = (function() {
 		moveDown: 83,
 		moveLeft: 65,
 		moveRight: 68,
-		extendFOV: 81,
-		shortenFOV: 69,
 		fire: 32,
 		rapidFire: 86,
 		sprint: 16,

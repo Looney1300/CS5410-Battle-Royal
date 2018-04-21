@@ -12,9 +12,13 @@ let Missile = require('./missile');
 let NetworkIds = require('../shared/network-ids');
 let Queue = require('../shared/queue.js');
 let mapLogic = require('../shared/map');
-let mapFile = require('../shared/maps/SmallMap');
+let mapFile = require('../shared/maps/medium');
+// let mapFile = require('../shared/maps/SmallMap');
 let CryptoJS = require('crypto-js');
 let fs = require('fs');
+let Shield = require('./shield');
+let gameHasBegun = false;
+
 
 
 
@@ -39,8 +43,18 @@ let inputQueue = Queue.create();
 let nextMissileId = 1;
 let map = mapLogic.create();
 map.setMap(mapFile);
+//this is being hard coded for now until I figure out a better solution
+let playerSize = {width: 80, height: 80};
+//Shield by passing the map, the percent of map width the first 
+// shield diameter will be, and how many minutes between shield moves.
+let FIRST_SHIELD_DIAMETER = 1.333333; //This is approximately just outside the playable corners of the map.
+let TIME_TO_MOVE_SHIELD = 2;
+let SHIELD_MOVES = 5;
+let SHRINK_DOWN_TO = 0 - ( .5 * playerSize.width)/map.mapWidth; //Need to adjust for collision radius of players.
+let shield = Shield.create(map, FIRST_SHIELD_DIAMETER, TIME_TO_MOVE_SHIELD, SHRINK_DOWN_TO, SHIELD_MOVES);
 let salt = 'xnBZngGg*+FhQz??V6FMjfd9G4m5w^z8P*6';
 
+let loggedInPlayers = [];
 
 
 
@@ -66,7 +80,7 @@ function createAmmoPowerUp(){
 };
 
 function updatePowerUps(){
-    while(weaponPowerUps.length < pPerPlayer){
+    while(weaponPowerUps.length < (4*pPerPlayer)){
         createWeaponPowerUp();
     };
     while(fire_ratePowerUps.length < pPerPlayer){
@@ -75,10 +89,10 @@ function updatePowerUps(){
     while(fire_rangePowerUps.length < pPerPlayer){
         createFireRangePowerUp();
     };
-    while(healthPowerUps.length < pPerPlayer){
+    while(healthPowerUps.length < 4*pPerPlayer){
         createHealthPowerUp()
     };
-    while(ammoPowerUps.length < pPerPlayer){
+    while(ammoPowerUps.length < 4*pPerPlayer){
         createAmmoPowerUp();
     };
 };
@@ -89,8 +103,12 @@ function updatePowerUps(){
 //
 //------------------------------------------------------------------
 function createMissile(clientId, playerModel) {
+    if(!playerModel.is_alive){
+        return;
+    }
     if(playerModel.has_gun){
         if(playerModel.firedAShot()){
+            let offset = calcXYBulletOffset(playerModel.direction,playerSize);
             let tempmistime = playerModel.missileTime;
             if(playerModel.has_long_range){
                 tempmistime = 2*tempmistime;
@@ -100,12 +118,12 @@ function createMissile(clientId, playerModel) {
                 id: nextMissileId++,
                 clientId: clientId,
                 worldCordinates: {
-                    x: playerModel.worldCordinates.x,
-                    y: playerModel.worldCordinates.y
+                    x: playerModel.worldCordinates.x + offset.x,
+                    y: playerModel.worldCordinates.y - offset.y
                 },
                 timeRemaining: tempmistime,
                 direction: playerModel.direction,
-                speed: playerModel.speed
+                speed: playerModel.speed*2
             });
             newMissiles.push(missile);
         }
@@ -118,8 +136,39 @@ function createRapidMissile(clientId, playerModel){
     }
 }
 
+
 function sprint(clientId, playerModel){
     playerModel.isSprinting = true;
+}
+
+function updateHighScores(){
+    var fs = require('fs');
+    //read in all the high scores from the file
+    var obj = JSON.parse(fs.readFileSync('../Game/data/highscores.json', 'utf8'));
+    //then figure out the proper ordering and rewrite the top 20.
+    for (let clientId in activeClients) {
+        let client = activeClients[clientId];
+        let pushed = {
+            name: client.player.userName,
+            score: client.player.score,
+            kills: client.player.kills,
+            killer: client.player.killer
+        };
+        obj.push({
+            name: client.player.userName,
+            score: client.player.score
+        });
+
+    }
+    //sort the scores
+    obj.sort((a, b) => parseInt(b.score) - parseFloat(a.score));
+    //write the top 20 back to the file
+    var newList = [];
+    for (var i = 0; i < 20 && i < obj.length; ++i){
+        newList.push(obj[i]);
+    }    
+
+    fs.writeFileSync('../Game/data/highscores.json',JSON.stringify(newList));
 }
 
 //------------------------------------------------------------------
@@ -180,7 +229,7 @@ function processInput(elapsedTime) {
 //------------------------------------------------------------------
 //
 // Utility function to perform a hit test between two objects.  The
-// objects must have a position: { x: , y: } property and radius property.
+// objects must have a worldCordinates: { x: , y: } property and collision_radius property.
 //
 //------------------------------------------------------------------
 function collided(obj1, obj2) {
@@ -192,12 +241,39 @@ function collided(obj1, obj2) {
     return distance <= radii;
 }
 
+
+function calcXYBulletOffset(direction,imageSize){
+    let offsetX = null;
+    let offsetY = null;
+    //these are hard coded for now, essentially the 20 is 1/4 the actual size of the image, and the 8 is 1/10 the actual size of the image
+    if (direction < 0){
+        offsetX = (imageSize.width/4)*Math.cos(-direction) + (imageSize.width/10);
+    }
+    else{
+        offsetX = (imageSize.width/4)*Math.cos(-direction) - (imageSize.width/10);
+    }
+    if (Math.abs(direction) < (Math.PI/2)){
+        offsetY = (imageSize.height/4)*Math.sin(-direction) - (imageSize.height/10); //this value depends on the direction
+    }
+    else {
+        offsetY = (imageSize.height/4)*Math.sin(-direction) + (imageSize.height/10);
+    }
+    return {
+        x: offsetX,
+        y: offsetY
+    }
+}
 //------------------------------------------------------------------
 //
 // Update the simulation of the game.
 //
 //------------------------------------------------------------------
 function update(elapsedTime, currentTime) {
+    shield.update(elapsedTime);
+
+    
+
+    
 
 
     // In update we need to ensure we have pPerPlayer of each powerup
@@ -208,6 +284,14 @@ function update(elapsedTime, currentTime) {
     // We need to check every client against every powerup.
 
     for (let clientId in activeClients) {
+        if(!collided(activeClients[clientId].player, shield)){
+            // Um... Is this how I make the client die when they aren't in the shield?
+            activeClients[clientId].player.wasInShield(); // bookmark
+        }
+
+        if(!activeClients[clientId].player.is_alive){
+            continue;
+        }
         for(let weapon = weaponPowerUps.length - 1; weapon >= 0; weapon-- ){
             if(collided(activeClients[clientId].player,weaponPowerUps[weapon])){
                 // if they collided give the reward and remove the powerup from the player.
@@ -296,13 +380,24 @@ function update(elapsedTime, currentTime) {
     keepMissiles = [];
     for (let missile = 0; missile < activeMissiles.length; missile++) {
         let hit = false;
+        if (!map.isValid(activeMissiles[missile].worldCordinates.y, activeMissiles[missile].worldCordinates.x)){
+            hit = true;
+            // hits.push({
+            //     clientId: null,
+            //     missileId: activeMissiles[missile].id,
+            //     hit_location: activeMissiles[missile].worldCordinates
+            // });
+        }
         for (let clientId in activeClients) {
             //
             // Don't allow a missile to hit the player it was fired from.
             if (clientId !== activeMissiles[missile].clientId) {
                 if (collided(activeMissiles[missile], activeClients[clientId].player)) {
                     // This is player who was hit.
-                    activeClients[clientId].player.wasHit();
+                    if(!activeClients[clientId].player.is_alive){
+                        continue;
+                    }
+                    activeClients[clientId].player.wasHit(activeClients[activeMissiles[missile].clientId].player);
                     activeClients[activeMissiles[missile].clientId].player.scoredAHit();
                     hit = true;
                     hits.push({
@@ -326,10 +421,54 @@ function update(elapsedTime, currentTime) {
 //
 //------------------------------------------------------------------
 function updateClients(elapsedTime) {
+
+    let liveCount = 0;
+    let playerCount = 0;
+
+
+
+
+
+    if(gameHasBegun){
+        for (let clientId in activeClients) {
+            let client = activeClients[clientId];
+            //Question about currentTime vs elapsedTime, what should be put right here?
+    
+            playerCount++;
+            if(client.player.is_alive){
+                liveCount++;
+            }
+           
+        }
+        if(((liveCount <= 1) && (playerCount > 0))){
+            for (let clientId in activeClients) {
+                let client = activeClients[clientId];
+                client.socket.emit(NetworkIds.GAME_OVER, '');
+            }
+            updateHighScores();
+            quit = true;
+        }
+        for (let clientId in activeClients) {
+            let client = activeClients[clientId];
+        
+           //console.log(client.player.userName);
+        }
+    }
+
+
+
+
+
+
+
+
+
+
     //
     // For demonstration purposes, network updates run at a slower rate than
     // the game simulation.
     lastUpdate += elapsedTime;
+    // bookmark dont need
     if (lastUpdate < STATE_UPDATE_RATE_MS) {
         return;
     }
@@ -359,6 +498,19 @@ function updateClients(elapsedTime) {
     }
     newMissiles.length = 0;
 
+    // Send the shield and time remaining til it shrinks.
+    for (let clientId in activeClients) {
+        let shieldUpdate = {
+            radius: shield.radius + 2*activeClients[clientId].player.collision_radius,
+            nextRadius: shield.nextRadius + 2*activeClients[clientId].player.collision_radius,
+            worldCordinates: shield.worldCordinates,
+            nextWorldCordinates: shield.nextWorldCordinates,
+            timeTilNextShield: shield.timeTilNextShield
+        };
+        activeClients[clientId].socket.emit(NetworkIds.SHIELD_MOVE, shieldUpdate);
+    }
+
+
     for (let clientId in activeClients) {
         let client = activeClients[clientId];
         let update = {
@@ -375,8 +527,14 @@ function updateClients(elapsedTime) {
             SPRINT_FACTOR: client.player.SPRINT_FACTOR,
             SPRINT_DECREASE_RATE: client.player.SPRINT_DECREASE_RATE,
             SPRINT_RECOVERY_RATE: client.player.SPRINT_RECOVERY_RATE,
+            kills: client.player.kills,
+            userName: client.player.userName,
+            killer: client.player.killer,
             updateWindow: lastUpdate,
-            userName: client.player.userName
+            userName: client.player.userName,
+            hasWeapon: client.player.has_gun,
+            hasBullets: client.player.ammo_remaining > 0,
+            hasRapidFire: client.player.has_rapid_fire,
         };
         if (client.player.reportUpdate) {
             client.socket.emit(NetworkIds.UPDATE_SELF, update);
@@ -525,7 +683,8 @@ function initializeSocketIO(httpServer) {
                     worldCordinates: newPlayer.worldCordinates,
                     rotateRate: newPlayer.rotateRate,
                     speed: newPlayer.speed,
-                    size: newPlayer.size
+                    size: newPlayer.size,
+                    position: newPlayer.position,
                 });
 
                 //
@@ -536,7 +695,8 @@ function initializeSocketIO(httpServer) {
                     worldCordinates: client.player.worldCordinates,
                     rotateRate: client.player.rotateRate,
                     speed: client.player.speed,
-                    size: client.player.size
+                    size: client.player.size,
+                    position: newPlayer.position,
                 });
             }
         }
@@ -564,22 +724,8 @@ function initializeSocketIO(httpServer) {
     let chatterBoxSize = 0;
     io.on('connection', function(socket) {
         console.log('Connection established: ', socket.id);
-        //
-        // Create an entry in our list of connected clients
+
         let newPlayerName = '';
-        // let newPlayer = Player.create(map);
-        // newPlayer.clientId = socket.id;
-        // activeClients[socket.id] = {
-        //     socket: socket,
-        //     player: newPlayer
-        // };
-        // socket.emit(NetworkIds.CONNECT_ACK, {
-        //     direction: newPlayer.direction,
-        //     worldCordinates: newPlayer.worldCordinates,
-        //     size: newPlayer.size,
-        //     rotateRate: newPlayer.rotateRate,
-        //     speed: newPlayer.speed
-        // });
 
         socket.on(NetworkIds.INPUT, data => {
             inputQueue.enqueue({
@@ -588,12 +734,20 @@ function initializeSocketIO(httpServer) {
             });
         });
 
-        socket.on('readyplayerone',function(){
+
+        socket.on('readyplayerone',function(input){
             let newPlayer = Player.create(map);
             //let newPowerUp = PowerUp.create(map,'ammo');
             //console.log(newPowerUp);
+            shield.gameStarted = true;
             newPlayer.clientId = socket.id;
             newPlayer.userName = newPlayerName;
+            if(input){
+                if(input.result){
+                    newPlayer.worldCordinates.x = input.x;
+                    newPlayer.worldCordinates.y = input.y;
+                }
+            }
             activeClients[socket.id] = {
                 socket: socket,
                 player: newPlayer
@@ -608,9 +762,31 @@ function initializeSocketIO(httpServer) {
             notifyConnect(socket, newPlayer);
         });
 
+        socket.on(NetworkIds.SCORE_REQ,function(){
+            //console.log('I am here in the server');
+            let gameStatsOver = [];
+            for (let clientId in activeClients) {
+                let client = activeClients[clientId];
+                let pushed = {
+                    name: client.player.userName,
+                    score: client.player.score,
+                    kills: client.player.kills,
+                    killer: client.player.killer
+                };
+                gameStatsOver.push(pushed);
+            }
+            socket.emit(NetworkIds.SCORE_RES,gameStatsOver)
+        });
+
         socket.on('disconnect', function() {
             console.log('connection lost: ', socket.id);
             delete activeClients[socket.id];
+            for (var i = 0; i < loggedInPlayers.length; ++i){
+                if (loggedInPlayers[i].id == socket.id){
+                    loggedInPlayers.splice(i,1);
+                    break;
+                }
+            }
             notifyDisconnect(socket.id);
         });
 
@@ -628,68 +804,55 @@ function initializeSocketIO(httpServer) {
         
         
 
+        socket.on('inMapScreen',function(){
+            var seconds_left = 15;
+            var interval = setInterval(function() {
+                --seconds_left;
+                if (seconds_left <= 0)
+                {
+                    console.log('the server has begun the game!!!');
+                    socket.emit('doTheThing');
+                    clearInterval(interval);
+
+                }
+            }, 1000);
+        })
+
+        socket.on('isValidStart',function(data){
+            let result = map.isValid(data.y,data.x);
+            if(result){
+                io.sockets.emit('isValidRes',{x:data.x,y:data.y});
+                socket.emit('isValidForYou',{result:result,x:data.x,y:data.y});
+            }
+            
+        });
+
 
         socket.on('setUsername', function(data) {
-            console.log('This should happen !!!!!!!!');
             chatterBoxSize += 1;
-            console.log(chatterBoxSize);
-            //console.log(data);
-            //let chatterBoxSize = 0;
-            
-            if(users.indexOf(data) > -1) {
-                console.log('if part: ', data);
-               //socket.emit('userExists', data + ' username is taken! Try some other username.');
-               socket.emit('userSet', {username: data});
-            } else {
-                console.log('else part: ', data);
-               users.push(data);
-               //activeClients[socket.id].player.menuState = 'chatting';
-               //console.log(activeClients[socket.id].player.state);
-               socket.emit('userSet', {username: data});
-               
-               
-            }
+            users.push(data);
+            socket.emit('userSet', {username: data});
 
             if(!minChatterSizeHasBeenReached){
-                // for (let clientId in activeClients) {
-                //     if(activeClients[clientId].player.menuState == 'chatting'){
-                //         chatterBoxSize++;
-                //         console.log('we counted a chatter.');
-                //     }
-                // }
-                if(chatterBoxSize > 2){
+                if(chatterBoxSize >= 2){
                     console.log('The countdown has begun.');
                     minChatterSizeHasBeenReached = true;
                     io.sockets.emit('BeginCountDown');
-                    var seconds_left = 1;
+                    var seconds_left = 25;
                     var interval = setInterval(function() {
                         --seconds_left;
-                        //document.getElementById('joinroom').innerHTML += --seconds_left;
-                    
                         if (seconds_left <= 0)
                         {
-                            //document.getElementById('joinroom').innerHTML = 'You are ready';
                             console.log('the server has begun the game!!!');
-                            //gameHasBegun = true;
-                            //gameLoop(present(), 0);
-                            
                             clearInterval(interval);
-                            
-                            
-                            
+                            gameHasBegun = true;
                         }
                     }, 1000);
                 }
-                else {
-                    //chatterBoxSize = 0;
-                }
             }
-
-
-
-
          });
-         
+
+
          socket.on('msg', function(data) {
             //Send message to everyone
             console.log(data);
@@ -697,7 +860,6 @@ function initializeSocketIO(httpServer) {
          });
 
          socket.on(NetworkIds.HIGH_SCORES, data => {
-            //console.log("Got a high scores request from the user!");
             var fs = require('fs');
             var obj;
             fs.readFile('../Game/data/highscores.json', 'utf8', function (err, fileData) {
@@ -710,10 +872,12 @@ function initializeSocketIO(httpServer) {
          });
 
          socket.on(NetworkIds.VALID_USER, data => {
-             //console.log("Got a login users request");
-             console.log(data.name,data.password);
              if (validUser(data.name,data.password)){
                 newPlayerName = data.name;
+                loggedInPlayers.push({
+                    name: data.name,
+                    id: socket.id
+                });
                 //newPlayer.userName = data.name;
                 socket.emit(NetworkIds.VALID_USER, null);
              }
@@ -723,9 +887,12 @@ function initializeSocketIO(httpServer) {
          });
 
          socket.on(NetworkIds.VALID_CREATE_USER, data => {
-             //console.log("Got a create users request");
              if(validCreateUser(data.name,data.password)){
                  newPlayerName = data.name;
+                 loggedInPlayers.push({
+                     name: data.name,
+                     id: socket.id
+                 });
                 //newPlayer.userName = data.name;
                 socket.emit(NetworkIds.VALID_CREATE_USER,null);
              }
@@ -733,13 +900,6 @@ function initializeSocketIO(httpServer) {
                 socket.emit(NetworkIds.INVALID_CREATE_USER, null);
              }
          })
-         
-
-
-
-
-
-
     });
 }
 
@@ -755,17 +915,21 @@ function initialize(httpServer) {
 
 function validUser(uName,uPassword){
     var obj = JSON.parse(fs.readFileSync('../Game/data/users.json', 'utf8'));
+    var valid = false;
     for (var i = 0; i < obj.length; ++i){
-        console.log(CryptoJS.AES.decrypt(obj[i].password, salt).toString(CryptoJS.enc.Utf8));
         if (obj[i].name == uName && CryptoJS.AES.decrypt(obj[i].password, salt).toString(CryptoJS.enc.Utf8) == uPassword){
-            return true;
+            valid = true;
         }
     }
-    return false;
+    for (var i = 0; i < loggedInPlayers.length; ++i){
+        if (uName == loggedInPlayers[i].name){
+            return false;
+        }
+    }
+    return valid;
 }
 
 function validCreateUser(uName,uPassword){ 
-    console.log('checking for valid create user');
     var obj = JSON.parse(fs.readFileSync('../Game/data/users.json', 'utf8'));
     for (var i = 0; i < obj.length; ++i){
         if (obj[i].name == uName){

@@ -7,12 +7,20 @@ MyGame.components.FOV = function(){
   'use strict';
   let that = {};
   let direction = 0;
-  let length = 200;
-  let width = 0.5;
+  let length = 750;
+  let width = 0.6;
   let center = {
     x: 0,
     y: 0
-  }
+  };
+  let firstPoint = {
+    x: 0,
+    y: 0
+  };
+  let secondPoint = {
+    x: 0,
+    y: 0
+  };
 
   Object.defineProperty(that, 'center', {
     get: () => center
@@ -30,24 +38,30 @@ MyGame.components.FOV = function(){
     get: () => length
   });
 
+  Object.defineProperty(that, 'firstPoint', {
+    get: () => firstPoint
+  });
+
+  Object.defineProperty(that, 'secondPoint', {
+    get: () => secondPoint
+  });
+
   that.update = function(player) {
     center.x = player.position.x;
     center.y = player.position.y;
     direction = player.direction;
+    firstPoint.x = center.x + (length * Math.cos(direction - width)/1000);
+    firstPoint.y = center.y + (length * Math.sin(direction - width)/1000);
+    secondPoint.x = center.x + (length * Math.cos(direction + width)/1000);
+    secondPoint.y = center.y + (length * Math.sin(direction + width)/1000);
   }
 
   that.widen = function () {
-    if (length > 140){
-      length -= 10;
-      width += .1;
-    }
+    return;
   }
 
   that.thin = function() {
-    if (length < 230){
-      length += 10;
-      width -= .1;
-    }
+    return;
   }
 
   return that;

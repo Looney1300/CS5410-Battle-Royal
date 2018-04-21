@@ -8,16 +8,20 @@ MyGame.graphics = (function() {
 
     let canvas = document.getElementById('canvas-main');
     let context = canvas.getContext('2d');
+    let fovClipping = false;
+    let miniMapClipping = false;
     
     let map = Map.create();
-    let smallMap = SmallMap.create();
-    map.setMap(smallMap.data);
+    // let smallMap = SmallMap.create();
+    let medium = MediumMap.create();
+    map.setMap(medium.data);
     let image = new Image();
     image.src = map.mapFile.tilesets[1].image;
     let viewPort = MyGame.components.ViewPortal();
     viewPort.mapWidth = map.mapWidth;
     viewPort.mapHeight = map.mapHeight;
-
+    
+    let shieldClipping = false;
 
     //------------------------------------------------------------------
     //
@@ -76,8 +80,8 @@ MyGame.graphics = (function() {
     }
 
     function updateCanvas() {
-        canvas.width = 700;
-        canvas.height = 700;
+        canvas.width = 600;
+        canvas.height = 600;
     }
 
     //------------------------------------------------------------------
@@ -142,12 +146,23 @@ MyGame.graphics = (function() {
     function drawFOV(fov) {
         context.beginPath();
         context.moveTo(fov.center.x * viewPort.width, fov.center.y * viewPort.height);
-        context.lineTo(fov.center.x * viewPort.width + (fov.length * Math.cos(fov.direction - fov.width)), fov.center.y * viewPort.height + (fov.length * Math.sin(fov.direction - fov.width)));
-        context.lineTo(fov.center.x * viewPort.width + (fov.length * Math.cos(fov.direction + fov.width)), fov.center.y * viewPort.height + (fov.length * Math.sin(fov.direction + fov.width)));
+        context.lineTo(fov.firstPoint.x * viewPort.width, fov.firstPoint.y * viewPort.height);
+        context.lineTo(fov.secondPoint.x * viewPort.width, fov.secondPoint.y * viewPort.height);
         context.closePath();
         context.lineWidth = 2;
         context.strokeStyle = '#666666';
         context.stroke();
+        if(!fovClipping){
+            context.clip();
+            fovClipping = true;
+        }
+    }
+
+    function disableFOVClipping() {
+        if (fovClipping){
+            context.restore();
+            fovClipping = false;
+        }
     }
 
     //------------------------------------------------------------------
@@ -175,7 +190,7 @@ MyGame.graphics = (function() {
             
     }
 
-    function drawHealth(texture, center, size, life_remaining){
+    function drawHealth(center, size, life_remaining){
         let localCenter = {
             x: center.x * viewPort.width,
             y: center.y * viewPort.height
@@ -207,12 +222,38 @@ MyGame.graphics = (function() {
                 (localCenter.y - localSize.height / 2) - (localSize.height/2),
                 localSize.width,
                 localSize.height/5);
-            
         }
-
-        
-
     };
+
+    function drawGameStatus(printArr){
+        context.font = "bold 40px Arial";
+        context.fillStyle = 'red';
+        context.fillText(printArr.killer,0,canvas.height/20);
+        context.fillText('was killed by',0,canvas.height/10);
+        context.fillText(printArr.killed,0,canvas.height/6.5);
+    };
+
+    //------------------------------------------------------------------
+    //
+    // Draw a portion of an image on the canvasd
+    //
+    //------------------------------------------------------------------
+    function drawCroppedImage(texture, cord, size, clipping){
+        context.drawImage(texture, clipping.x, clipping.y, clipping.size.width, clipping.size.height,
+            cord.x * viewPort.width, cord.y * viewPort.height, 
+            size.width * viewPort.width, size.height * viewPort.height);
+    }
+
+    //------------------------------------------------------------------
+    //
+    // Draw a time at a specific place on the canvas
+    //
+    //------------------------------------------------------------------
+    function drawTime(time, cord) {
+        context.font = "12px Arial";
+        context.fillStyle = "#ffffff";
+        context.fillText(time, cord.x * viewPort.width, cord.y * viewPort.height);
+    }
 
     //------------------------------------------------------------------
     //
@@ -223,19 +264,18 @@ MyGame.graphics = (function() {
         // center is still the world coords.
         // center needs to be where the player can see.
         let localCenter = {
-            x: printCenter.x * canvas.width,
-            y: printCenter.y * canvas.width
+            x: printCenter.x * viewPort.width,
+            y: printCenter.y * viewPort.width
         };
         let localSize = {
-            width: size.width * canvas.width,
-            height: size.height * canvas.height
+            width: size.width * viewPort.width,
+            height: size.height * viewPort.height
         };
-
         context.drawImage(spriteSheet,
             sprite * spriteSize.width, 0,                 // which sprite to render
             spriteSize.width, spriteSize.height,    // size in the spritesheet
-            localCenter.x - localSize.width / 2,
-            localCenter.y - localSize.height / 2,
+            localCenter.x,
+            localCenter.y,
             localSize.width, localSize.height);
     }
 
@@ -253,12 +293,73 @@ MyGame.graphics = (function() {
         context.fill();
     }
 
+    function drawRectangle(center, size) {
+        let localCenter = {
+            x: center.x * viewPort.width,
+            y: center.y * viewPort.height
+        };
+        let localSize = {
+            width: size.width * viewPort.width,
+            height: size.height * viewPort.height
+        };
+        context.beginPath();
+        context.rect(localCenter.x - localSize.width / 2,
+            localCenter.y - localSize.height / 2,
+            localSize.width,
+            localSize.height);
+        context.closePath();
+    }
+
+    function drawMiniMapCircle(shield, shouldStroke) {
+        context.beginPath();
+        if (shield.radius < 0){
+            shield.radius = 0.000001;
+        }
+        context.arc(shield.center.x * viewPort.width, shield.center.y * viewPort.height, shield.radius, 0, 2*Math.PI);
+        context.closePath();
+        if (shouldStroke){
+            context.strokeStyle = "#ffffff";
+            context.stroke();
+        }
+    }
+
+    function enableMiniMapClipping() {
+        if (!miniMapClipping) {
+            miniMapClipping = true;
+            context.clip();
+        }
+    }
+
+    function disableMiniMapClipping() {
+        if (miniMapClipping){
+            miniMapClipping = false;
+            context.restore();
+        }
+    }
+    // Circle, Rectangle, and Texture, are made for use by particleSystem.
+    //------------------------------------------------------------------
+    //
+    // Draw the shield into the local canvas coordinate system.
+    //
+    //------------------------------------------------------------------
+    function drawShield(center, radius, color, mapWidth) {
+
+        context.save();
+        context.beginPath();
+        context.arc(center.x * canvas.width, center.y * canvas.width, 1.5 * mapWidth * canvas.width, 0, 2 * Math.PI, false);
+        context.arc(center.x * canvas.width, center.y * canvas.width, 2 * radius * canvas.width, 0, 2 * Math.PI, true);
+        context.closePath();
+        context.fillStyle = color;
+        context.fill()
+
+    }
+
     //------------------------------------------------------------------
     /*
     Circle expects a spec with
-        center.x
-        center.y
-        radius
+        x
+        y
+        width
         fillStyle
         strokeStyle
         lineWidth
@@ -266,14 +367,28 @@ MyGame.graphics = (function() {
     //------------------------------------------------------------------
     function Circle(spec){
         let that = {};
-        that.draw = function(){
+        let hasFillStyle = spec.hasOwnProperty('fillStyle');
+        let hasLineWidth = spec.hasOwnProperty('lineWidth');
+        let hasStrokeStyle = spec.hasOwnProperty('strokeStyle');
+
+        that.draw = function(viewPort){
+            let posX = canvas.width/2 - (viewPort.center.x - spec.x);
+            let posY = canvas.height/2 - (viewPort.center.y - spec.y);
             context.beginPath();
-            context.arc(spec.centerX, spec.centerY, spec.radius, 0, 2*3.14159265);
+            context.arc(posX, posY, spec.width/2 * canvas.width, 2 * Math.PI, false);
             context.closePath();
-            context.strokeStyle = spec.strokeStyle;
-            context.stroke();
-            context.fillStyle = spec.fillStyle;
-            context.fill();
+            if (hasLineWidth){
+                context.lineWidth = spec.lineWidth;
+            }
+            if (hasStrokeStyle){
+                context.strokeStyle = spec.strokeStyle;
+                context.stroke();
+            }
+            if (hasFillStyle){
+                context.fillStyle = spec.fillStyle;
+                context.fill();
+            }
+            context.restore();
         }
         return that;
     }
@@ -301,25 +416,27 @@ MyGame.graphics = (function() {
             spec.rotation += angle;
         };
 
-        that.draw = function(){
+        that.draw = function(viewPort){
+            let posX = canvas.width/2 - (viewPort.center.x - spec.x);
+            let posY = canvas.height/2 - (viewPort.center.y - spec.y);
             //Rotating a shape
             //1. Translate (0,0) of canvas to center of shape
             context.save();
-            context.translate(spec.x + spec.width/2, spec.y + spec.height/2);
+            context.translate(posX + spec.width*canvas.width/2, posY + spec.height*canvas.height/2);
             //2. Rotate canvas
             context.rotate(spec.rotation);
-            context.translate(-(spec.x + spec.width/2), -(spec.y + spec.height/2));
+            context.translate(-(posX + spec.width*canvas.width/2), -(posY + spec.height*canvas.height/2));
             //3. Draw shape at original coordinates
             if (hasFillStyle){
                 context.fillStyle = spec.fillStyle;
-                context.fillRect(spec.x, spec.y, spec.width, spec.height);
+                context.fillRect(posX, posY, spec.width * canvas.width, spec.height * canvas.height);
             }
             if (hasLineWidth){
                 context.lineWidth = spec.lineWidth;
             }
             if (hasStrokeStyle){
                 context.strokeStyle = spec.strokeStyle;
-                context.strokeRect(spec.x, spec.y, spec.width, spec.height);
+                context.strokeRect(posX, posY, spec.width * canvas.width, spec.height * canvas.height);
             }
             //4. Undo translations and rotations of canvas.
             context.restore();
@@ -333,8 +450,8 @@ MyGame.graphics = (function() {
     Texture function passed spec property expects
       spec.imageSrc
       spec.rotation
-      spec.center.x
-      spec.center.y
+      spec.x
+      spec.y
       spec.width
       spec.height
     Texture function 'has' the following properties
@@ -355,18 +472,24 @@ MyGame.graphics = (function() {
             spec.rotation += angle;
         };
         
-        that.draw = function(){
+        that.draw = function(viewPort){
+            let posX = canvas.width/2 - (viewPort.center.x - spec.x) - spec.width*canvas.width/2;
+            let posY = canvas.height/2 - (viewPort.center.y - spec.y) - spec.height*canvas.height/2;
             if (ready){
                 context.save();
-                context.translate(spec.x, spec.y);
+                context.translate(posX + spec.width*canvas.width/2, posY + spec.height*canvas.height/2);
                 context.rotate(spec.rotation);
-                context.translate(-spec.x, -spec.y);
+                context.translate(-(posX + spec.width*canvas.width/2), -(posY + spec.height*canvas.height/2));
+
+                //For fading textures
+                context.globalAlpha = spec.o;
 
                 context.drawImage(
                     image,
-                    spec.x - spec.width/2,
-                    spec.y -spec.height/2,
-                    spec.width, spec.height);
+                    (posX),
+                    (posY),
+                    spec.width * canvas.width, 
+                    spec.height * canvas.height);
 
                 context.restore();   
             }
@@ -422,11 +545,11 @@ MyGame.graphics = (function() {
             }
             if (spec.hasOwnProperty('fillStyle')){
                 context.fillStyle = spec.fillStyle;
-                context.fillText(spec.text, spec.x, spec.y);
+                context.fillText(spec.text, spec.x * canvas.width, spec.y * canvas.height);
             }
             if (spec.hasOwnProperty('strokeStyle')){
                 context.strokeStyle = spec.strokeStyle;
-                context.strokeText(spec.text, spec.x, spec.y);
+                context.strokeText(spec.text, spec.x * canvas.width, spec.y * canvas.height);
             }
         }
 
@@ -444,12 +567,21 @@ MyGame.graphics = (function() {
         saveContext: saveContext,
         restoreContext: restoreContext,
         rotateCanvas: rotateCanvas,
+        drawGameStatus: drawGameStatus,
         drawMapPortion: drawMapPortion,
+        drawRectangle: drawRectangle,
+        drawMiniMapCircle : drawMiniMapCircle,
+        enableMiniMapClipping: enableMiniMapClipping,
+        disableMiniMapClipping : disableMiniMapClipping,
         drawFOV : drawFOV,
+        disableFOVClipping : disableFOVClipping,
         drawImage: drawImage,
+        drawCroppedImage: drawCroppedImage,
+        drawTime: drawTime,
         drawHealth: drawHealth,
         drawImageSpriteSheet: drawImageSpriteSheet,
         drawCircle: drawCircle,
+        drawShield: drawShield,
         Circle: Circle,
         Rectangle: Rectangle,
         Texture: Texture,

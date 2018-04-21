@@ -35,9 +35,14 @@ MyGame.loader = (function() {
             message: 'Utilities loaded',
             onComplete: null,
         }, 
+        // {
+        //     scripts: ['../shared/maps/SmallMap'],
+        //     message: 'Small Map loaded',
+        //     onComplete: null
+        // },
         {
-            scripts: ['../shared/maps/SmallMap'],
-            message: 'Small Map loaded',
+            scripts: ['../shared/maps/medium'],
+            message: 'Medium Map loaded',
             onComplete: null
         },
         {
@@ -56,7 +61,7 @@ MyGame.loader = (function() {
             onComplete: null
         }, 
         {
-            scripts: ['components/player', 'components/player-remote', 'components/missile','components/powerup', 'components/animated-sprite', 'components/view-portal', 'components/fov'],
+            scripts: ['components/player', 'components/player-remote', 'components/missile','components/powerup', 'components/animated-sprite', 'components/view-portal', 'components/fov', 'components/mini-map', 'components/shield'],
             message: 'Player models loaded',
             onComplete: null
         }, 
@@ -66,10 +71,25 @@ MyGame.loader = (function() {
             onComplete: null
         }, 
         {
-            scripts: ['rendering/player', 'rendering/player-remote', 'rendering/missile', 'rendering/powerup', 'rendering/animated-sprite', 'rendering/view-portal', 'rendering/fov'],
+            scripts: ['rendering/player', 'rendering/player-remote', 'rendering/missile', 'rendering/powerup', 'rendering/animated-sprite', 'rendering/view-portal', 'rendering/fov', 'rendering/mini-map'],
             message: 'Renderers loaded',
             onComplete: null
         }, 
+        {
+            scripts: ['../utilities/colors'],
+            message: 'Colors loaded',
+            onComplete: null
+        },
+        {
+            scripts: ['../utilities/random'],
+            message: 'Random loaded',
+            onComplete: null
+        },
+        {
+            scripts: ['particles'],
+            message: 'Particle System loaded',
+            onComplete: null
+        },
         {
             scripts: ['game'],
             message: 'Gameplay model loaded',
@@ -79,6 +99,11 @@ MyGame.loader = (function() {
         {
             scripts: ['./screens/main-menu'],
             message: 'main menu screen loaded',
+            onComplete: null,
+        },
+        {
+            scripts: ['./screens/game-over'],
+            message: ['game-over screen loaded'],
             onComplete: null,
         },
         {
@@ -117,6 +142,11 @@ MyGame.loader = (function() {
             onComplete: null,
         },
         {
+            scripts: ['./screens/map-screen'],
+            message: 'map screen loaded',
+            onComplete: null,
+        },
+        {
             scripts: ['./screens/options'],
             message: 'options screen loaded',
             onComplete: null,
@@ -146,6 +176,62 @@ MyGame.loader = (function() {
             source: 'assets/explosion.png'
         },
         {
+            key: 'miniMapMedium',
+            source: 'assets/mediumMapImage.png'
+        },
+        {
+            key: 'mapIcons',
+            source: 'assets/powers.png'
+        },
+        {
+            key: 'blueMap',
+            source: 'assets/mediumMapImageBlue.png'
+        },
+        {
+            key: 'playerIcon',
+            source: 'assets/white-cursor.png'
+        },
+        {
+            key: 'blood',
+            source: 'assets/blood.png'
+        },
+        {
+            key: 'bloodsplosion',
+            source: 'assets/bloodsplosion.png'
+        },
+        {
+            key: 'clientIdleNoGun',
+            source: 'assets/Character_Sprites/user_flashlight_idle.png'
+        },
+        {
+            key: 'clientIdleGun',
+            source: 'assets/Character_Sprites/user_rifle_idle.png'
+        },
+        {
+            key: 'clientMoveNoGun',
+            source: 'assets/Character_Sprites/user_flashlight_move.png'
+        },
+        {
+            key: 'clientMoveGun',
+            source: 'assets/Character_Sprites/user_rifle_move.png'
+        },
+        {
+            key: 'enemyIdleNoGun',
+            source: 'assets/Character_Sprites/enemy_flashlight_idle.png'
+        },
+        {
+            key: 'enemyIdleGun',
+            source: 'assets/Character_Sprites/enemy_rifle_idle.png'
+        },
+        {
+            key: 'enemyMoveNoGun',
+            source: 'assets/Character_Sprites/enemy_flashlight_move.png'
+        },
+        {
+            key: 'enemyMoveGun',
+            source: 'assets/Character_Sprites/enemy_rifle_move.png'
+        },
+        {
             key: 'weapon',
             source: 'assets/Powerups/weapon_powerup.png'
         },
@@ -165,6 +251,35 @@ MyGame.loader = (function() {
             key: 'ammo',
             source: 'assets/Powerups/ammo.png'
         },
+        {
+            key: 'die',
+            source: 'assets/Sounds/die.mp3'
+        },
+        {
+            key: 'background',
+            source: 'assets/Sounds/background.mp3'
+        },
+        {
+            key: 'gunshot',
+            source: 'assets/Sounds/gunshot.mp3'
+        },
+        {
+            key: 'emptyfire',
+            source: 'assets/Sounds/emptyfire.mp3'
+        },
+        {
+            key: 'hit',
+            source: 'assets/Sounds/hit.mp3'
+        },
+        {
+            key: 'rapidFire',
+            source: 'assets/Sounds/rapidFire.mp3'
+        },
+        {
+            key: 'gameover',
+            source: 'assets/Sounds/gameover.mp3'
+        }
+
     ];
 
     //------------------------------------------------------------------

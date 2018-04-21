@@ -31,17 +31,32 @@ MyGame.components.Player = function(mapLogic) {
     let width = 600;
 
 
-
+    let hasBullets = false;
     let score = 0;
     let life_remaining = 0;
     let is_alive = true;
     let isSprinting = false;
+    let hasWeapon = false;
+    let hasRapidFire = false;
     let sprintEnergy = 100;
     let SPRINT_FACTOR = 2; // how fast to sprint vs regular speed
     let SPRINT_DECREASE_RATE = .1 // this is per millisecond
     let SPRINT_RECOVERY_RATE = .05 // this is per millisecond
 
+    let killer = '';
+    let kills = 0;
 
+
+
+    Object.defineProperty(that, 'kills', {
+        get: () => kills,
+        set: value => kills = value
+    })
+
+    Object.defineProperty(that, 'killer', {
+        get: () => killer,
+        set: value => killer = value
+    })
 
 
     Object.defineProperty(that, 'SPRINT_DECREASE_RATE', {
@@ -82,6 +97,11 @@ MyGame.components.Player = function(mapLogic) {
         set: (value) => { is_alive = value }
     });
 
+    Object.defineProperty(that, 'hasWeapon', {
+        get: () => hasWeapon,
+        set: (value) => { hasWeapon = value }
+    });
+
 
     Object.defineProperty(that, 'direction', {
         get: () => direction,
@@ -99,7 +119,11 @@ MyGame.components.Player = function(mapLogic) {
     });
 
     Object.defineProperty(that, 'position', {
-        get: () => position
+        get: () => position,
+        set: cords => {
+            position.x = cords.x;
+            position.y = cords.y;
+        }
     });
 
     Object.defineProperty(that, 'worldCordinates', {
@@ -114,6 +138,16 @@ MyGame.components.Player = function(mapLogic) {
         get: () => size
     });
 
+    Object.defineProperty(that, 'hasBullets', {
+        get: () => hasBullets,
+        set: value => hasBullets = value
+    });
+
+    Object.defineProperty(that, 'hasRapidFire', {
+        get: () => hasRapidFire,
+        set: value => hasRapidFire = value
+    });
+
     //------------------------------------------------------------------
     //
     // Public function that moves the player's current direction.
@@ -121,7 +155,7 @@ MyGame.components.Player = function(mapLogic) {
     //------------------------------------------------------------------
     that.changeDirection = function(x, y, viewPort) {
         // direction = Math.atan2(y - (position.y * viewPort.height), x - (position.x * viewPort.width));
-        this.direction = Math.atan2(y - this.worldCordinates.y, x - this.worldCordinates.x);
+        direction = Math.atan2(y - this.worldCordinates.y, x - this.worldCordinates.x);
     };
 
     that.moveUp = function(elapsedTime) {
@@ -228,7 +262,7 @@ MyGame.components.Player = function(mapLogic) {
         }
 
         return cords;
-    }
+    };
 
     return that;
 };

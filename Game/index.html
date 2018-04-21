@@ -12,8 +12,9 @@
 		<div id = "main-menu" class="screen">
 			<ul class = "menu">
 				<!-- <li><button id = "id-join-room">Join&nbsp;Game</button></li> -->
+				<img src = 'assets/logo.png' class = "logo">
 				<li><button id = "id-join-room">Join_Lobby</button></li>
-				<li><button id = "id-game-play">Canvas(backdoor)</button></li>
+				<!-- <li><button id = "id-game-play">Canvas(backdoor)</button></li> -->
 				<li><button id = "id-options">Options</button></li>
 				<li><button id = "id-high-scores">High_Scores</button></li>
 				<li><button id = "id-about">About</button></li>
@@ -23,13 +24,13 @@
 		</div>
 		<!-- This is just for back door purposes, it will be removed at a later time. -->
 		<div id = "game-play" class = "screen">
-			<canvas id = "canvas-main" width = "600" height = "600" style = "background-color: #308136"></canvas>
+			<canvas id = "canvas-main" width = "500" height = "500" style = "background-color: #308136"></canvas>
 		</div>
 
 		<div id = "join-room" class = "screen">
 			<div id = "error-container"></div>
 			<!-- <input type = "text" id = "id-chat-name" value = "" placeholder = "Enter your name!"> -->
-			<button type = "button" id = "id-chat-start-button">Let me chat!</button>
+			<!-- <button type = "button" id = "id-chat-start-button">Let me chat!</button> -->
 			<ul class = "menu">
 					<li><button id = "id-join-room-back">Back</button></li>
 			</ul>
@@ -103,21 +104,11 @@
 						<td></td>
 						<td></td>
 						<td>Up</td>
-						<td></td>
-						<td></td>
-						<th colspan="5">Field of View</th>
 					</tr>
 					<tr>
 						<td></td>
 						<td></td>
 						<td><button class="binding-buttons" id="moveUp">W</button></td>
-						<td></td>
-						<td>&nbsp;</td>
-						<td>Extend</td>
-						<td><button class="binding-buttons" id="extendFOV">Q</button></td>
-						<td></td>
-						<td>Widen</td>
-						<td><button class="binding-buttons" id="shortenFOV">E</button></td>
 					</tr>
 					<tr>
 						<td>Left</td>
@@ -169,6 +160,23 @@
 			<ul class = "menu">
 				<li><button id = "id-credits-back">Back</button></li>
 			</ul>
+		</div>
+
+		<div id = "game-over" class = "screen">
+			<img src = 'assets/logo.png' class = "logo">
+			<div id = 'ranklist' style = "overflow:scroll">
+				<table id = "rankTable" style = "width:100%">
+				</table>
+			</div>
+			<ul class = "menu">
+				<li><button id = "id-game-over-back">Back</button></li>
+			</ul>
+		</div>
+
+		<div id = "map-screen" class = "screen">
+			<img id="playerPicker" src="./assets/mediumMapImage.png" style="display: none;">
+			<canvas id = "canvasMapper" width = "500" height = "500" style = "background-color: #308136"></canvas>
+
 		</div>
 
 	</div>

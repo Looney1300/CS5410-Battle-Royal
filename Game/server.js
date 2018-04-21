@@ -9,7 +9,8 @@ let mimeTypes = {
         '.css' : 'text/css',
         '.png' : 'image/png',
         '.jpg' : 'image/jpeg',
-        '.mp3' : 'audio/mpeg3'
+        '.mp3' : 'audio/mpeg3',
+        '.wav' : 'audio/wav'
     };
 
 function handleRequest(request, response) {
@@ -24,8 +25,13 @@ function handleRequest(request, response) {
                     response.end('Server Error!');
                 } else {
                     let headers = {'Content-type': mimeTypes[path.extname(lookup)]};
-                    response.writeHead(200, headers);
-                    response.end(data);
+                    try {
+                        response.writeHead(200, headers);
+                        response.end(data);
+                    } catch(error) {
+                        console.log(error);
+                    }
+                    
                 }
             });
         } else {

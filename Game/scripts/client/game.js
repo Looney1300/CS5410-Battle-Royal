@@ -3,27 +3,70 @@
 // This function provides the "game" code.
 //
 //------------------------------------------------------------------
-MyGame.main = (function(graphics, renderer, input, components, persistence) {
+MyGame.main = (function(graphics, renderer, input, components, particles, persistence) {
     'use strict';
 
     let lastTimeStamp = performance.now(),
         myKeyboard = input.Keyboard(),
         myMouse = input.Mouse(),
         map = Map.create(),
-        smallMap = SmallMap.create();
-    map.setMap(smallMap.data);
+        // smallMap = SmallMap.create();
+        mediumMap = MediumMap.create();
+        map.setMap(mediumMap.data);
+
+    let shield = components.Shield();
+    let DISTANCE_TO_DETECT_PARTICLES = 400;
+
     let powerUptextures = {
         weapon: MyGame.assets['weapon'],
         fire_rate: MyGame.assets['fire-rate'],
         fire_range: MyGame.assets['fire-range'],
         health: MyGame.assets['health'],
-        ammo: MyGame.assets['ammo']        
+        ammo: MyGame.assets['ammo'],      
     };
+
+    let sounds = {
+        gunshot: MyGame.assets['gunshot'],
+        hit:  MyGame.assets['hit'],
+        die: MyGame.assets['die'],
+        emptyfire: MyGame.assets['emptyfire'],
+        rapidFire: MyGame.assets['rapidFire'] 
+    }
+    sounds.hit.volume = 0.5;
+    let killer_and_killed = {
+        killer: '',
+        killed: '',
+    };
+    let killStatsArray = [];
+    let killStat = {};
+    let quit = false;
+    let killWasUpdated = false;
+    let killDisplayTime = 0;
+    //killer_and_killed[0] = 'banina';
+    //killer_and_killed[1] = 'fofina';
+    let myModel = components.Player(map);
     let playerSelf = {
-            model: components.Player(map),
-            texture: MyGame.assets['player-self']
+            model: myModel,
+            texture: components.AnimatedSprite({
+                spriteSheet: MyGame.assets['clientIdleNoGun'],
+                spriteSize: { width: 0.07, height: 0.07 },
+                spriteCenter: {
+                    x: 0.5,
+                    y: 0.5,
+                },
+                spriteCount: 20,
+                spriteTime: [60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60]
+            })
         },
+        miniMap = {
+            model: components.MiniMap(),
+            mapTexture: MyGame.assets['miniMapMedium'],
+            playerTexture: MyGame.assets['playerIcon']
+        },
+        mapIconTexture = MyGame.assets['mapIcons'],
+        blueMapTexture = MyGame.assets['blueMap'],
         fov = components.FOV(),
+        playersAliveCount = 0,
         playerOthers = {},
         missiles = {},
         powerUps = [],
@@ -36,17 +79,28 @@ MyGame.main = (function(graphics, renderer, input, components, persistence) {
         socket = io(),
         networkQueue = Queue.create();
 
-        // viewPort.mapWidth = map.mapWidth;
-        // viewPort.mapHeight = map.mapHeight;
-
-
-        
+    let rapidUpdate = 0;
+    let rapidSound = false;
         
     socket.on(NetworkIds.POWER_UP_LOC, data => {
         networkQueue.enqueue({
             type: NetworkIds.POWER_UP_LOC,
             data: data
         });
+    });
+
+        
+    socket.on(NetworkIds.SHIELD_MOVE, data => {
+        networkQueue.enqueue({
+            type: NetworkIds.SHIELD_MOVE,
+            data: data
+        });
+    });
+    
+    socket.on(NetworkIds.GAME_OVER, function(){
+        //console.log('working very hard!!!');
+        quit = true;
+        MyGame.pregame.showScreen('game-over');
     });
 
     
@@ -133,13 +187,23 @@ MyGame.main = (function(graphics, renderer, input, components, persistence) {
         model.goal.worldCordinates.y = data.worldCordinates.y;
         model.goal.direction = data.direction;
         model.goal.updateWindow = 21;
+        model.is_alive = true;
 
         model.size.x = data.size.x;
         model.size.y = data.size.y;
 
         playerOthers[data.clientId] = {
             model: model,
-            texture: MyGame.assets['player-other']
+            texture: components.AnimatedSprite({
+                spriteSheet: MyGame.assets['enemyIdleNoGun'],
+                spriteSize: { width: 0.07, height: 0.07},
+                spriteCenter: {
+                    x: model.state.worldCordinates.x,
+                    y: model.state.worldCordinates.y
+                },
+                spriteCount: 20,
+                spriteTime: [ 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60]
+            })
         };
     }
 
@@ -168,12 +232,31 @@ MyGame.main = (function(graphics, renderer, input, components, persistence) {
         playerSelf.model.SPRINT_FACTOR = data.SPRINT_FACTOR;
         playerSelf.model.SPRINT_DECREASE_RATE = data.SPRINT_DECREASE_RATE;
         playerSelf.model.SPRINT_RECOVERY_RATE = data.SPRINT_RECOVERY_RATE;
+        playerSelf.hasBullets = data.hasBullets;
+
+        playerSelf.model.kills = data.kills;
+        playerSelf.model.killer = data.killer;
+
+
+
+
 
         playerSelf.model.userName = data.userName;
+        playerSelf.hasRapidFire = data.hasRapidFire;
 
+        if (!playerSelf.hasWeapon && data.hasWeapon){
+            playerSelf.texture.spriteSheet = MyGame.assets['clientIdleGun']
+        }
+
+        playerSelf.model.hasWeapon = data.hasWeapon;
         playerSelf.model.score = data.score;
         playerSelf.model.life_remaining = data.life_remaining;
+        if (playerSelf.is_alive && !data.is_alive){
+            sounds.die.play();
+        }
         playerSelf.is_alive = data.is_alive;
+        playerSelf.texture.worldCordinates.x = data.worldCordinates.x;
+        playerSelf.texture.worldCordinates.y = data.worldCordinates.y;
 
         //
         // Remove messages from the queue up through the last one identified
@@ -192,9 +275,26 @@ MyGame.main = (function(graphics, renderer, input, components, persistence) {
         let memory = Queue.create();
         while (!messageHistory.empty) {
             let message = messageHistory.dequeue();
+            // console.log('-----> ',message.type,' <-----');
+            switch (message.type) {
+                case 'move-up':
+                    playerSelf.model.moveUp(message.elapsedTime);
+                    break;
+                case 'move-left':
+                    playerSelf.model.moveLeft(message.elapsedTime);
+                    break;
+                case 'move-right':
+                    playerSelf.model.moveRight(message.elapsedTime);
+                    break;
+                case 'move-down':
+                    playerSelf.model.moveDown(message.elapsedTime);
+                    break;
+                    
+            }
             memory.enqueue(message);
         }
         messageHistory = memory;
+
     }
 
     //------------------------------------------------------------------
@@ -203,14 +303,50 @@ MyGame.main = (function(graphics, renderer, input, components, persistence) {
     //
     //------------------------------------------------------------------
     function updatePlayerOther(data) {
+
         if (playerOthers.hasOwnProperty(data.clientId)) {
             let model = playerOthers[data.clientId].model;
             model.goal.updateWindow = data.updateWindow;
 
+            //If the status of is_alive changed, they died.
+            if (model.is_alive !== data.is_alive){
+                console.log(model.is_alive, data.is_alive);
+                particles.playerDied(data.worldCordinates, data.direction, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);
+            }
+            model.kills = data.kills;
+            model.killer = data.killer;
+
             model.goal.worldCordinates.x = data.worldCordinates.x;
             model.goal.worldCordinates.y = data.worldCordinates.y;
             model.goal.direction = data.direction;
+            if (!model.hasWeapon && data.hasWeapon){
+                //change the image
+                playerOthers[data.clientId].texture.spriteSheet = MyGame.assets['enemyIdleGun'];
+            }
+            model.hasWeapon = data.hasWeapon;
+
+            if (playerOthers[data.clientId].is_alive && !data.is_alive){
+                sounds.die.play();
+            }
+            playerOthers[data.clientId].is_alive = data.is_alive;
+            model.is_alive = data.is_alive;
+            model.userName = data.userName;
+            //console.log(data.is_alive);
+
+            if(!model.is_alive && model.wasNewlyKilled){
+                model.wasNewlyKilled = false;
+
+                let tempKillStat = Object.create(killer_and_killed);
+                tempKillStat.killer = model.userName;
+                //console.log(model.userName);
+                tempKillStat.killed = model.killer;
+                killStatsArray.push(tempKillStat);
+                
+            }
         }
+
+
+        //console.log(data.is_alive);
     }
 
     //------------------------------------------------------------------
@@ -230,6 +366,19 @@ MyGame.main = (function(graphics, renderer, input, components, persistence) {
             },
             timeRemaining: data.timeRemaining
         });
+
+        particles.shotSmoke(data.worldCordinates, data.direction, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);        
+        //only play this sound if it is within a certain distance of me. So gunshots from other players can be heard, if they are less than 1000 units away from me.
+        //This allows the user to hear gunshots that are slightly outside of his viewing window.
+        if (inRange(data.worldCordinates,playerSelf.model.worldCordinates) && rapidSound){
+            //I think I only want to restart the sound every x miliseconds
+            sounds.gunshot.pause();
+            sounds.gunshot.currentTime = 0;
+            sounds.gunshot.play();
+        }
+        else if (inRange(data.worldCordinates,playerSelf.model.worldCordinates)){
+            sounds.gunshot.play();
+        }
     }
 
     //------------------------------------------------------------------
@@ -239,16 +388,36 @@ MyGame.main = (function(graphics, renderer, input, components, persistence) {
     //------------------------------------------------------------------
     function missileHit(data) {
         // data is the hits array
-        explosions[nextExplosionId] = components.AnimatedSprite({
-            id: nextExplosionId++,
-            spriteSheet: MyGame.assets['explosion'],
-            spriteSize: { width: 0.07, height: 0.07 },
-            spriteCenter: data.hit_location,
-            spriteCount: 16,
-            spriteTime: [ 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
-        });
-
+        //Only animate the blood if they are still alive.
+        if (playerSelf.is_alive){
+            explosions[nextExplosionId] = components.AnimatedSprite({
+                id: nextExplosionId++,
+                spriteSheet: MyGame.assets['bloodsplosion'],
+                spriteSize: { width: 0.035, height: 0.035 },
+                spriteCenter: data.hit_location,
+                spriteCount: 6,
+                spriteTime: [ 80, 55, 30, 30, 30, 2000]
+            });
+            particles.enemyHit(data.hit_location, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);
+        }else{
+            particles.playerSelfDied(data.hit_location, playerSelf.model.direction, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);
+        }
         //
+        // explosions[nextExplosionId] = components.AnimatedSprite({
+        //     id: nextExplosionId++,
+        //     spriteSheet: MyGame.assets['explosion'],
+        //     spriteSize: { width: 0.07, height: 0.07 },
+        //     spriteCenter: data.hit_location,
+        //     spriteCount: 16,
+        //     spriteTime: [ 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
+        // });
+        if (inRange(data.hit_location,playerSelf.model.worldCordinates)){
+            sounds.hit.pause();
+            sounds.hit.currentTime = 0;
+            sounds.hit.play();
+        }
+
+
         // When we receive a hit notification, go ahead and remove the
         // associated missle from the client model.
         delete missiles[data.missileId];
@@ -265,6 +434,17 @@ MyGame.main = (function(graphics, renderer, input, components, persistence) {
         });
         powerUps[data.indexId] = tempPowerUp;
 
+    };
+
+    function shieldUpdate(data){
+        shield.radius = data.radius;
+        shield.worldCordinates = data.worldCordinates;
+        shield.nextRadius = data.nextRadius;
+        shield.nextWorldCordinates = data.nextWorldCordinates;
+        shield.timeTilNextShield = data.timeTilNextShield;
+        if (data.radius < 3*map.mapWidth){
+            particles.shieldSparks(data.worldCordinates, data.radius, 100, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);
+        }
     };
 
     //------------------------------------------------------------------
@@ -314,8 +494,31 @@ MyGame.main = (function(graphics, renderer, input, components, persistence) {
                 case NetworkIds.POWER_UP_LOC:
                     powerUpdate(message.data);
                     break;
+                case NetworkIds.SHIELD_MOVE:
+                    shieldUpdate(message.data);
+                    break;
             }
         }
+    }
+
+    //deal with sounds for firing weapon
+    function weaponSound(){
+        if (playerSelf != null && playerSelf.model.hasWeapon && playerSelf.hasBullets){
+            sounds.gunshot.pause();
+            sounds.gunshot.currentTime = 0;
+            sounds.gunshot.play();
+        } 
+        else if (playerSelf != null && playerSelf.model.hasWeapon && !playerSelf.hasBullets) {
+            sounds.emptyfire.pause();
+            sounds.emptyfire.currentTime = 0;
+            sounds.emptyfire.play();
+        }
+    }
+
+    //determine if a shot is within range 1000 in canvas coordinates?
+    function inRange(fireLocation,characterLocation){
+        var dist = Math.sqrt(Math.pow((fireLocation.x-characterLocation.x),2) + Math.pow((fireLocation.y-characterLocation.y),2))
+        return dist <= 1000;
     }
 
     //------------------------------------------------------------------
@@ -324,37 +527,42 @@ MyGame.main = (function(graphics, renderer, input, components, persistence) {
     //
     //------------------------------------------------------------------
     function update(elapsedTime) {
+        particles.update(elapsedTime);
+        shield.update(elapsedTime, viewPort);
+        
         viewPort.update(graphics, playerSelf.model.worldCordinates);
         playerSelf.model.update(elapsedTime, viewPort);
+        playerSelf.texture.worldCordinates.x = playerSelf.model.worldCordinates.x;
+        playerSelf.texture.worldCordinates.y = playerSelf.model.worldCordinates.y;
+        playerSelf.texture.update(elapsedTime,viewPort);
         fov.update(playerSelf.model);
+        miniMap.model.update(playerSelf.model, null, viewPort);
         for (let id in playerOthers) {
             playerOthers[id].model.update(elapsedTime, viewPort);
+            playerOthers[id].texture.worldCordinates.x = playerOthers[id].model.state.worldCordinates.x;
+            playerOthers[id].texture.worldCordinates.y = playerOthers[id].model.state.worldCordinates.y;
+            playerOthers[id].texture.update(elapsedTime,viewPort);
+        }
+
+        rapidUpdate += elapsedTime;
+        if (rapidUpdate > 30){
+            rapidSound = true;
+            rapidUpdate -= 30;
+        }
+        else {
+            rapidSound = false;
         }
 
         let removeMissiles = [];
         for (let missile in missiles) {
-            if (!missiles[missile].update(elapsedTime, viewPort)) {
+            if (!map.isValid(missiles[missile].worldCordinates.y, missiles[missile].worldCordinates.x)){
+                removeMissiles.push(missiles[missile]);
+                particles.hitBuilding(missiles[missile].worldCordinates, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);                
+            }
+            else if (!missiles[missile].update(elapsedTime, viewPort)) {
                 removeMissiles.push(missiles[missile]);
             }
         }
-
-
-
-        // if(!(powerUps.toString() === printPowerUps.toString())){
-        //     // console.log('it worked!');
-        //     // set printPowerUps equal to powerUps
-        //     console.log('are we in here?');
-        //     printPowerUps.length = 0;
-        //     for(let power = 0; power<powerUps.length; power++){
-        //         printPowerUps.push(powerUps[power])
-        //     }
-        //     powerUps.length = 0;
-           
-        // }
-
-        
-    
-
 
         for(let power = 0; power<powerUps.length; power++){
             powerUps[power].update(elapsedTime, viewPort);
@@ -377,29 +585,48 @@ MyGame.main = (function(graphics, renderer, input, components, persistence) {
     // Render the current state of the game simulation
     //
     //------------------------------------------------------------------
-    function render() {
+    function render(elapsedTime) {
+        if(killDisplayTime <= 0){
+            if(killStatsArray.length != 0){
+                // someone died!
+                killStat = killStatsArray.pop();
+                killDisplayTime = 3;
+            }
+        }
+        //console.log(killStat);
+        killDisplayTime = killDisplayTime - (elapsedTime/1000);
+
         graphics.clear();
         renderer.ViewPortal.render();
         renderer.FOV.render(fov);
-        renderer.Player.render(playerSelf.model, playerSelf.texture);
+        playersAliveCount = 0;
         for (let id in playerOthers) {
             let player = playerOthers[id];
-            renderer.PlayerRemote.render(player.model, player.texture);
+            if(player.model.is_alive){
+                playersAliveCount += 1;
+                renderer.PlayerRemote.render(player.model, player.texture);
+                continue;
+            }
         }
-
+        graphics.disableFOVClipping();
+        renderer.Player.render(playerSelf.model,playerSelf.texture, killStat, killDisplayTime);
+        
         for(let power = 0; power<powerUps.length; power++){
             //console.log(powerUps[power].type);
             renderer.PowerUp.render(powerUps[power],MyGame.assets[powerUps[power].type]);
         }
         //powerUps.length = 0;
-
+        
         for (let missile in missiles) {
-            renderer.Missile.render(missiles[missile]);
+            renderer.Missile.render(missiles[missile],playerSelf.texture);
         }
-
+        
         for (let id in explosions) {
             renderer.AnimatedSprite.render(explosions[id]);
         }
+        graphics.drawShield(shield.position, shield.radius/(viewPort.width*2), 'rgba(0,0,75,.4)', map.mapWidth);
+        particles.render(viewPort);
+        renderer.MiniMap.render(miniMap.model, miniMap.mapTexture, miniMap.playerTexture, mapIconTexture, blueMapTexture, shield, viewPort, playersAliveCount);
     }
 
     //------------------------------------------------------------------
@@ -413,9 +640,11 @@ MyGame.main = (function(graphics, renderer, input, components, persistence) {
 
         processInput(elapsedTime);
         update(elapsedTime);
-        render();
-
-        requestAnimationFrame(gameLoop);
+        render(elapsedTime);
+        if(!quit){
+            requestAnimationFrame(gameLoop);
+        }
+        
     };
 
 
@@ -487,6 +716,9 @@ MyGame.main = (function(graphics, renderer, input, components, persistence) {
                     type: NetworkIds.INPUT_RAPIDFIRE
                 };
                 socket.emit(NetworkIds.INPUT, message);
+                if (playerSelf.hasRapidFire && !playerSelf.hasBullets){
+                    weaponSound();
+                }
             },
             input.KeyEvent.rapidFire, true, 80);
 
@@ -497,6 +729,7 @@ MyGame.main = (function(graphics, renderer, input, components, persistence) {
                     type: NetworkIds.INPUT_FIRE
                 };
                 socket.emit(NetworkIds.INPUT, message);
+                weaponSound();
             },
             input.KeyEvent.fire, false);
 
@@ -522,6 +755,7 @@ MyGame.main = (function(graphics, renderer, input, components, persistence) {
                     type: NetworkIds.INPUT_FIRE
                 };
                 socket.emit(NetworkIds.INPUT, message);
+                weaponSound();
             });
 
         myMouse.registerHandler('mousemove', function(e) {
@@ -549,4 +783,4 @@ MyGame.main = (function(graphics, renderer, input, components, persistence) {
         socket: socket
     };
  
-}(MyGame.graphics, MyGame.renderer, MyGame.input, MyGame.components, MyGame.persistence));
+}(MyGame.graphics, MyGame.renderer, MyGame.input, MyGame.components, MyGame.particleSystem, MyGame.persistence));

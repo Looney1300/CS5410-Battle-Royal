@@ -61,14 +61,14 @@ ul.menu li button {
 	color: #CECEF6;
 	width: 10em;
 	height: 1.5em;
-	background: #0404B4;
-	border: 0.1em solid rgb(255, 0, 0);
+	background: #2C6732;
+	border: 0.1em solid #DFC82A;
 	border-radius: 0.5em;
 	box-shadow: 0.2em 0.2em 0.3em rgb(0, 0, 0);
 }
 
 ul.menu li button:hover {
-	background: #2E2EFE;
+	background: #2A8533;
 }
 
 ul.menu li button:active {
@@ -77,6 +77,7 @@ ul.menu li button:active {
 }
 
 .keybinding {
+	width: 100%;
 	font-size: .5em;
 	text-align: center;
 }
@@ -86,15 +87,24 @@ ul.menu li button:active {
 }
 
 .binding-buttons:hover {
-	background: #2E2EFE;
+	background: #2A8533;
 }
 
 .binding-buttons:active {
 	color: #CECEF6;
 	background: rgb(0, 0, 0);
 }
+
+#options {
+	text-align: center;
+}
+
 #options h5 {
 	font-size: .6em;
+}
+
+#options table {
+	margin: 0 auto;
 }
 
 #game div h1 {
@@ -123,6 +133,14 @@ ul.menu li button:active {
 }
 
 #highScoresTable th {
+	text-align: left;
+}
+
+#ranklist{
+	height: 50%;
+}
+
+#rankTable th {
 	text-align: left;
 }
 

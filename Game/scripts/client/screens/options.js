@@ -52,8 +52,6 @@ MyGame.screens['options'] = (function(input, persistence) {
         persistence.add('moveDown', input.KeyEvent.moveDown);
         persistence.add('fire', input.KeyEvent.fire);
         persistence.add('rapidFire', input.KeyEvent.rapidFire);
-        persistence.add('extendFOV', input.KeyEvent.extendFOV);
-        persistence.add('shortenFOV', input.KeyEvent.shortenFOV);
         persistence.add('sprint', input.KeyEvent.sprint);
     }else{
         input.KeyEvent.moveUp = keybindings.moveUp;
@@ -62,8 +60,6 @@ MyGame.screens['options'] = (function(input, persistence) {
         input.KeyEvent.moveRight = keybindings.moveRight;
         input.KeyEvent.fire = keybindings.fire;
         input.KeyEvent.rapidFire = keybindings.rapidFire;
-        input.KeyEvent.extendFOV = keybindings.extendFOV;
-        input.KeyEvent.shortenFOV = keybindings.shortenFOV;
         input.KeyEvent.sprint = keybindings.sprint;
     }
 
@@ -79,22 +75,9 @@ MyGame.screens['options'] = (function(input, persistence) {
     document.getElementById('moveRight').name = input.KeyEvent.moveRight;
     document.getElementById('moveUp').name = input.KeyEvent.moveUp;
     document.getElementById('moveDown').name = input.KeyEvent.moveDown;
-    document.getElementById('extendFOV').name = input.KeyEvent.extendFOV;
-    document.getElementById('shortenFOV').name = input.KeyEvent.shortenFOV;
     document.getElementById('rapidFire').name = input.KeyEvent.rapidFire;
     document.getElementById('fire').name = input.KeyEvent.fire;
     document.getElementById('sprint').name = input.KeyEvent.sprint;
-
-    //Assign button text
-    document.getElementById('moveLeft').innerText = input.KeyName[input.KeyEvent.moveLeft];
-    document.getElementById('moveRight').innerText = input.KeyName[input.KeyEvent.moveRight];
-    document.getElementById('moveUp').innerText = input.KeyName[input.KeyEvent.moveUp];
-    document.getElementById('moveDown').innerText = input.KeyName[input.KeyEvent.moveDown];
-    document.getElementById('extendFOV').innerText = input.KeyName[input.KeyEvent.extendFOV];
-    document.getElementById('shortenFOV').innerText = input.KeyName[input.KeyEvent.shortenFOV];
-    document.getElementById('rapidFire').innerText = input.KeyName[input.KeyEvent.rapidFire];
-    document.getElementById('fire').innerText = input.KeyName[input.KeyEvent.fire];
-    document.getElementById('sprint').innerText = input.KeyName[input.KeyEvent.sprint];
     
     document.getElementById('id-options-back').addEventListener(
         'click',
@@ -105,8 +88,6 @@ MyGame.screens['options'] = (function(input, persistence) {
     assignKeyButton('moveRight');
     assignKeyButton('moveUp');
     assignKeyButton('moveDown');
-    assignKeyButton('extendFOV');
-    assignKeyButton('shortenFOV');
     assignKeyButton('rapidFire');
     assignKeyButton('fire');
     assignKeyButton('sprint');

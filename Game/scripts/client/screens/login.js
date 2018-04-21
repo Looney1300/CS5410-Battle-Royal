@@ -12,7 +12,7 @@ MyGame.screens['login'] = (function() {
 		});
 
 		socket.on(NetworkIds.INVALID_USER, data =>{
-			window.alert("Error Invalid Credentials! Username or password incorrect!");
+			window.alert("Error Invalid Credentials! Username or password incorrect, or user is already logged in!");
 			clearFields();
 		});
 
