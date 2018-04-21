@@ -6,8 +6,7 @@ MyGame.screens['options'] = (function(input, persistence) {
   let myMouse;
   
   let selection;
-  let backgroundColr;
-  backgroundColr = document.getElementById('moveUp').style.backgroundColor;
+  let backgroundColr = document.getElementById('moveUp').style.backgroundColor;
 
   // --This initializes the key value pairs for the right functionality.
   let keyText = {};
@@ -78,6 +77,14 @@ MyGame.screens['options'] = (function(input, persistence) {
     document.getElementById('rapidFire').name = input.KeyEvent.rapidFire;
     document.getElementById('fire').name = input.KeyEvent.fire;
     document.getElementById('sprint').name = input.KeyEvent.sprint;
+
+    document.getElementById('moveLeft').innerText = input.KeyName[input.KeyEvent.moveLeft];
+    document.getElementById('moveRight').innerText = input.KeyName[input.KeyEvent.moveRight];
+    document.getElementById('moveUp').innerText = input.KeyName[input.KeyEvent.moveUp];
+    document.getElementById('moveDown').innerText = input.KeyName[input.KeyEvent.moveDown];
+    document.getElementById('rapidFire').innerText = input.KeyName[input.KeyEvent.rapidFire];
+    document.getElementById('fire').innerText = input.KeyName[input.KeyEvent.fire];
+    document.getElementById('sprint').innerText = input.KeyName[input.KeyEvent.sprint];
     
     document.getElementById('id-options-back').addEventListener(
         'click',
