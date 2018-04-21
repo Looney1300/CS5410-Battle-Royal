@@ -3,7 +3,7 @@
 // This function provides the "game" code.
 //
 //------------------------------------------------------------------
-MyGame.main = (function(graphics, renderer, input, components, particles) {
+MyGame.main = (function(graphics, renderer, input, components, particles, persistence) {
     'use strict';
 
     let lastTimeStamp = performance.now(),
@@ -783,4 +783,4 @@ MyGame.main = (function(graphics, renderer, input, components, particles) {
         socket: socket
     };
  
-}(MyGame.graphics, MyGame.renderer, MyGame.input, MyGame.components, MyGame.particleSystem));
+}(MyGame.graphics, MyGame.renderer, MyGame.input, MyGame.components, MyGame.particleSystem, MyGame.persistence));

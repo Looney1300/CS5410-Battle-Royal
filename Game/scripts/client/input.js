@@ -131,6 +131,7 @@ MyGame.input.Keyboard = function() {
 			delete handlers[Number(oldKeyElement.name)];
 			oldKeyElement.name = e.keyCode;
 			oldKeyElement.innerText = MyGame.input.KeyName[e.keyCode];
+			MyGame.persistence.add(oldKeyElement.id, e.keyCode)
 			document.removeEventListener('keydown', kd);
 			document.addEventListener('keydown', keyDown);
 		};
