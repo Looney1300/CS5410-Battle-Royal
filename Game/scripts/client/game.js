@@ -162,8 +162,8 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
 
         playerSelf.model.worldCordinates = data.worldCordinates;
 
-        playerSelf.model.size.x = data.size.x;
-        playerSelf.model.size.y = data.size.y;
+        // playerSelf.model.size.x = data.size.x;
+        // playerSelf.model.size.y = data.size.y;
 
         playerSelf.model.direction = data.direction;
         playerSelf.model.speed = data.speed;
@@ -181,16 +181,16 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         model.state.worldCordinates.x = data.worldCordinates.x;
         model.state.worldCordinates.y = data.worldCordinates.y;
         model.state.direction = data.direction;
-        model.state.lastUpdate = performance.now();
+        //model.state.lastUpdate = performance.now();
 
         model.goal.worldCordinates.x = data.worldCordinates.x;
         model.goal.worldCordinates.y = data.worldCordinates.y;
         model.goal.direction = data.direction;
-        model.goal.updateWindow = 21;
+        model.goal.updateWindow = data.update;
         model.is_alive = true;
 
-        model.size.x = data.size.x;
-        model.size.y = data.size.y;
+        // model.size.x = data.size.x;
+        // model.size.y = data.size.y;
 
         playerOthers[data.clientId] = {
             model: model,
@@ -222,6 +222,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
     //
     //------------------------------------------------------------------
     function updatePlayerSelf(data) {
+        //console.log('x: ',data.worldCordinates.x, ' y: ',data.worldCordinates.y);
         
         playerSelf.model.direction = data.direction;
         playerSelf.model.worldCordinates.x = data.worldCordinates.x;
@@ -234,12 +235,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         playerSelf.model.SPRINT_RECOVERY_RATE = data.SPRINT_RECOVERY_RATE;
         playerSelf.hasBullets = data.hasBullets;
 
-        playerSelf.model.kills = data.kills;
         playerSelf.model.killer = data.killer;
-
-
-
-
 
         playerSelf.model.userName = data.userName;
         playerSelf.hasRapidFire = data.hasRapidFire;
@@ -249,7 +245,6 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         }
 
         playerSelf.model.hasWeapon = data.hasWeapon;
-        playerSelf.model.score = data.score;
         playerSelf.model.life_remaining = data.life_remaining;
         if (playerSelf.is_alive && !data.is_alive){
             sounds.die.play();
@@ -310,12 +305,10 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
 
             //If the status of is_alive changed, they died.
             if (model.is_alive !== data.is_alive){
-                console.log(model.is_alive, data.is_alive);
+                //console.log(model.is_alive, data.is_alive);
                 particles.playerDied(data.worldCordinates, data.direction, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);
             }
-            model.kills = data.kills;
             model.killer = data.killer;
-
             model.goal.worldCordinates.x = data.worldCordinates.x;
             model.goal.worldCordinates.y = data.worldCordinates.y;
             model.goal.direction = data.direction;
@@ -334,6 +327,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
             //console.log(data.is_alive);
 
             if(!model.is_alive && model.wasNewlyKilled){
+                console.log(killer_and_killed);
                 model.wasNewlyKilled = false;
 
                 let tempKillStat = Object.create(killer_and_killed);
@@ -442,9 +436,6 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         shield.nextRadius = data.nextRadius;
         shield.nextWorldCordinates = data.nextWorldCordinates;
         shield.timeTilNextShield = data.timeTilNextShield;
-        if (data.radius < 3*map.mapWidth){
-            particles.shieldSparks(data.worldCordinates, data.radius, 100, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);
-        }
     };
 
     //------------------------------------------------------------------
@@ -528,6 +519,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
     //------------------------------------------------------------------
     function update(elapsedTime) {
         particles.update(elapsedTime);
+        particles.shieldSparks(shield.worldCordinates, shield.radius, 100, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);        
         shield.update(elapsedTime, viewPort);
         
         viewPort.update(graphics, playerSelf.model.worldCordinates);

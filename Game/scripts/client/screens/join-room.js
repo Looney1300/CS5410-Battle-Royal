@@ -21,7 +21,7 @@ MyGame.screens['join-room'] = (function() {
       var user;
       socket.on('userSet', function(data) {
         user = data.username;
-        document.getElementById('join-room').innerHTML = '<input type = "text" id = "message">\
+        document.getElementById('join-room').innerHTML = '<input type = "text" maxlength = "40" id = "message">\
         <button type = "button" id = "id-chat-start-buttonp2" >Send</button>\
         <button type = "button" id = "id-back-button" >Back</button>\
         <div id = "message-container"></div>';
@@ -43,8 +43,11 @@ MyGame.screens['join-room'] = (function() {
           function sendMessage() {
             var msg = document.getElementById('message').value;
             if(msg) {
+              console.log();
               socket.emit('msg', {message: msg, user: user});
+              document.getElementById('message').value = "";
             }
+
         });
       });
     

@@ -34,7 +34,6 @@ MyGame.components.PlayerRemote = function() {
 
 
     let killer = '';
-    let kills = 0;
 
     let wasNewlyKilled = true;
 
@@ -50,11 +49,6 @@ MyGame.components.PlayerRemote = function() {
         set: value => wasNewlyKilled = value
     })
 
-    Object.defineProperty(that, 'kills', {
-        get: () => kills,
-        set: value => kills = value
-    })
-
     Object.defineProperty(that, 'killer', {
         get: () => killer,
         set: value => killer = value
@@ -66,11 +60,13 @@ MyGame.components.PlayerRemote = function() {
     });
 
     Object.defineProperty(that, 'state', {
-        get: () => state
+        get: () => state,
+        set: value => state = value
     });
 
     Object.defineProperty(that, 'goal', {
-        get: () => goal
+        get: () => goal,
+        set: value => goal = value
     });
 
     Object.defineProperty(that, 'size', {

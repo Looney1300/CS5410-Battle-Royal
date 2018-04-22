@@ -59,6 +59,13 @@ function createPlayer(mapLogic) {
     let killer = '';
     let kills = 0;
 
+    let deathWasReported = false;
+
+    Object.defineProperty(that, 'deathWasReported', {
+        get: () => deathWasReported,
+        set: value => deathWasReported = value
+    })
+
     Object.defineProperty(that, 'kills', {
         get: () => kills,
         set: value => kills = value

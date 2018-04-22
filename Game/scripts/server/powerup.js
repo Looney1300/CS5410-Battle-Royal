@@ -53,9 +53,14 @@ function createPowerUp(mapLogic, PowerUptype) {
     });
 
     Object.defineProperty(that, 'worldCordinates', {
-        get: () => worldCordinates
+        get: () => worldCordinates,
+        set: value => worldCordinates = value
     });
     
+
+    that.movePowerUp = function(){
+        this.worldCordinates = random.getRandomMapCords(map, map.mapHeight, map.mapWidth);
+    };
 
  
 
