@@ -32,7 +32,6 @@ MyGame.components.Player = function(mapLogic) {
 
 
     let hasBullets = false;
-    let score = 0;
     let life_remaining = 0;
     let is_alive = true;
     let isSprinting = false;
@@ -44,14 +43,6 @@ MyGame.components.Player = function(mapLogic) {
     let SPRINT_RECOVERY_RATE = .05 // this is per millisecond
 
     let killer = '';
-    let kills = 0;
-
-
-
-    Object.defineProperty(that, 'kills', {
-        get: () => kills,
-        set: value => kills = value
-    })
 
     Object.defineProperty(that, 'killer', {
         get: () => killer,
@@ -78,12 +69,6 @@ MyGame.components.Player = function(mapLogic) {
         get: () => sprintEnergy,
         set: value => sprintEnergy = value
     })
-
-
-    Object.defineProperty(that, 'score', {
-        get: () => score,
-        set: (value) => { score = value }
-    });
 
 
     Object.defineProperty(that, 'life_remaining', {

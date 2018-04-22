@@ -4,7 +4,7 @@
 //
 // ------------------------------------------------------------------
 'use strict';
-
+let numberOfPlayersPlaying = 3;
 let present = require('present');
 let Player = require('./player');
 let PowerUp = require('./powerup');
@@ -573,10 +573,8 @@ function updateClients(elapsedTime) {
             // other connected client status...but only if they are updated.
             for (let otherId in activeClients) {
                 if (otherId !== clientId) {
-                    if(client.player.is_alive){
-                        if(isInRange(client.player, activeClients[otherId].player)){
-                            activeClients[otherId].socket.emit(NetworkIds.UPDATE_OTHER, update);
-                        }
+                    if(isInRange(client.player, activeClients[otherId].player)){
+                        activeClients[otherId].socket.emit(NetworkIds.UPDATE_OTHER, update);
                     }
                 }
             }
@@ -784,16 +782,17 @@ function initializeSocketIO(httpServer) {
 
 
         socket.on('setUsername', function(data) {
+            
             chatterBoxSize += 1;
             users.push(data);
             socket.emit('userSet', {username: data});
 
             if(!minChatterSizeHasBeenReached){
-                if(chatterBoxSize >= 2){
+                if(chatterBoxSize >= numberOfPlayersPlaying){
                     console.log('The countdown has begun.');
                     minChatterSizeHasBeenReached = true;
                     io.sockets.emit('BeginCountDown');
-                    var seconds_left = 25;
+                    var seconds_left = 18;
                     var interval = setInterval(function() {
                         --seconds_left;
                         if (seconds_left <= 0)
@@ -805,13 +804,16 @@ function initializeSocketIO(httpServer) {
                     }, 1000);
                 }
             }
+            
          });
 
 
          socket.on('msg', function(data) {
             //Send message to everyone
+            
             console.log(data);
             io.sockets.emit('newmsg', data);
+            
          });
 
          socket.on(NetworkIds.HIGH_SCORES, data => {

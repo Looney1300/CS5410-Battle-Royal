@@ -245,7 +245,6 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         }
 
         playerSelf.model.hasWeapon = data.hasWeapon;
-        playerSelf.model.score = data.score;
         playerSelf.model.life_remaining = data.life_remaining;
         if (playerSelf.is_alive && !data.is_alive){
             sounds.die.play();
@@ -328,6 +327,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
             //console.log(data.is_alive);
 
             if(!model.is_alive && model.wasNewlyKilled){
+                console.log(killer_and_killed);
                 model.wasNewlyKilled = false;
 
                 let tempKillStat = Object.create(killer_and_killed);
