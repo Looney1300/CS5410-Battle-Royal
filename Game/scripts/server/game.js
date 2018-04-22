@@ -4,7 +4,7 @@
 //
 // ------------------------------------------------------------------
 'use strict';
-let numberOfPlayersPlaying = 3;
+let numberOfPlayersPlaying = 2;
 let present = require('present');
 let Player = require('./player');
 let PowerUp = require('./powerup');
@@ -29,7 +29,7 @@ let fire_ratePowerUps = [];
 let fire_rangePowerUps = [];
 let healthPowerUps = [];
 let ammoPowerUps = [];
-let pPerPlayer = 1;
+let pPerPlayer = 5;
 let powerRun = true;
 let powerUpsChanged = true;
 
@@ -97,7 +97,7 @@ function updatePowerUps(){
     while(fire_rangePowerUps.length < pPerPlayer){
         createFireRangePowerUp();
     };
-    while(healthPowerUps.length < 4*pPerPlayer){
+    while(healthPowerUps.length < 2*pPerPlayer){
         createHealthPowerUp()
     };
     while(ammoPowerUps.length < 4*pPerPlayer){
@@ -267,7 +267,7 @@ function update(elapsedTime, currentTime) {
     if(powerRun){
         updatePowerUps();
         powerRun = false;
-        console.log('powerruncheck');
+        //console.log('powerruncheck');
     }   
 
 
@@ -513,6 +513,9 @@ function updateClients(elapsedTime) {
             powerUpArray.length = 0;
         }
         powerUpsChanged = false;
+        if(!gameHasBegun){
+            powerUpsChanged = true;
+        }
     }
 
 
@@ -792,7 +795,7 @@ function initializeSocketIO(httpServer) {
                     console.log('The countdown has begun.');
                     minChatterSizeHasBeenReached = true;
                     io.sockets.emit('BeginCountDown');
-                    var seconds_left = 18;
+                    var seconds_left = 25;
                     var interval = setInterval(function() {
                         --seconds_left;
                         if (seconds_left <= 0)
