@@ -570,24 +570,23 @@ function updateClients(elapsedTime) {
             hasBullets: client.player.ammo_remaining > 0,
             hasRapidFire: client.player.has_rapid_fire,
         };
-        if (client.player.reportUpdate) {
-            client.socket.emit(NetworkIds.UPDATE_SELF, update);
-            // Notify all other connected clients about every
-            // other connected client status...but only if they are updated.
-            for (let otherId in activeClients) {
-                if (otherId !== clientId) {
-                    if(isInRange(client.player, activeClients[otherId].player)){
-                        activeClients[otherId].socket.emit(NetworkIds.UPDATE_OTHER, update);
-                        continue;
-                    }
-                    if(updateClientInt%10==0){
-                        activeClients[otherId].socket.emit(NetworkIds.UPDATE_OTHER, update);
-                        console.log('I am updateing peoples!');
-                        continue;
-                    }
+        // if (client.player.reportUpdate) {
+        client.socket.emit(NetworkIds.UPDATE_SELF, update);
+        // Notify all other connected clients about every
+        // other connected client status...but only if they are updated.
+        for (let otherId in activeClients) {
+            if (otherId !== clientId) {
+                if(isInRange(client.player, activeClients[otherId].player)){
+                    activeClients[otherId].socket.emit(NetworkIds.UPDATE_OTHER, update);
+                    continue;
+                }
+                if(updateClientInt%10==0){
+                    activeClients[otherId].socket.emit(NetworkIds.UPDATE_OTHER, update);
+                    continue;
                 }
             }
         }
+        // }
         for (let missile = 0; missile < missileMessages.length; missile++) {
             client.socket.emit(NetworkIds.MISSILE_NEW, missileMessages[missile]);
         }
