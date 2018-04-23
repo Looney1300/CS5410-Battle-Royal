@@ -732,6 +732,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
                     type: NetworkIds.INPUT_SPRINT
                 };
                 socket.emit(NetworkIds.INPUT, message);
+		playerSelf.model.isSprinting=true;
             },
             input.KeyEvent.sprint, true);
 
