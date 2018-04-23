@@ -408,9 +408,9 @@ function updateClients(elapsedTime) {
         return;
     }
 
-    if(gameHasBegun && (!powerUpsChanged)){
-        powerUpsChanged = true;
-    }
+    // if(gameHasBegun && (!powerUpsChanged)){
+    //     powerUpsChanged = true;
+    // }
 
 
 
@@ -570,15 +570,18 @@ function updateClients(elapsedTime) {
             hasBullets: client.player.ammo_remaining > 0,
             hasRapidFire: client.player.has_rapid_fire,
         };
-        if (client.player.reportUpdate) {
-            client.socket.emit(NetworkIds.UPDATE_SELF, update);
-            // Notify all other connected clients about every
-            // other connected client status...but only if they are updated.
-            for (let otherId in activeClients) {
-                if (otherId !== clientId) {
-                    if(isInRange(client.player, activeClients[otherId].player)){
-                        activeClients[otherId].socket.emit(NetworkIds.UPDATE_OTHER, update);
-                    }
+        client.socket.emit(NetworkIds.UPDATE_SELF, update);
+        // Notify all other connected clients about every
+        // other connected client status.
+        for (let otherId in activeClients) {
+            if (otherId !== clientId) {
+                if(isInRange(client.player, activeClients[otherId].player)){
+                    activeClients[otherId].socket.emit(NetworkIds.UPDATE_OTHER, update);
+                    continue;
+                }
+                if(updateClientInt%10==0){
+                    activeClients[otherId].socket.emit(NetworkIds.UPDATE_OTHER, update);
+                    continue;
                 }
             }
         }
@@ -590,9 +593,6 @@ function updateClients(elapsedTime) {
         }
     }
 
-    for (let clientId in activeClients) {
-        activeClients[clientId].player.reportUpdate = false;
-    }
     hits.length = 0;
     lastUpdate = 0;
 }
