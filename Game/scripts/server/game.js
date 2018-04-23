@@ -408,9 +408,9 @@ function updateClients(elapsedTime) {
         return;
     }
 
-    if(gameHasBegun && (!powerUpsChanged)){
-        powerUpsChanged = true;
-    }
+    // if(gameHasBegun && (!powerUpsChanged)){
+    //     powerUpsChanged = true;
+    // }
 
 
 
@@ -578,6 +578,12 @@ function updateClients(elapsedTime) {
                 if (otherId !== clientId) {
                     if(isInRange(client.player, activeClients[otherId].player)){
                         activeClients[otherId].socket.emit(NetworkIds.UPDATE_OTHER, update);
+                        continue;
+                    }
+                    if(updateClientInt%10==0){
+                        activeClients[otherId].socket.emit(NetworkIds.UPDATE_OTHER, update);
+                        console.log('I am updateing peoples!');
+                        continue;
                     }
                 }
             }
