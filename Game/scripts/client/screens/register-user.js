@@ -40,6 +40,7 @@ MyGame.screens['register-user'] = (function() {
         document.getElementById('id-register-user-back').addEventListener(
             'click',
             function(){
+				clearFields();
                 MyGame.pregame.showScreen('startup');
             }
         )
