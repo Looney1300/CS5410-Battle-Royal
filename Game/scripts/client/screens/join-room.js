@@ -1,5 +1,8 @@
 MyGame.screens['join-room'] = (function() {
     'use strict';
+
+    var socket = MyGame.main.socket;
+    var user = null;
   
     function initialize() {
       console.log('join-room is inited');
@@ -11,44 +14,8 @@ MyGame.screens['join-room'] = (function() {
         }
       );
 
-    }
-  
-    function run() {
-      let socket = MyGame.main.socket;
-
-      socket.emit('setUsername', document.getElementById('userName').value);
-
-      var user;
       socket.on('userSet', function(data) {
         user = data.username;
-        document.getElementById('join-room').innerHTML = '<input type = "text" maxlength = "40" id = "message">\
-        <button type = "button" id = "id-chat-start-buttonp2" >Send</button>\
-        <button type = "button" id = "id-back-button" >Back</button>\
-        <div id = "message-container"></div>';
-
-        document.getElementById('id-back-button').addEventListener('click', function() {
-          socket.emit('exitedchat',document.getElementById('userName').value);
-          document.getElementById('join-room').innerHTML = '<div id = "error-container"></div>\
-          <!-- <input type = "text" id = "id-chat-name" value = "" placeholder = "Enter your name!"> -->\
-          <button type = "button" id = "id-chat-start-button">Let me chat!</button>\
-          <ul class = "menu">\
-          <li><button id = "id-join-room-back">Back</button></li>\
-          </ul>';
-          user = undefined;
-          MyGame.pregame.showScreen('main-menu');
-          }
-        );
-    
-        document.getElementById('id-chat-start-buttonp2').addEventListener('click', 
-          function sendMessage() {
-            var msg = document.getElementById('message').value;
-            if(msg) {
-              console.log();
-              socket.emit('msg', {message: msg, user: user});
-              document.getElementById('message').value = "";
-            }
-
-        });
       });
     
 
@@ -61,7 +28,6 @@ MyGame.screens['join-room'] = (function() {
     
       socket.on('BeginCountDown', function(){
         if(user){
-          console.log('The server says to begin the count down');
           var seconds_left = 3;
           var interval = setInterval(function() {
             document.getElementById('join-room').innerHTML += --seconds_left;
@@ -74,6 +40,46 @@ MyGame.screens['join-room'] = (function() {
             }, 1000);
         }
       });      
+
+    }
+  
+    function run() {
+      console.log(socket);
+      var username = document.getElementById('userName').value;
+      if (username === ""){
+        username = document.getElementById('newUserName').value;
+      }
+      socket.emit('setUsername', username);
+
+      document.getElementById('join-room').innerHTML = '<input type = "text" maxlength = "40" id = "message">\
+      <button type = "button" id = "id-chat-start-buttonp2" >Send</button>\
+      <button type = "button" id = "id-back-button" >Back</button>\
+      <div id = "message-container"></div>';
+
+      document.getElementById('id-back-button').addEventListener('click', function() {
+        socket.emit('exitedchat',user);
+        document.getElementById('join-room').innerHTML = '<div id = "error-container"></div>\
+        <!-- <input type = "text" id = "id-chat-name" value = "" placeholder = "Enter your name!"> -->\
+        <button type = "button" id = "id-chat-start-button">Let me chat!</button>\
+        <ul class = "menu">\
+        <li><button id = "id-join-room-back">Back</button></li>\
+        </ul>';
+        user = null;
+        MyGame.pregame.showScreen('main-menu');
+        }
+      );
+  
+      document.getElementById('id-chat-start-buttonp2').addEventListener('click', 
+        function sendMessage() {
+          var msg = document.getElementById('message').value;
+          if(msg) {
+            socket.emit('msg', {message: msg, user: user});
+            document.getElementById('message').value = "";
+          }
+
+      });
+
+     
     }
   
     return {

@@ -747,15 +747,12 @@ function initializeSocketIO(httpServer) {
         });
 
         socket.on('exitedchat', function(data) {
-            //Send message to everyone
-            //io.sockets.emit('newmsg', data);
             chatterBoxSize--;
             let index = users.indexOf(data);
+            console.log(index);
             if (index > -1) {
                 users.splice(index, 1);
-                console.log('we spliced!');
             }
-            console.log(chatterBoxSize);
          });
         
         
@@ -813,8 +810,6 @@ function initializeSocketIO(httpServer) {
 
          socket.on('msg', function(data) {
             //Send message to everyone
-            
-            console.log(data);
             io.sockets.emit('newmsg', data);
             
          });
@@ -838,7 +833,6 @@ function initializeSocketIO(httpServer) {
                     name: data.name,
                     id: socket.id
                 });
-                //newPlayer.userName = data.name;
                 socket.emit(NetworkIds.VALID_USER, null);
              }
              else{
