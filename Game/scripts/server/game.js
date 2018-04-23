@@ -570,10 +570,9 @@ function updateClients(elapsedTime) {
             hasBullets: client.player.ammo_remaining > 0,
             hasRapidFire: client.player.has_rapid_fire,
         };
-        // if (client.player.reportUpdate) {
         client.socket.emit(NetworkIds.UPDATE_SELF, update);
         // Notify all other connected clients about every
-        // other connected client status...but only if they are updated.
+        // other connected client status.
         for (let otherId in activeClients) {
             if (otherId !== clientId) {
                 if(isInRange(client.player, activeClients[otherId].player)){
@@ -586,7 +585,6 @@ function updateClients(elapsedTime) {
                 }
             }
         }
-        // }
         for (let missile = 0; missile < missileMessages.length; missile++) {
             client.socket.emit(NetworkIds.MISSILE_NEW, missileMessages[missile]);
         }
@@ -595,9 +593,6 @@ function updateClients(elapsedTime) {
         }
     }
 
-    for (let clientId in activeClients) {
-        activeClients[clientId].player.reportUpdate = false;
-    }
     hits.length = 0;
     lastUpdate = 0;
 }

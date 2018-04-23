@@ -53,7 +53,6 @@ function createPlayer(mapLogic) {
     let direction = random.nextDouble() * 2 * Math.PI;    // Angle in radians
     let rotateRate = Math.PI / 1000;    // radians per millisecond
     let speed = 0.2;                  // unit distance per millisecond
-    let reportUpdate = false;    // Indicates if this model was updated during the last update
     let moveRate = 200;
 
     let killer = '';
@@ -159,11 +158,6 @@ function createPlayer(mapLogic) {
         get: () => rotateRate
     });
 
-    Object.defineProperty(that, 'reportUpdate', {
-        get: () => reportUpdate,
-        set: value => reportUpdate = value
-    });
-
     Object.defineProperty(that, 'radius', {
         get: () => size.radius
     });
@@ -184,19 +178,16 @@ function createPlayer(mapLogic) {
     //
     //------------------------------------------------------------------
     that.move = function(elapsedTime) {
-        reportUpdate = true;
         let vectorX = Math.cos(direction);
         let vectorY = Math.sin(direction);
 
     };
 
     that.changeDirection = function(x, y, viewPort) {
-        reportUpdate = true;
         direction = Math.atan2(y - this.worldCordinates.y, x - this.worldCordinates.x);
     };
 
     that.moveUp = function(elapsedTime) {
-        reportUpdate = true;
         let tempSpeed = speed;
         if (isSprinting && sprintEnergy > 0){
             tempSpeed *= SPRINT_FACTOR;
@@ -209,7 +200,6 @@ function createPlayer(mapLogic) {
     };
 
     that.moveDown = function(elapsedTime) {
-        reportUpdate = true;
         let tempSpeed = speed;
         if (isSprinting && sprintEnergy > 0){
             tempSpeed *= SPRINT_FACTOR;
@@ -222,7 +212,6 @@ function createPlayer(mapLogic) {
     };
 
     that.moveLeft = function(elapsedTime) {
-        reportUpdate = true;
         let tempSpeed = speed;
         if (isSprinting && sprintEnergy > 0){
             tempSpeed *= SPRINT_FACTOR;
@@ -235,7 +224,6 @@ function createPlayer(mapLogic) {
     };
 
     that.moveRight = function(elapsedTime) {
-        reportUpdate = true;
         let tempSpeed = speed;
         if (isSprinting && sprintEnergy > 0){
             tempSpeed *= SPRINT_FACTOR;
@@ -249,7 +237,6 @@ function createPlayer(mapLogic) {
 
     that.scoredAHit = function(){
         if(is_alive){
-            reportUpdate = true;
             score += 1;
         }
 
@@ -257,7 +244,6 @@ function createPlayer(mapLogic) {
 
     that.wasInShield = function(){
         //console.log('client in shield');
-        reportUpdate = true;
         life_remaining = life_remaining - 1;
         if(life_remaining <= 0){
             is_alive = false;
@@ -270,7 +256,6 @@ function createPlayer(mapLogic) {
     }
 
     that.wasHit = function(hitter){
-        reportUpdate = true;
         life_remaining -= 10;
         if(life_remaining <= 0){
             is_alive = false;
@@ -338,7 +323,6 @@ function createPlayer(mapLogic) {
     //
     //------------------------------------------------------------------
     that.rotateRight = function(elapsedTime) {
-        reportUpdate = true;
         direction += (rotateRate * elapsedTime);
     };
 
@@ -349,7 +333,6 @@ function createPlayer(mapLogic) {
     //
     //------------------------------------------------------------------
     that.rotateLeft = function(elapsedTime) {
-        reportUpdate = true;
         direction -= (rotateRate * elapsedTime);
     };
 
