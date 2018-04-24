@@ -1,12 +1,13 @@
 body {
-	margin: 0;
+	margin: auto;
+	background-color: darkslategrey;
 }
 
 #game {
-	margin: 20px;
+	margin: 20px auto;
 	width: 95vw;
 	height: 95vh;
-	background-color: rgb(239,239,251);
+	background-image: url("../assets/landingBackground.png");
 	font-size: 40px;
 	/* display: grid; */
 	grid-template-columns: 1fr 32fr 1fr;
