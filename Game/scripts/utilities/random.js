@@ -136,14 +136,6 @@
                 y: Math.sin(angle1) * scale
             };
         }
-        
-        // module.exports.nextDouble = nextDouble;
-        // module.exports.nextRange = nextRange;
-        // module.exports.nextRangeFloat = nextRangeFloat;
-        // module.exports.nextCircleVector = nextCircleVector;
-        // module.exports.nextGaussian = nextGaussian;
-        // module.exports.nextCircleVectorAround = nextCircleVectorAround;
-        // module.exports.getRandomMapCords = getRandomMapCords;
 
         return that;
     }
