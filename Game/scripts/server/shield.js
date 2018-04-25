@@ -1,10 +1,11 @@
 (function (exports) {
     'use strict';
 
-    let random = require ('../utilities/random');
+    let randomFile = require ('../utilities/random');
     
     exports.create = function(map, startDiameterAsPercentOfMapWidth, minutesBetweenShieldMoves, shrinkDownTo, shieldMovesTotal){
         let that = {};
+        let random = randomFile.create();
         let firstRadius = map.mapWidth * startDiameterAsPercentOfMapWidth/2;
         let currentRadius = firstRadius;
 

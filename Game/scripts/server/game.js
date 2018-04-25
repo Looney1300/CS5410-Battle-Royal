@@ -52,7 +52,7 @@ let playerSize = {width: 80, height: 80};
 //Shield by passing the map, the percent of map width the first 
 // shield diameter will be, and how many minutes between shield moves.
 let FIRST_SHIELD_DIAMETER = 1.333333; //This is approximately just outside the playable corners of the map.
-let TIME_TO_MOVE_SHIELD = 2;
+let TIME_TO_MOVE_SHIELD = 1;
 let SHIELD_MOVES = 5;
 let SHRINK_DOWN_TO = 0 - ( .5 * playerSize.width)/map.mapWidth; //Need to adjust for collision radius of players.
 let shield = Shield.create(map, FIRST_SHIELD_DIAMETER, TIME_TO_MOVE_SHIELD, SHRINK_DOWN_TO, SHIELD_MOVES);

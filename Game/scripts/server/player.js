@@ -5,7 +5,7 @@
 // ------------------------------------------------------------------
 'use strict';
 
-let random = require ('../utilities/random');
+let randomFile = require ('../utilities/random');
 
 //------------------------------------------------------------------
 //
@@ -16,6 +16,7 @@ let random = require ('../utilities/random');
 function createPlayer(mapLogic) {
     let that = {};
     let map = mapLogic;
+    let random = randomFile.create();
     
     let position = {
         x: 0.5,
