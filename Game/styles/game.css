@@ -1,5 +1,4 @@
 body {
-	margin: auto;
 	background-color: darkslategrey;
 }
 
@@ -7,6 +6,8 @@ body {
 	margin: 20px auto;
 	width: 95vw;
 	height: 95vh;
+	text-align: center;
+	background-color: rgb(53, 53, 53);
 	background-image: url("../assets/landingBackground.png");
 	font-size: 40px;
 	/* display: grid; */
@@ -75,6 +76,11 @@ ul.menu li button:hover {
 ul.menu li button:active {
 	color: #CECEF6;
 	background: rgb(0, 0, 0);
+}
+
+#join-room {
+	font-size: .3em;
+	color: white;
 }
 
 .keybinding {

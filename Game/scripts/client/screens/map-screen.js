@@ -2,10 +2,12 @@ MyGame.screens['map-screen'] = (function() {
     'use strict';
   
     function initialize() {
-      console.log('map-screen is inited');
+        console.log('map-screen is inited');
     }
   
     function run() {
+        document.getElementById('game').style.backgroundImage = 'none';
+
         let socket = MyGame.main.socket;
         let c = document.getElementById("canvasMapper");
         let context = c.getContext("2d");
