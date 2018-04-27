@@ -27,6 +27,7 @@ MyGame.particleSystem = (function(graphics){
     let particles = [];
     let activeParticleEffects = [];
     let particleGraphics = [];
+    let random = Random.create();
 
     /*
     Particles makes a list of particle graphics.
@@ -100,23 +101,23 @@ MyGame.particleSystem = (function(graphics){
             for (time; time > (1000/spec.particlesPerSec); time -= (1000/spec.particlesPerSec) ){
                 let p = {
                     graphicsFunction: spec.drawUsing,
-                    speed: Math.abs(nextGaussian(spec.speed.mean/1000, spec.speed.std/1000)),	// pixels per millisecond
+                    speed: Math.abs(random.nextGaussian(spec.speed.mean/1000, spec.speed.std/1000)),	// pixels per millisecond
                     rotation: 0,
-                    lifetime: Math.abs(nextGaussian(spec.lifetime.mean, spec.lifetime.std)),	// milliseconds
+                    lifetime: Math.abs(random.nextGaussian(spec.lifetime.mean, spec.lifetime.std)),	// milliseconds
                     alive: 0,
-                    size: nextGaussian(spec.size.mean, spec.size.std),
+                    size: random.nextGaussian(spec.size.mean, spec.size.std),
                     o: 1,
                 };
                 if (hasLimitDirection){
-                    p.direction = nextCircleVectorAround(1, spec.specifyDirection.angle, spec.specifyDirection.std);
+                    p.direction = random.nextCircleVectorAround(1, spec.specifyDirection.angle, spec.specifyDirection.std);
                 }else{
-                    p.direction = nextCircleVector(1);
+                    p.direction = random.nextCircleVector(1);
                 }
                 if (hasDissappear){
                     p.disappear = spec.disappear;
                 }
                 if (hasRotationMax){
-                    p.rotationRate = nextGaussian(0, spec.rotationMax);
+                    p.rotationRate = random.nextGaussian(0, spec.rotationMax);
                 }
                 if (hasGravity){
                     p.gravity = spec.gravity;
@@ -134,7 +135,7 @@ MyGame.particleSystem = (function(graphics){
                     p.imageSrc = spec.imageSrc;
                 }
                 if (hasXMax && hasYMax){
-                    p.position = { x: nextRangeFloat(spec.x, spec.xMax), y: nextRangeFloat(spec.y, spec.yMax)};
+                    p.position = { x: random.nextRangeFloat(spec.x, spec.xMax), y: random.nextRangeFloat(spec.y, spec.yMax)};
                 }else{
                     p.position = {x: spec.x, y: spec.y};
                 }
@@ -456,8 +457,9 @@ MyGame.particleSystem.shotSmoke = function(location, direction, viewPortCenter, 
 
 MyGame.particleSystem.shieldSparks = function(center, radius, duration, viewPortCenter, maxD){
     let SPARKSPERCIRCUMFRANCEUNIT = .005;
+    let random = Random.create();
     for (let i=0; i<radius*Math.PI*SPARKSPERCIRCUMFRANCEUNIT; ++i){
-        let cvec = nextCircleVector(radius);
+        let cvec = random.nextCircleVector(radius);
         //If inside extended viewport, then add a particle effect there.
         if (particleIsInside({x:center.x + cvec.x, y:center.y + cvec.y}, viewPortCenter, maxD)){
             let particleSpec = {
