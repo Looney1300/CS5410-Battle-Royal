@@ -5,7 +5,7 @@
 // ------------------------------------------------------------------
 'use strict';
 
-let random = require ('../utilities/random');
+let randomFile = require ('../utilities/random');
 
 //------------------------------------------------------------------
 //
@@ -16,6 +16,7 @@ let random = require ('../utilities/random');
 function createPowerUp(mapLogic, PowerUptype) {
     let that = {};
     let map = mapLogic;
+    let random = randomFile.create();
 
     let worldCordinates = random.getRandomMapCords(map, map.mapHeight, map.mapWidth);
 
