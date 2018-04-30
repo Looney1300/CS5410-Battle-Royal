@@ -372,7 +372,7 @@ MyGame.graphics = (function() {
         // if (shield.radius < 0){
         //     shield.radius = 0.000001;
         // }
-        context_mini.arc(shield.center.x, shield.center.y, shield.radius, 0, 2*Math.PI);
+        context_mini.arc(shield.center.x * canvas_mini.width, shield.center.y * canvas_mini.height, shield.radius * canvas_mini.width, 0, 2*Math.PI);
         context_mini.closePath();
         if (shouldStroke){
             context_mini.strokeWidth = 1;

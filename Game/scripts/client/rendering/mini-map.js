@@ -67,7 +67,7 @@ MyGame.renderer.MiniMap = (function(graphics) {
     graphics.drawImageMini(mapTexture, miniMap.center, miniMap.size);
     graphics.disableMiniMapClipping();
     //next shield
-    localNextShield.center = miniMap.convertToMiniMapCords(shield.nextWorldCordinates, viewPort);
+    localNextShield.center = miniMap.convertToMiniMapCords(shield.nextWorldCordinates);
     localNextShield.radius = miniMap.convertRadius(shield.nextRadius);
     graphics.saveContextMini();
     graphics.enableMiniMapClipping();

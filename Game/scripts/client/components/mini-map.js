@@ -61,15 +61,15 @@ MyGame.components.MiniMap = function() {
     }
 
     that.convertRadius = function(radius) {
-      return (radius / 3200) * width;
+      return (radius / worldWidth);
     }
 
-    that.update = function(playerSelf, shield, viewPort) {
+    that.update = function(playerSelf, shield) {
       player.center.x = playerSelf.worldCordinates.x;
       player.center.y = playerSelf.worldCordinates.y;
       player.direction = playerSelf.direction;
 
-      player.center = that.convertToMiniMapCords(player.center, viewPort);
+      player.center = that.convertToMiniMapCords(player.center);
     };
 
 
