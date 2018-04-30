@@ -6,7 +6,6 @@ MyGame.screens['map-screen'] = (function() {
     }
   
     function run() {
-        document.getElementById('game').style.backgroundImage = 'none';
 
         let socket = MyGame.main.socket;
         let c = document.getElementById("canvasMapper");

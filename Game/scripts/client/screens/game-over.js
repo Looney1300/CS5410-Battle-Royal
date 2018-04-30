@@ -4,7 +4,6 @@ MyGame.screens['game-over'] = (function() {
     var table = document.getElementById('rankTable');
     function initialize() {
       //console.log('game-over is inited');
-      document.getElementById('game').style.backgroundImage = 'url(../assets/landingBackground.png)';
       document.getElementById('id-game-over-back').addEventListener(
         'click',
         function() {

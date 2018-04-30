@@ -8,9 +8,9 @@ let Color = {
         }
     },
 
-    primary: 'rgb(50, 155, 50)',
-    secondary: 'rgb(110, 50, 5)',
-    accent: 'rgb(255, 0, 0)',
+    primary: 'rgb(44, 103, 50)',
+    secondary: 'rgb(206, 206, 246)',
+    accent: 'rgb(223, 200, 42)',
 
     red: 'rgb(255, 0, 0)',
     orange: 'rgb(255, 128, 0)',
