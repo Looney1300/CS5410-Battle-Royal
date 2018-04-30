@@ -10,6 +10,9 @@ MyGame.graphics = (function() {
     let context = canvas.getContext('2d');
     let fovClipping = false;
     let miniMapClipping = false;
+
+    let canvas_mini = document.getElementById('canvas-mini');
+    let context_mini = canvas_mini.getContext('2d');
     
     let map = Map.create();
     // let smallMap = SmallMap.create();
@@ -72,11 +75,29 @@ MyGame.graphics = (function() {
 
     //------------------------------------------------------------------
     //
+    // Simple pass-through to save the canvas context.
+    //
+    //------------------------------------------------------------------
+    function saveContextMini() {
+        context_mini.save();
+    }
+
+    //------------------------------------------------------------------
+    //
     // Simple pass-through the restore the canvas context.
     //
     //------------------------------------------------------------------
     function restoreContext() {
         context.restore();
+    }
+
+    //------------------------------------------------------------------
+    //
+    // Simple pass-through the restore the canvas_mini context.
+    //
+    //------------------------------------------------------------------
+    function restoreContextMini() {
+        context_mini.restore();
     }
 
     function updateCanvas() {
@@ -93,6 +114,17 @@ MyGame.graphics = (function() {
         context.translate(center.x * canvas.width, center.y * canvas.width);
         context.rotate(rotation);
         context.translate(-center.x * canvas.width, -center.y * canvas.width);
+    }
+
+    //------------------------------------------------------------------
+    //
+    // Rotate the canvas_mini to prepare it for rendering of a rotated object.
+    //
+    //------------------------------------------------------------------
+    function rotateCanvasMini(center, rotation) {
+        context_mini.translate(center.x * canvas_mini.width, center.y * canvas_mini.width);
+        context_mini.rotate(rotation);
+        context_mini.translate(-center.x * canvas_mini.width, -center.y * canvas_mini.width);
     }
 
     //------------------------------------------------------------------
@@ -174,15 +206,40 @@ MyGame.graphics = (function() {
         // center is model.position
         // size is model.size
         let localCenter = {
-            x: center.x * viewPort.width,
-            y: center.y * viewPort.height
+            x: center.x,
+            y: center.y
         };
         let localSize = {
-            width: size.width * viewPort.width,
-            height: size.height * viewPort.height
+            width: size.width,
+            height: size.height
         };
 
         context.drawImage(texture,
+            localCenter.x - localSize.width / 2,
+            localCenter.y - localSize.height / 2,
+            localSize.width,
+            localSize.height);
+            
+    }
+
+    //------------------------------------------------------------------
+    //
+    // Draw an image into the local canvas_mini coordinate system.
+    //
+    //------------------------------------------------------------------
+    function drawImageMini(texture, center, size) {
+        // center is model.position
+        // size is model.size
+        let localCenter = {
+            x: center.x * canvas_mini.width,
+            y: center.y * canvas_mini.height
+        };
+        let localSize = {
+            width: size.width * canvas_mini.width,
+            height: size.height  * canvas_mini.height
+        };
+
+        context_mini.drawImage(texture,
             localCenter.x - localSize.width / 2,
             localCenter.y - localSize.height / 2,
             localSize.width,
@@ -235,24 +292,24 @@ MyGame.graphics = (function() {
 
     //------------------------------------------------------------------
     //
-    // Draw a portion of an image on the canvasd
+    // Draw a portion of an image on the canvas_mini
     //
     //------------------------------------------------------------------
-    function drawCroppedImage(texture, cord, size, clipping){
-        context.drawImage(texture, clipping.x, clipping.y, clipping.size.width, clipping.size.height,
-            cord.x * viewPort.width, cord.y * viewPort.height, 
-            size.width * viewPort.width, size.height * viewPort.height);
+    function drawCroppedImageMini(texture, cord, size, clipping){
+        context_mini.drawImage(texture, clipping.x, clipping.y, clipping.size.width, clipping.size.height,
+            cord.x, cord.y, 
+            size.width, size.height);
     }
 
     //------------------------------------------------------------------
     //
-    // Draw a time at a specific place on the canvas
+    // Draw a time at a specific place on the canvas_mini
     //
     //------------------------------------------------------------------
-    function drawTime(time, cord) {
-        context.font = "12px Arial";
-        context.fillStyle = "#ffffff";
-        context.fillText(time, cord.x * viewPort.width, cord.y * viewPort.height);
+    function drawTimeMini(time, cord) {
+        context_mini.font = "12px Arial";
+        context_mini.fillStyle = "#ffffff";
+        context_mini.fillText(time, cord.x, cord.y);
     }
 
     //------------------------------------------------------------------
@@ -311,29 +368,30 @@ MyGame.graphics = (function() {
     }
 
     function drawMiniMapCircle(shield, shouldStroke) {
-        context.beginPath();
-        if (shield.radius < 0){
-            shield.radius = 0.000001;
-        }
-        context.arc(shield.center.x * viewPort.width, shield.center.y * viewPort.height, shield.radius, 0, 2*Math.PI);
-        context.closePath();
+        context_mini.beginPath();
+        // if (shield.radius < 0){
+        //     shield.radius = 0.000001;
+        // }
+        context_mini.arc(shield.center.x, shield.center.y, shield.radius, 0, 2*Math.PI);
+        context_mini.closePath();
         if (shouldStroke){
-            context.strokeStyle = "#ffffff";
-            context.stroke();
+            context_mini.strokeWidth = 1;
+            context_mini.strokeStyle = "#ffffff";
+            context_mini.stroke();
         }
     }
 
     function enableMiniMapClipping() {
         if (!miniMapClipping) {
             miniMapClipping = true;
-            context.clip();
+            context_mini.clip();
         }
     }
 
     function disableMiniMapClipping() {
         if (miniMapClipping){
             miniMapClipping = false;
-            context.restore();
+            context_mini.restore();
         }
     }
     // Circle, Rectangle, and Texture, are made for use by particleSystem.
@@ -565,8 +623,11 @@ MyGame.graphics = (function() {
         viewPort : viewPort,
         clear: clear,
         saveContext: saveContext,
+        saveContextMini: saveContextMini,
         restoreContext: restoreContext,
+        restoreContextMini: restoreContextMini,
         rotateCanvas: rotateCanvas,
+        rotateCanvasMini: rotateCanvasMini,
         drawGameStatus: drawGameStatus,
         drawMapPortion: drawMapPortion,
         drawRectangle: drawRectangle,
@@ -576,8 +637,9 @@ MyGame.graphics = (function() {
         drawFOV : drawFOV,
         disableFOVClipping : disableFOVClipping,
         drawImage: drawImage,
-        drawCroppedImage: drawCroppedImage,
-        drawTime: drawTime,
+        drawImageMini: drawImageMini,
+        drawCroppedImageMini: drawCroppedImageMini,
+        drawTimeMini: drawTimeMini,
         drawHealth: drawHealth,
         drawImageSpriteSheet: drawImageSpriteSheet,
         drawCircle: drawCircle,

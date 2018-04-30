@@ -28,6 +28,10 @@ body {
 	height: 95%;
 }
 
+#canvas-mini{
+	height: 40%;
+}
+
 #game .screen {
 	grid-area: center;
 	width: 100%;

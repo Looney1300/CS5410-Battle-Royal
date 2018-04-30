@@ -6,17 +6,20 @@
 
 MyGame.components.MiniMap = function() {
   'use strict';
+  let worldWidth = 3200;
+  let worldHeight = 3200;
+  let canvas_mini = document.getElementById('canvas-mini');
   let that = {},
-    width = 140,
-    height = 140,
+    width = canvas_mini.width,
+    height = canvas_mini.height,
     center = {
-      x: .87,
-      y: .13
+      x: .5,
+      y: .5
     },
     player = {
       center: {
-        x: 450,
-        y: 50
+        x: .5,
+        y: .5
       },
       direction: 0,
       size: {
@@ -25,18 +28,12 @@ MyGame.components.MiniMap = function() {
       }
     },
     size = {
-      width: .23,
-      height: .23
+      width: 1,
+      height: 1
     },
     playersAlive = 100,
     timeLeft = 30;
 
-    Object.defineProperty(that, 'width', {
-      get: () => width
-    });
-    Object.defineProperty(that, 'height', {
-      get: () => height
-    });
     Object.defineProperty(that, 'center', {
       get: () => center
     });
@@ -55,13 +52,10 @@ MyGame.components.MiniMap = function() {
       }
     });
 
-    that.convertToMiniMapCords = function(cords, viewPort){
+    that.convertToMiniMapCords = function(cords){
       let localCords = {x: 0, y: 0};
-      localCords.x = (cords.x / 3200) * width + (center.x * 600 - (size.width*600/2));
-      localCords.y = (cords.y / 3200) * height + (center.y * 600 - (size.height*600/2));
-
-      localCords.x = localCords.x / viewPort.width;
-      localCords.y = localCords.y / viewPort.height;
+      localCords.x = (cords.x / worldWidth);
+      localCords.y = (cords.y / worldHeight);
 
       return localCords;
     }

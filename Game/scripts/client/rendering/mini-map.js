@@ -55,53 +55,45 @@ MyGame.renderer.MiniMap = (function(graphics) {
     return format(minutes) + ":" + format(seconds);
   }
 
-  that.render = function(miniMap, mapTexture, playerTexture, mapIconTexture, bleuMapTexture, shield, viewPort, playerCount) {
+  that.render = function(miniMap, mapTexture, playerTexture, mapIconTexture, bleuMapTexture, shield, playerCount) {
     
-    // if (shield.radius <= 1600){
-      
-      graphics.drawImage(bleuMapTexture, miniMap.center, miniMap.size);
-      //clipping
-      graphics.saveContext();
-      localShield.center = miniMap.convertToMiniMapCords(shield.worldCordinates, viewPort);
-      localShield.radius = miniMap.convertRadius(shield.radius);
-      graphics.drawMiniMapCircle(localShield, false);
-      graphics.enableMiniMapClipping();
-      graphics.drawImage(mapTexture, miniMap.center, miniMap.size);
-      graphics.disableMiniMapClipping();
-      // graphics.restoreContext();
-      // }
-      // else {
-        // graphics.drawImage(mapTexture, miniMap.center, miniMap.size);
-        // }
+    graphics.drawImageMini(bleuMapTexture, miniMap.center, miniMap.size);
+    //clipping
+    graphics.saveContextMini();
+    localShield.center = miniMap.convertToMiniMapCords(shield.worldCordinates);
+    localShield.radius = miniMap.convertRadius(shield.radius);
+    graphics.drawMiniMapCircle(localShield, false);
+    graphics.enableMiniMapClipping();
+    graphics.drawImageMini(mapTexture, miniMap.center, miniMap.size);
+    graphics.disableMiniMapClipping();
     //next shield
     localNextShield.center = miniMap.convertToMiniMapCords(shield.nextWorldCordinates, viewPort);
     localNextShield.radius = miniMap.convertRadius(shield.nextRadius);
-    graphics.saveContext();
-    graphics.drawRectangle(miniMap.center, miniMap.size);
+    graphics.saveContextMini();
     graphics.enableMiniMapClipping();
     graphics.drawMiniMapCircle(localNextShield, true);
     graphics.disableMiniMapClipping();
-    //icons below map
-    cord.x = miniMap.center.x - (miniMap.size.width / 2);
-    cord.y = miniMap.center.y + (miniMap.size.height / 2) + 0.01;
-    clipping.x = 128;
-    clipping.y = 0;
-    graphics.drawCroppedImage(mapIconTexture, cord, size, clipping);
-    cord.x += 0.04;
-    cord.y += 0.02;
-    graphics.drawTime(milisecondsToTime(shield.timeTilNextShield), cord);
-    cord.x += 0.08;
-    cord.y -= 0.02;
-    clipping.x = 64;
-    clipping.y = 32;
-    graphics.drawCroppedImage(mapIconTexture, cord, size, clipping);
-    cord.x += 0.04;
-    cord.y += 0.02;
-    graphics.drawTime(playerCount + 1, cord);
-    graphics.saveContext();
-    graphics.rotateCanvas(miniMap.player.center, miniMap.player.direction);
-    graphics.drawImage(playerTexture, miniMap.player.center, miniMap.player.size);
-    graphics.restoreContext();
+    // //icons below map
+    // cord.x = miniMap.center.x - (miniMap.size.width / 2);
+    // cord.y = miniMap.center.y + (miniMap.size.height / 2) + 0.01;
+    // clipping.x = 128;
+    // clipping.y = 0;
+    // graphics.drawCroppedImageMini(mapIconTexture, cord, size, clipping);
+    // cord.x += 0.04;
+    // cord.y += 0.02;
+    // graphics.drawTimeMini(milisecondsToTime(shield.timeTilNextShield), cord);
+    // cord.x += 0.08;
+    // cord.y -= 0.02;
+    // clipping.x = 64;
+    // clipping.y = 32;
+    // graphics.drawCroppedImageMini(mapIconTexture, cord, size, clipping);
+    // cord.x += 0.04;
+    // cord.y += 0.02;
+    // graphics.drawTimeMini(playerCount + 1, cord);
+    // graphics.saveContextMini();
+    // graphics.rotateCanvasMini(miniMap.player.center, miniMap.player.direction);
+    // graphics.drawImageMini(playerTexture, miniMap.player.center, miniMap.player.size);
+    // graphics.restoreContextMini();
   };
 
   return that;
