@@ -3,9 +3,9 @@ body {
 }
 
 #game {
-	margin: 20px auto;
+	margin: 10px auto;
 	width: 95vw;
-	height: 95vh;
+	height: 97vh;
 	text-align: center;
 	background-color: rgb(53, 53, 53);
 	background-image: url("../assets/landingBackground.png");
@@ -24,7 +24,8 @@ body {
 }
 
 #canvas-main{
-	margin-top: auto;
+	margin-top: 15px;
+	height: 95%;
 }
 
 #game .screen {
@@ -69,7 +70,7 @@ ul.menu li button {
 }
 
 ul.menu li button:hover {
-	background: #2A8533;
+	background: rgb(42, 133, 51);
 }
 
 ul.menu li button:active {
@@ -93,16 +94,12 @@ ul.menu li button:active {
 }
 
 .binding-buttons:hover {
-	background: #2A8533;
+	background: rgb(42, 133, 51);
 }
 
 .binding-buttons:active {
 	color: rgb(206, 206, 246);
 	background: rgb(0, 0, 0);
-}
-
-#options {
-	text-align: center;
 }
 
 #options h5 {
@@ -116,13 +113,9 @@ ul.menu li button:active {
 #game div h1 {
 	font-size: 1em;
 	text-align: center;
-}
-
-#high-scores ol {
-	text-align: center;
-	padding: 0;
-	margin: 0;
-	list-style: none;
+	color: white;
+	text-decoration: underline;
+	display: inline;
 }
 
 #game div p {
@@ -139,9 +132,23 @@ ul.menu li button:active {
 	text-align: center;
 }
 
+#high-scores ol {
+	text-align: center;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+
+#high-scores h3 {
+	color: rgb(223, 200, 42);
+	display: inline;
+	text-decoration: underline;
+}
 
 #hslist{
-	height: 50%;
+	height: 70%;
+	background-color:rgba(22, 22, 22, 0.5);
+	color: rgb(190, 180, 151);
 }
 
 #highScoresTable th {
@@ -155,7 +162,6 @@ ul.menu li button:active {
 #rankTable th {
 	text-align: left;
 }
-
 
 #new-user-data{
 	text-align: center;
