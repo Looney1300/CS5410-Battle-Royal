@@ -23,10 +23,9 @@ body {
 	grid-area: center;
 }
 
-/* #canvas-main{
-	width: 100%;
-	height: 100%;
-} */
+#canvas-main{
+	margin-top: auto;
+}
 
 #game .screen {
 	grid-area: center;
