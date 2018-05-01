@@ -242,12 +242,10 @@ MyGame.components.Player = function(mapLogic) {
         x -= canvas.offsetLeft;
         y -= canvas.offsetTop;
         let cords = {x: 0, y: 0};
-        console.log(x, y);
         let diffX = x - this.position.x * canvas.clientWidth;
         let diffY = y - this.position.y * canvas.clientHeight;
         cords.x = this.worldCordinates.x + diffX;
         cords.y = this.worldCordinates.y + diffY;
-        console.log(cords)
 
         return cords;
     };
