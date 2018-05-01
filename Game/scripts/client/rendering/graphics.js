@@ -13,6 +13,7 @@ MyGame.graphics = (function() {
 
     let canvas_mini = document.getElementById('canvas-mini');
     let context_mini = canvas_mini.getContext('2d');
+    let miniMapIconAdjustment = canvas_mini.height - canvas_mini.width;
     
     let map = Map.create();
     // let smallMap = SmallMap.create();
@@ -62,6 +63,7 @@ MyGame.graphics = (function() {
     //------------------------------------------------------------------
     function clear() {
         context.clear();
+        context_mini.clear();
     }
 
     //------------------------------------------------------------------
@@ -232,11 +234,11 @@ MyGame.graphics = (function() {
         // size is model.size
         let localCenter = {
             x: center.x * canvas_mini.width,
-            y: center.y * canvas_mini.height
+            y: center.y * (canvas_mini.height - miniMapIconAdjustment)
         };
         let localSize = {
             width: size.width * canvas_mini.width,
-            height: size.height  * canvas_mini.height
+            height: size.height  * (canvas_mini.height - miniMapIconAdjustment)
         };
 
         context_mini.drawImage(texture,
@@ -296,9 +298,13 @@ MyGame.graphics = (function() {
     //
     //------------------------------------------------------------------
     function drawCroppedImageMini(texture, cord, size, clipping){
-        context_mini.drawImage(texture, clipping.x, clipping.y, clipping.size.width, clipping.size.height,
-            cord.x, cord.y, 
-            size.width, size.height);
+        context_mini.drawImage(texture, clipping.x * canvas_mini.width, 
+            clipping.y * (canvas_mini.height - miniMapIconAdjustment), 
+            clipping.size.width * canvas_mini.width, 
+            clipping.size.height * (canvas_mini.height - miniMapIconAdjustment),
+            cord.x * canvas_mini.width, 
+            cord.y * (canvas_mini.height - miniMapIconAdjustment), 
+            size.width * canvas_mini.width, size.height * (canvas_mini.height - miniMapIconAdjustment));
     }
 
     //------------------------------------------------------------------
@@ -306,10 +312,11 @@ MyGame.graphics = (function() {
     // Draw a time at a specific place on the canvas_mini
     //
     //------------------------------------------------------------------
-    function drawTimeMini(time, cord) {
-        context_mini.font = "12px Arial";
+    function drawMiniMapText(text, cord) {
+        context_mini.font = "30px Arial";
         context_mini.fillStyle = "#ffffff";
-        context_mini.fillText(time, cord.x, cord.y);
+        context_mini.textBaseline = "top";
+        context_mini.fillText(text, cord.x * canvas_mini.width, cord.y * (canvas_mini.height - miniMapIconAdjustment));
     }
 
     //------------------------------------------------------------------
@@ -369,16 +376,21 @@ MyGame.graphics = (function() {
 
     function drawMiniMapCircle(shield, shouldStroke) {
         context_mini.beginPath();
-        // if (shield.radius < 0){
-        //     shield.radius = 0.000001;
-        // }
-        context_mini.arc(shield.center.x * canvas_mini.width, shield.center.y * canvas_mini.height, shield.radius * canvas_mini.width, 0, 2*Math.PI);
+        if (shield.radius < 0){
+            shield.radius = 0.000001;
+        }
+        // context_mini.rect(0,0,canvas_mini.width, canvas_mini.height - miniMapIconAdjustment);
+        // context_mini.clip();
+        context_mini.arc(shield.center.x * canvas_mini.width,
+             shield.center.y * (canvas_mini.height - miniMapIconAdjustment),
+             shield.radius * canvas_mini.width, 0, 2*Math.PI);
         context_mini.closePath();
         if (shouldStroke){
             context_mini.strokeWidth = 1;
             context_mini.strokeStyle = "#ffffff";
             context_mini.stroke();
         }
+        // context_mini.restore();
     }
 
     function enableMiniMapClipping() {
@@ -639,7 +651,7 @@ MyGame.graphics = (function() {
         drawImage: drawImage,
         drawImageMini: drawImageMini,
         drawCroppedImageMini: drawCroppedImageMini,
-        drawTimeMini: drawTimeMini,
+        drawMiniMapText: drawMiniMapText,
         drawHealth: drawHealth,
         drawImageSpriteSheet: drawImageSpriteSheet,
         drawCircle: drawCircle,

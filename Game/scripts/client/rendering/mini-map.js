@@ -14,13 +14,17 @@ MyGame.renderer.MiniMap = (function(graphics) {
       height: 32
     }
   };
-  let cord = {
-    x: 0.05,
-    y: 0.05
+  let timeCoord = {
+    x: 0.1,
+    y: 1.0
+  };
+  let playerCountCoord = {
+    x: 0.5,
+    y: 1.0
   };
   let size = {
-    width: 0.03,
-    height: 0.03
+    width: 0.1,
+    height: 0.1
   };
 
   let localShield = {
@@ -73,27 +77,17 @@ MyGame.renderer.MiniMap = (function(graphics) {
     graphics.enableMiniMapClipping();
     graphics.drawMiniMapCircle(localNextShield, true);
     graphics.disableMiniMapClipping();
-    // //icons below map
-    // cord.x = miniMap.center.x - (miniMap.size.width / 2);
-    // cord.y = miniMap.center.y + (miniMap.size.height / 2) + 0.01;
-    // clipping.x = 128;
-    // clipping.y = 0;
-    // graphics.drawCroppedImageMini(mapIconTexture, cord, size, clipping);
-    // cord.x += 0.04;
-    // cord.y += 0.02;
-    // graphics.drawTimeMini(milisecondsToTime(shield.timeTilNextShield), cord);
-    // cord.x += 0.08;
-    // cord.y -= 0.02;
-    // clipping.x = 64;
-    // clipping.y = 32;
-    // graphics.drawCroppedImageMini(mapIconTexture, cord, size, clipping);
-    // cord.x += 0.04;
-    // cord.y += 0.02;
-    // graphics.drawTimeMini(playerCount + 1, cord);
-    // graphics.saveContextMini();
-    // graphics.rotateCanvasMini(miniMap.player.center, miniMap.player.direction);
-    // graphics.drawImageMini(playerTexture, miniMap.player.center, miniMap.player.size);
-    // graphics.restoreContextMini();
+    //icons below map
+    clipping.x = 128;
+    clipping.y = 0;
+    graphics.drawCroppedImageMini(mapIconTexture, timeCoord, size, clipping);
+    graphics.drawMiniMapText(milisecondsToTime(shield.timeTilNextShield), timeCoord);
+    graphics.drawCroppedImageMini(mapIconTexture, playerCountCoord, size, clipping);
+    graphics.drawMiniMapText(playerCount + 1, playerCountCoord);
+    graphics.saveContextMini();
+    graphics.rotateCanvasMini(miniMap.player.center, miniMap.player.direction);
+    graphics.drawImageMini(playerTexture, miniMap.player.center, miniMap.player.size);
+    graphics.restoreContextMini();
   };
 
   return that;

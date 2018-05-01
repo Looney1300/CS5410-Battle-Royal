@@ -8,10 +8,7 @@ MyGame.components.MiniMap = function() {
   'use strict';
   let worldWidth = 3200;
   let worldHeight = 3200;
-  let canvas_mini = document.getElementById('canvas-mini');
   let that = {},
-    width = canvas_mini.width,
-    height = canvas_mini.height,
     center = {
       x: .5,
       y: .5
@@ -23,8 +20,8 @@ MyGame.components.MiniMap = function() {
       },
       direction: 0,
       size: {
-        width: .025,
-        height: .025
+        width: .05,
+        height: .05
       }
     },
     size = {
