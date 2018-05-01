@@ -6,7 +6,7 @@
 MyGame.graphics = (function() {
     'use strict';
 
-    let canvas = document.getElementById('canvas-main');
+    let canvas = document.getElementById('canvas-main');    
     let context = canvas.getContext('2d');
     let fovClipping = false;
     let miniMapClipping = false;

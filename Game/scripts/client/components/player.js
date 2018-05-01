@@ -8,6 +8,7 @@ MyGame.components.Player = function(mapLogic) {
     'use strict';
     let that = {};
     let map = mapLogic;
+    let canvas = document.getElementById('canvas-main');
     let position = {
         x: 0,
         y: 0
@@ -227,38 +228,26 @@ MyGame.components.Player = function(mapLogic) {
     //------------------------------------------------------------------
     that.worldCordinatesFromMouse = function(e, viewPort) {
         //TODO: figure this out.
-        // let x,
-        // y;
-        // //The following if/else statement from 
-        // // https://stackoverflow.com/questions/55677/how-do-i-get-the-coordinates-of-a-mouse-click-on-a-canvas-element
-        // if (e.x || e.y) { 
-        //     x = e.x;
-        //     y = e.y;
-        // } else { 
-        //     x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft; 
-        //     y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop; 
-        //     x -= canvas.offsetLeft;
-        //     y -= canvas.offsetTop;
-        // } 
+        let x,
+            y;
+        //The following if/else statement from 
+        // https://stackoverflow.com/questions/55677/how-do-i-get-the-coordinates-of-a-mouse-click-on-a-canvas-element
+        if (e.x || e.y) { 
+            x = e.x;
+            y = e.y;
+        } else { 
+            x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft; 
+            y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop; 
+        } 
+        x -= canvas.offsetLeft;
+        y -= canvas.offsetTop;
         let cords = {x: 0, y: 0};
-        let positionWC = {
-            x: this.position.x * viewPort.width, 
-            y: this.position.y * viewPort.height
-        };
-        let diffX = Math.abs(mouseX - positionWC.x);
-        let diffY = Math.abs(mouseY - positionWC.y);
-        if (mouseX < positionWC.x){
-            cords.x = this.worldCordinates.x - diffX;
-        }
-        else {
-            cords.x = this.worldCordinates.x + diffX;
-        }
-        if (mouseY < positionWC.y){
-            cords.y = this.worldCordinates.y - diffY;
-        }
-        else {
-            cords.y = this.worldCordinates.y + diffY;
-        }
+        console.log(x, y);
+        let diffX = x - this.position.x * canvas.clientWidth;
+        let diffY = y - this.position.y * canvas.clientHeight;
+        cords.x = this.worldCordinates.x + diffX;
+        cords.y = this.worldCordinates.y + diffY;
+        console.log(cords)
 
         return cords;
     };
