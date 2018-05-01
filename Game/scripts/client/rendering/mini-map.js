@@ -6,22 +6,27 @@
 MyGame.renderer.MiniMap = (function(graphics) {
   'use strict';
   let that = {};
-  let clipping = {
+  let clippings = [{
     x: 128,
     y: 0,
     size: {
       width: 32,
       height: 32
     }
-  };
-  let timeCoord = {
-    x: 0.1,
-    y: 1.0
-  };
-  let playerCountCoord = {
-    x: 0.5,
-    y: 1.0
-  };
+  }, {
+    x: 64,
+    y: 32,
+    size: {
+      width: 32,
+      height: 32
+    }
+  }
+];
+  let timeCoord = { x: 0.15, y: 1.03 };
+  let timeIconCoord = { x: 0.0, y: 1.02 };
+  let playerCountCoord = { x: 0.75, y: 1.03 };
+  let playerIconCoord = { x: 0.6, y: 1.02 };
+
   let size = {
     width: 0.1,
     height: 0.1
@@ -78,12 +83,11 @@ MyGame.renderer.MiniMap = (function(graphics) {
     graphics.drawMiniMapCircle(localNextShield, true);
     graphics.disableMiniMapClipping();
     //icons below map
-    clipping.x = 128;
-    clipping.y = 0;
-    graphics.drawCroppedImageMini(mapIconTexture, timeCoord, size, clipping);
+    graphics.drawCroppedImageMini(mapIconTexture, timeIconCoord, size, clippings[0]);
     graphics.drawMiniMapText(milisecondsToTime(shield.timeTilNextShield), timeCoord);
-    graphics.drawCroppedImageMini(mapIconTexture, playerCountCoord, size, clipping);
+    graphics.drawCroppedImageMini(mapIconTexture, playerIconCoord, size, clippings[1]);
     graphics.drawMiniMapText(playerCount + 1, playerCountCoord);
+    //player arrow on map
     graphics.saveContextMini();
     graphics.rotateCanvasMini(miniMap.player.center, miniMap.player.direction);
     graphics.drawImageMini(playerTexture, miniMap.player.center, miniMap.player.size);

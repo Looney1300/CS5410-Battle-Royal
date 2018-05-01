@@ -298,13 +298,13 @@ MyGame.graphics = (function() {
     //
     //------------------------------------------------------------------
     function drawCroppedImageMini(texture, cord, size, clipping){
-        context_mini.drawImage(texture, clipping.x * canvas_mini.width, 
-            clipping.y * (canvas_mini.height - miniMapIconAdjustment), 
-            clipping.size.width * canvas_mini.width, 
-            clipping.size.height * (canvas_mini.height - miniMapIconAdjustment),
+        context_mini.drawImage(texture, clipping.x, clipping.y, 
+            clipping.size.width, 
+            clipping.size.height,
             cord.x * canvas_mini.width, 
             cord.y * (canvas_mini.height - miniMapIconAdjustment), 
-            size.width * canvas_mini.width, size.height * (canvas_mini.height - miniMapIconAdjustment));
+            size.width * canvas_mini.width, 
+            size.height * (canvas_mini.height - miniMapIconAdjustment));
     }
 
     //------------------------------------------------------------------
