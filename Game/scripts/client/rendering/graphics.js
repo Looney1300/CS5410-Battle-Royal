@@ -413,7 +413,9 @@ MyGame.graphics = (function() {
     //
     //------------------------------------------------------------------
     function drawShield(center, radius, color, mapWidth) {
-
+        if (radius < 0){
+            return;
+        }
         context.save();
         context.beginPath();
         context.arc(center.x * canvas.width, center.y * canvas.width, 1.5 * mapWidth * canvas.width, 0, 2 * Math.PI, false);
