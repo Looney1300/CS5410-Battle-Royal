@@ -225,7 +225,21 @@ MyGame.components.Player = function(mapLogic) {
     // Public function that gets the mouse position and converts it to world cordinates.
     //
     //------------------------------------------------------------------
-    that.worldCordinatesFromMouse = function(mouseX, mouseY, viewPort) {
+    that.worldCordinatesFromMouse = function(e, viewPort) {
+        //TODO: figure this out.
+        // let x,
+        // y;
+        // //The following if/else statement from 
+        // // https://stackoverflow.com/questions/55677/how-do-i-get-the-coordinates-of-a-mouse-click-on-a-canvas-element
+        // if (e.x || e.y) { 
+        //     x = e.x;
+        //     y = e.y;
+        // } else { 
+        //     x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft; 
+        //     y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop; 
+        //     x -= canvas.offsetLeft;
+        //     y -= canvas.offsetTop;
+        // } 
         let cords = {x: 0, y: 0};
         let positionWC = {
             x: this.position.x * viewPort.width, 

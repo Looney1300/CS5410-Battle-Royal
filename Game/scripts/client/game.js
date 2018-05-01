@@ -751,8 +751,9 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
                 weaponSound();
             });
 
+        let canvas = document.getElementById('canvas-main');
         myMouse.registerHandler('mousemove', function(e) {
-            let mouseWC = playerSelf.model.worldCordinatesFromMouse(e.clientX - 20, e.clientY - 20, viewPort);
+            let mouseWC = playerSelf.model.worldCordinatesFromMouse(e, viewPort);
             let message = {
                 id: messageId++,
                 viewPort: viewPort,
