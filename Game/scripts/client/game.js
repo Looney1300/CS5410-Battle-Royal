@@ -604,10 +604,8 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         renderer.Player.render(playerSelf.model,playerSelf.texture, killStat, killDisplayTime);
         
         for(let power = 0; power<powerUps.length; power++){
-            //console.log(powerUps[power].type);
             renderer.PowerUp.render(powerUps[power],MyGame.assets[powerUps[power].type]);
         }
-        //powerUps.length = 0;
         
         for (let missile in missiles) {
             renderer.Missile.render(missiles[missile],playerSelf.texture);

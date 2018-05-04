@@ -208,12 +208,12 @@ MyGame.graphics = (function() {
         // center is model.position
         // size is model.size
         let localCenter = {
-            x: center.x,
-            y: center.y
+            x: center.x * canvas.width,
+            y: center.y * canvas.height
         };
         let localSize = {
-            width: size.width,
-            height: size.height
+            width: size.width * canvas.width,
+            height: size.height * canvas.height
         };
 
         context.drawImage(texture,

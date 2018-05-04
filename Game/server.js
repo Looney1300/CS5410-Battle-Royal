@@ -31,7 +31,6 @@ function handleRequest(request, response) {
                     } catch(error) {
                         console.log(error);
                     }
-                    
                 }
             });
         } else {
