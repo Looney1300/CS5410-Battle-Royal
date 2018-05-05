@@ -386,7 +386,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         if (playerSelf.is_alive){
             explosions[nextExplosionId] = components.AnimatedSprite({
                 id: nextExplosionId++,
-                spriteSheet: MyGame.assets['bloodsplosion'],
+                spriteSheet: MyGame.assets['explosion'],
                 spriteSize: { width: 0.035, height: 0.035 },
                 spriteCenter: data.hit_location,
                 spriteCount: 6,
