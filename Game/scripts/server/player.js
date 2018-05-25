@@ -18,15 +18,11 @@ function createPlayer(mapLogic) {
     let map = mapLogic;
     let random = randomFile.create();
     
-    let position = {
-        x: 0.5,
-        y: 0.5
-    };
+    let position = { x: 0.5, y: 0.5};
 
     let userName = '';
 
     let worldCordinates = random.getRandomMapCords(map, map.mapHeight, map.mapWidth);
-
 
     let score = 0;
     let is_alive = true;
@@ -60,6 +56,23 @@ function createPlayer(mapLogic) {
     let kills = 0;
 
     let deathWasReported = false;
+
+    that.reset = function(){
+        position = { x: 0.5, y: 0.5};
+        worldCordinates = random.getRandomMapCords(map, map.mapHeight, map.mapWidth);
+        score = 0;
+        is_alive = true;
+        life_remaining = 100;
+        ammo_remaining = 20;
+        has_gun = false;
+        has_long_range = false;
+        has_rapid_fire = false;
+        isSprinting = false;
+        sprintEnergy = 100;
+        direction = random.nextDouble() * 2 * Math.PI;    // Angle in radians
+        killer = '';
+        kills = 0;
+    }
 
     Object.defineProperty(that, 'deathWasReported', {
         get: () => deathWasReported,
