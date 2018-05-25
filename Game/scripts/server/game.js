@@ -6,7 +6,7 @@
 
 'use strict';
 //TODO: change the game to start based on a host button, or something besides a hardcoded number.
-let numberOfPlayersPlaying = 2;
+let NUM_PLAYERS_PER_GAME = 2;
 let present = require('present');
 let Player = require('./player');
 let PowerUp = require('./powerup');
@@ -19,8 +19,25 @@ let mapFile = require('../shared/maps/medium');
 let CryptoJS = require('crypto-js');
 let fs = require('fs');
 let Shield = require('./shield');
-let gameHasBegun = false;
 
+const SIMULATION_UPDATE_RATE_MS = 33;
+const STATE_UPDATE_RATE_MS = 100;
+let POWERUPS_PER_PLAYER = 5;
+let PLAYER_SIZE = {width: 80, height: 80};
+let SALT = 'xnBZngGg*+FhQz??V6FMjfd9G4m5w^z8P*6';
+
+let inputQueue = Queue.create();
+let map = mapLogic.create();
+map.setMap(mapFile);
+//Shield by passing the map, the percent of map width the first 
+// shield diameter will be, and how many minutes between shield moves.
+let FIRST_SHIELD_DIAMETER = 1.2; //This is approximately just outside the playable corners of the map.
+let TIME_TO_MOVE_SHIELD = 1; // This must be the same in the client.
+let SHIELD_MOVES = 5; // This must be the same in the client.
+let SHRINK_DOWN_TO = 0 - ( .5 * PLAYER_SIZE.width)/map.mapWidth; //Need to adjust for collision radius of players.
+let shield = Shield.create(map, FIRST_SHIELD_DIAMETER, TIME_TO_MOVE_SHIELD, SHRINK_DOWN_TO, SHIELD_MOVES);
+
+let gameHasBegun = false;
 let updateShieldInt = 0;
 let updateClientInt = 0;
 
@@ -29,12 +46,8 @@ let fire_ratePowerUps = [];
 let fire_rangePowerUps = [];
 let healthPowerUps = [];
 let ammoPowerUps = [];
-let pPerPlayer = 5;
-let powerRun = true;
 let powerUpsChanged = true;
 
-const SIMULATION_UPDATE_RATE_MS = 33;
-const STATE_UPDATE_RATE_MS = 100;
 let lastUpdate = 0;
 let quit = false;
 let activeClients = {};
@@ -43,20 +56,8 @@ let atLeastTwoPlayersOnMap = false;
 let newMissiles = [];
 let activeMissiles = [];
 let hits = [];
-let inputQueue = Queue.create();
 let nextMissileId = 1;
-let map = mapLogic.create();
-map.setMap(mapFile);
 //this is being hard coded for now until I figure out a better solution
-let playerSize = {width: 80, height: 80};
-//Shield by passing the map, the percent of map width the first 
-// shield diameter will be, and how many minutes between shield moves.
-let FIRST_SHIELD_DIAMETER = 1.2; //This is approximately just outside the playable corners of the map.
-let TIME_TO_MOVE_SHIELD = 1; // This must be the same in the client.
-let SHIELD_MOVES = 5; // This must be the same in the client.
-let SHRINK_DOWN_TO = 0 - ( .5 * playerSize.width)/map.mapWidth; //Need to adjust for collision radius of players.
-let shield = Shield.create(map, FIRST_SHIELD_DIAMETER, TIME_TO_MOVE_SHIELD, SHRINK_DOWN_TO, SHIELD_MOVES);
-let salt = 'xnBZngGg*+FhQz??V6FMjfd9G4m5w^z8P*6';
 
 //TODO: what is the difference between loggedInPlayers and activeClients?
 let loggedInPlayers = [];
@@ -89,19 +90,19 @@ function createAmmoPowerUp(){
 };
 
 function updatePowerUps(){
-    while(weaponPowerUps.length < (4*pPerPlayer)){
+    while(weaponPowerUps.length < NUM_PLAYERS_PER_GAME*POWERUPS_PER_PLAYER){
         createWeaponPowerUp();
     };
-    while(fire_ratePowerUps.length < pPerPlayer){
+    while(fire_ratePowerUps.length < NUM_PLAYERS_PER_GAME * POWERUPS_PER_PLAYER){
         createFireRatePowerUp();
     };
-    while(fire_rangePowerUps.length < pPerPlayer){
+    while(fire_rangePowerUps.length < NUM_PLAYERS_PER_GAME * POWERUPS_PER_PLAYER){
         createFireRangePowerUp();
     };
-    while(healthPowerUps.length < 2*pPerPlayer){
+    while(healthPowerUps.length < NUM_PLAYERS_PER_GAME * POWERUPS_PER_PLAYER){
         createHealthPowerUp()
     };
-    while(ammoPowerUps.length < 4*pPerPlayer){
+    while(ammoPowerUps.length < NUM_PLAYERS_PER_GAME * POWERUPS_PER_PLAYER){
         createAmmoPowerUp();
     };
 };
@@ -112,7 +113,7 @@ function createMissile(clientId, playerModel) {
     }
     if(playerModel.has_gun){
         if(playerModel.firedAShot()){
-            let offset = calcXYBulletOffset(playerModel.direction,playerSize);
+            let offset = calcXYBulletOffset(playerModel.direction,PLAYER_SIZE);
             let tempmistime = playerModel.missileTime;
             if(playerModel.has_long_range){
                 tempmistime = 2*tempmistime;
@@ -260,7 +261,22 @@ function processInput(elapsedTime) {
 }
 
 function resetGame(){
-    //TODO: reset game includes reestablishing all active clients player in the game
+    //Other gamevariables
+    inputQueue = Queue.create();
+    atLeastTwoPlayersOnMap = false;
+    lastUpdate = 0;
+    quit = false;
+    activeClients = {};
+    atLeastTwoPlayersOnMap = false;
+    gameHasBegun = false;
+    updateShieldInt = 0;
+    updateClientInt = 0;
+    
+    //Reset map
+    map = mapLogic.create();
+    map.setMap(mapFile);
+    
+    //Reset players
     for (let clientId in activeClients){
         activeClients[clientId].player.reset();
     } 
@@ -272,20 +288,18 @@ function resetGame(){
     weaponPowerUps.length = 0;
     fire_rangePowerUps.length = 0;
     fire_ratePowerUps.length = 0;
+    powerUpsChanged = true;
     updatePowerUps();
     //Reset missiles
+    newMissiles.length = 0;
     activeMissiles.length = 0;
+    hits.length = 0;
+    nextMissileId = 1;
 }
 
 function update(elapsedTime, currentTime) {
     shield.update(elapsedTime);
-
-    if(powerRun){
-        updatePowerUps();
-        powerRun = false;
-        //console.log('powerruncheck');
-    }   
-
+    updatePowerUps();
 
     for (let clientId in activeClients) {
         if(!activeClients[clientId].player.is_alive){
@@ -431,7 +445,6 @@ function updateClients(elapsedTime) {
 
             if (atLeastTwoPlayersOnMap){
                 if((liveCount <= 1) && (playerCount > 0)){
-                    console.log(liveCount, playerCount);
                     for (let clientId in activeClients) {
                         let client = activeClients[clientId];
                         client.socket.emit(NetworkIds.GAME_OVER, '');
@@ -797,7 +810,7 @@ function initializeSocketIO(httpServer) {
             socket.emit('userSet', {username: data});
 
             if(!minChatterSizeHasBeenReached){
-                if(chatterBoxSize >= numberOfPlayersPlaying){
+                if(chatterBoxSize >= NUM_PLAYERS_PER_GAME){
                     console.log('The countdown has begun.');
                     minChatterSizeHasBeenReached = true;
                     io.sockets.emit('BeginCountDown');
@@ -875,9 +888,6 @@ function initializeSocketIO(httpServer) {
 //------------------------------------------------------------------
 function initialize(httpServer) {
     initializeSocketIO(httpServer);
-    //Let's initialize everything about the game that won't change until players are on the map.
-    updatePowerUps();
-
     //Then call the gameloop to start running.
     gameLoop(present(), 0);
 }
@@ -886,7 +896,7 @@ function validUser(uName,uPassword){
     var obj = JSON.parse(fs.readFileSync('../Game/data/users.json', 'utf8'));
     var valid = false;
     for (var i = 0; i < obj.length; ++i){
-        if (obj[i].name == uName && CryptoJS.AES.decrypt(obj[i].password, salt).toString(CryptoJS.enc.Utf8) == uPassword){
+        if (obj[i].name == uName && CryptoJS.AES.decrypt(obj[i].password, SALT).toString(CryptoJS.enc.Utf8) == uPassword){
             valid = true;
         }
     }
@@ -908,7 +918,7 @@ function validCreateUser(uName,uPassword){
 
     obj.push({
         name: uName,
-        password: CryptoJS.AES.encrypt(uPassword,salt).toString()
+        password: CryptoJS.AES.encrypt(uPassword,SALT).toString()
     });
     fs.writeFileSync('../Game/data/users.json',JSON.stringify(obj));
 

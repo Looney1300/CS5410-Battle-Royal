@@ -57,7 +57,6 @@ MyGame.screens['map-screen'] = (function() {
             console.log(input);
             socket.emit('readyplayerone', input);
             MyGame.pregame.showScreen('game-play');
-
         });
 
         // Need to receive and draw updates to the map
