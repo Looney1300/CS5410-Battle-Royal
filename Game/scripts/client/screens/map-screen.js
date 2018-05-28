@@ -14,10 +14,6 @@ MyGame.screens['map-screen'] = (function() {
         let hasChosen = false;
         let isInMap = true;
 
-
-
-        
-
         let xPos = 0;
         let yPos = 0;
 
@@ -34,16 +30,13 @@ MyGame.screens['map-screen'] = (function() {
             console.log("x: " + xPos + " y: " + yPos); 
         }, false);
 
-        socket.on('doTheThing',function(){
-            //console.log('is it here?????');
+        socket.on('forceGameScreen', function(){
             if(!hasChosen){
                 socket.emit('readyplayerone');
                 MyGame.pregame.showScreen('game-play');
             }
         });
-        socket.emit('preReadyPlayerOne');
         socket.emit('inMapScreen');
-
 
         socket.on('isValidRes',function(data){
             if(isInMap){
@@ -59,24 +52,17 @@ MyGame.screens['map-screen'] = (function() {
             }
         });
 
-
-
         socket.on('isValidForYou',function(input){
             hasChosen = true;
             console.log(input);
-            socket.emit('readyplayerone',input);
+            socket.emit('readyplayerone', input);
             MyGame.pregame.showScreen('game-play');
 
         });
 
-
-        
-
         // Need to receive and draw updates to the map
 
         // Need to receive the game start message
-
-        
 
     }
   

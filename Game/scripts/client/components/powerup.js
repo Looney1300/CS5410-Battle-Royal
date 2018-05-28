@@ -50,15 +50,10 @@ MyGame.components.PowerUp = function(spec) {
     //------------------------------------------------------------------
     that.update = function(elapsedTime, viewPort) {
         // figure out where to put them on screen in relation to viewport
-        // let diffX = (viewPort.center.x - worldCordinates.x)/viewPort.width;
-        // let diffY = (viewPort.center.y - worldCordinates.y)/viewPort.height;
-        // position.x = 0.5 - diffX;
-        // position.y = 0.5 - diffY;
         let diffX = (viewPort.center.x - this.worldCordinates.x)/viewPort.width;
         let diffY = (viewPort.center.y - this.worldCordinates.y)/viewPort.height;
         this.position.x = 0.5 - diffX;
         this.position.y = 0.5 - diffY;
-        // console.log(position)
     };
 
     return that;

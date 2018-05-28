@@ -3,7 +3,9 @@
 // Nodejs module that provides the server-side game model.
 //
 // ------------------------------------------------------------------
+
 'use strict';
+//TODO: change the game to start based on a host button, or something besides a hardcoded number.
 let numberOfPlayersPlaying = 2;
 let present = require('present');
 let Player = require('./player');
@@ -22,8 +24,6 @@ let gameHasBegun = false;
 let updateShieldInt = 0;
 let updateClientInt = 0;
 
-
-
 let weaponPowerUps = [];
 let fire_ratePowerUps = [];
 let fire_rangePowerUps = [];
@@ -33,13 +33,13 @@ let pPerPlayer = 5;
 let powerRun = true;
 let powerUpsChanged = true;
 
-
-
 const SIMULATION_UPDATE_RATE_MS = 33;
 const STATE_UPDATE_RATE_MS = 100;
 let lastUpdate = 0;
 let quit = false;
 let activeClients = {};
+let atLeastTwoPlayersOnMap = false;
+
 let newMissiles = [];
 let activeMissiles = [];
 let hits = [];
@@ -58,6 +58,7 @@ let SHRINK_DOWN_TO = 0 - ( .5 * playerSize.width)/map.mapWidth; //Need to adjust
 let shield = Shield.create(map, FIRST_SHIELD_DIAMETER, TIME_TO_MOVE_SHIELD, SHRINK_DOWN_TO, SHIELD_MOVES);
 let salt = 'xnBZngGg*+FhQz??V6FMjfd9G4m5w^z8P*6';
 
+//TODO: what is the difference between loggedInPlayers and activeClients?
 let loggedInPlayers = [];
 
 
@@ -209,7 +210,6 @@ function calcXYBulletOffset(direction,imageSize){
     }
 }
 
-
 function processInput(elapsedTime) {
     //
     // Double buffering on the queue so we don't asynchronously receive inputs
@@ -259,7 +259,23 @@ function processInput(elapsedTime) {
     }
 }
 
-
+function resetGame(){
+    //TODO: reset game includes reestablishing all active clients player in the game
+    for (let clientId in activeClients){
+        activeClients[clientId].player.reset();
+    } 
+    //Reset shield
+    shield = Shield.create(map, FIRST_SHIELD_DIAMETER, TIME_TO_MOVE_SHIELD, SHRINK_DOWN_TO, SHIELD_MOVES);
+    //Reset powerups
+    ammoPowerUps.length = 0;
+    healthPowerUps.length = 0;
+    weaponPowerUps.length = 0;
+    fire_rangePowerUps.length = 0;
+    fire_ratePowerUps.length = 0;
+    updatePowerUps();
+    //Reset missiles
+    activeMissiles.length = 0;
+}
 
 function update(elapsedTime, currentTime) {
     shield.update(elapsedTime);
@@ -390,15 +406,10 @@ function update(elapsedTime, currentTime) {
     activeMissiles = keepMissiles;
 }
 
-
 function updateClients(elapsedTime) {
 
     let liveCount = 0;
     let playerCount = 0;
-
-
-
-
     //
     // For demonstration purposes, network updates run at a slower rate than
     // the game simulation.
@@ -408,31 +419,28 @@ function updateClients(elapsedTime) {
         return;
     }
 
-    // if(gameHasBegun && (!powerUpsChanged)){
-    //     powerUpsChanged = true;
-    // }
-
-
-
-    if(updateClientInt%10==0){
+    if(updateClientInt%5 === 1){
         if(gameHasBegun){
             for (let clientId in activeClients) {
-                let client = activeClients[clientId];
-                //Question about currentTime vs elapsedTime, what should be put right here?
-        
+                let client = activeClients[clientId];        
                 playerCount++;
                 if(client.player.is_alive){
                     liveCount++;
                 }
-               
             }
-            if(((liveCount <= 1) && (playerCount > 0))){
-                for (let clientId in activeClients) {
-                    let client = activeClients[clientId];
-                    client.socket.emit(NetworkIds.GAME_OVER, '');
+
+            if (atLeastTwoPlayersOnMap){
+                if((liveCount <= 1) && (playerCount > 0)){
+                    console.log(liveCount, playerCount);
+                    for (let clientId in activeClients) {
+                        let client = activeClients[clientId];
+                        client.socket.emit(NetworkIds.GAME_OVER, '');
+                    }
+                    updateHighScores();
+                    //We don't want to quit the game simulation, we want to reset it fresh.
+                    quit = true;
+                    //resetGame();
                 }
-                updateHighScores();
-                quit = true;
             }
         }
 
@@ -579,7 +587,7 @@ function updateClients(elapsedTime) {
                     activeClients[otherId].socket.emit(NetworkIds.UPDATE_OTHER, update);
                     continue;
                 }
-                if(updateClientInt%10==0){
+                if(updateClientInt%5==0){
                     activeClients[otherId].socket.emit(NetworkIds.UPDATE_OTHER, update);
                     continue;
                 }
@@ -597,11 +605,12 @@ function updateClients(elapsedTime) {
     lastUpdate = 0;
 }
 
-
 function gameLoop(currentTime, elapsedTime) {
-    processInput(elapsedTime);
-    update(elapsedTime, currentTime);
-    updateClients(elapsedTime);
+    if (gameHasBegun){
+        processInput(elapsedTime);
+        update(elapsedTime, currentTime);
+        updateClients(elapsedTime);
+    }
 
     if (!quit) {
         setTimeout(() => {
@@ -678,6 +687,8 @@ function initializeSocketIO(httpServer) {
     let users = [];
     let minChatterSizeHasBeenReached = false;
     let chatterBoxSize = 0;
+    let playersOnMap = 0;
+
     io.on('connection', function(socket) {
         console.log('Connection established: ', socket.id);
 
@@ -690,14 +701,38 @@ function initializeSocketIO(httpServer) {
             });
         });
 
+        socket.on('inMapScreen',function(){
+            let seconds_left = 15;
+            let interval = setInterval(function() {
+                --seconds_left;
+                if (seconds_left <= 0)
+                {
+                    //Time is up for choosing start location, all players left forced 
+                    // to join game at random location (the one that was picked for them before).
+                    socket.emit('forceGameScreen');
+                    clearInterval(interval);
+                }
+            }, 1000);
+        })
 
-        socket.on('readyplayerone',function(input){
-            let newPlayer = Player.create(map);
-            //let newPowerUp = PowerUp.create(map,'ammo');
-            //console.log(newPowerUp);
+        socket.on('isValidStart',function(data){
+            let result = map.isValid(data.y,data.x);
+            if(result){
+                io.sockets.emit('isValidRes', {x: data.x, y: data.y});
+                socket.emit('isValidForYou', {result: result, x: data.x, y: data.y});
+            }
+            
+        });
+
+        socket.on('readyplayerone', function(input){
+            playersOnMap += 1;
+            atLeastTwoPlayersOnMap = (playersOnMap === 2 || atLeastTwoPlayersOnMap);
             shield.gameStarted = true;
+            
+            let newPlayer = Player.create(map);
             newPlayer.clientId = socket.id;
             newPlayer.userName = newPlayerName;
+
             if(input){
                 if(input.result){
                     newPlayer.worldCordinates.x = input.x;
@@ -754,32 +789,6 @@ function initializeSocketIO(httpServer) {
                 users.splice(index, 1);
             }
          });
-        
-        
-
-        socket.on('inMapScreen',function(){
-            var seconds_left = 15;
-            var interval = setInterval(function() {
-                --seconds_left;
-                if (seconds_left <= 0)
-                {
-                    console.log('the server has begun the game!!!');
-                    socket.emit('doTheThing');
-                    clearInterval(interval);
-
-                }
-            }, 1000);
-        })
-
-        socket.on('isValidStart',function(data){
-            let result = map.isValid(data.y,data.x);
-            if(result){
-                io.sockets.emit('isValidRes',{x:data.x,y:data.y});
-                socket.emit('isValidForYou',{result:result,x:data.x,y:data.y});
-            }
-            
-        });
-
 
         socket.on('setUsername', function(data) {
             
@@ -792,14 +801,16 @@ function initializeSocketIO(httpServer) {
                     console.log('The countdown has begun.');
                     minChatterSizeHasBeenReached = true;
                     io.sockets.emit('BeginCountDown');
-                    var seconds_left = 25;
-                    var interval = setInterval(function() {
+                    let seconds_left = 15;
+                    let interval = setInterval(function() {
                         --seconds_left;
+                        if (seconds_left === 10){
+                            gameHasBegun = true;
+                        }
                         if (seconds_left <= 0)
                         {
                             console.log('the server has begun the game!!!');
                             clearInterval(interval);
-                            gameHasBegun = true;
                         }
                     }, 1000);
                 }
@@ -864,6 +875,10 @@ function initializeSocketIO(httpServer) {
 //------------------------------------------------------------------
 function initialize(httpServer) {
     initializeSocketIO(httpServer);
+    //Let's initialize everything about the game that won't change until players are on the map.
+    updatePowerUps();
+
+    //Then call the gameloop to start running.
     gameLoop(present(), 0);
 }
 

@@ -16,6 +16,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
 
     let shield = components.Shield();
     let DISTANCE_TO_DETECT_PARTICLES = 400;
+    let RAPID_FIRE_PER_SECOND = 8;
 
     let powerUptextures = {
         weapon: MyGame.assets['weapon'],
@@ -32,7 +33,6 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         emptyfire: MyGame.assets['emptyfire'],
         rapidFire: MyGame.assets['rapidFire'] 
     }
-    sounds.hit.volume = 0.5;
     let killer_and_killed = {
         killer: '',
         killed: '',
@@ -42,8 +42,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
     let quit = false;
     let killWasUpdated = false;
     let killDisplayTime = 0;
-    //killer_and_killed[0] = 'banina';
-    //killer_and_killed[1] = 'fofina';
+
     let myModel = components.Player(map);
     let playerSelf = {
             model: myModel,
@@ -79,8 +78,6 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         socket = io(),
         networkQueue = Queue.create();
 
-    let rapidUpdate = 0;
-    let rapidSound = false;
         
     socket.on(NetworkIds.POWER_UP_LOC, data => {
         networkQueue.enqueue({
@@ -363,14 +360,11 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
 
         particles.shotSmoke(data.worldCordinates, data.direction, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);        
         //only play this sound if it is within a certain distance of me. So gunshots from other players can be heard, if they are less than 1000 units away from me.
-        //This allows the user to hear gunshots that are slightly outside of his viewing window.
-        if (inRange(data.worldCordinates,playerSelf.model.worldCordinates) && rapidSound){
-            //I think I only want to restart the sound every x miliseconds
-            sounds.gunshot.pause();
+        //This allows the user to hear gunshots that are outside of his viewing window, the volume proportional to how far away.
+        let vol = inRangeVol(data.worldCordinates, playerSelf.model.worldCordinates);
+        if (vol > 0){
             sounds.gunshot.currentTime = 0;
-            sounds.gunshot.play();
-        }
-        else if (inRange(data.worldCordinates,playerSelf.model.worldCordinates)){
+            sounds.gunshot.volume = vol;
             sounds.gunshot.play();
         }
     }
@@ -392,22 +386,22 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
                 spriteCount: 6,
                 spriteTime: [ 80, 55, 30, 30, 30, 2000]
             });
+            // explosions[nextExplosionId] = components.AnimatedSprite({
+            //     id: nextExplosionId++,
+            //     spriteSheet: MyGame.assets['explosion'],
+            //     spriteSize: { width: 0.07, height: 0.07 },
+            //     spriteCenter: data.hit_location,
+            //     spriteCount: 16,
+            //     spriteTime: [ 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
+            // });
             particles.enemyHit(data.hit_location, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);
         }else{
             particles.playerSelfDied(data.hit_location, playerSelf.model.direction, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);
         }
-        //
-        // explosions[nextExplosionId] = components.AnimatedSprite({
-        //     id: nextExplosionId++,
-        //     spriteSheet: MyGame.assets['explosion'],
-        //     spriteSize: { width: 0.07, height: 0.07 },
-        //     spriteCenter: data.hit_location,
-        //     spriteCount: 16,
-        //     spriteTime: [ 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
-        // });
-        if (inRange(data.hit_location,playerSelf.model.worldCordinates)){
-            sounds.hit.pause();
+        let vol = inRangeVol(data.hit_location, playerSelf.model.worldCordinates);
+        if (vol > 0){
             sounds.hit.currentTime = 0;
+            sounds.hit.volume = vol;
             sounds.hit.play();
         }
 
@@ -495,21 +489,23 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
     //deal with sounds for firing weapon
     function weaponSound(){
         if (playerSelf != null && playerSelf.model.hasWeapon && playerSelf.hasBullets){
-            sounds.gunshot.pause();
             sounds.gunshot.currentTime = 0;
             sounds.gunshot.play();
         } 
         else if (playerSelf != null && playerSelf.model.hasWeapon && !playerSelf.hasBullets) {
-            sounds.emptyfire.pause();
             sounds.emptyfire.currentTime = 0;
             sounds.emptyfire.play();
         }
     }
 
     //determine if a shot is within range 1000 in canvas coordinates?
-    function inRange(fireLocation,characterLocation){
-        var dist = Math.sqrt(Math.pow((fireLocation.x-characterLocation.x),2) + Math.pow((fireLocation.y-characterLocation.y),2))
-        return dist <= 1000;
+    function inRangeVol(fireLocation, characterLocation){
+        let distanceToHear = 1200;
+        let dist = Math.sqrt(Math.pow((fireLocation.x-characterLocation.x),2) + Math.pow((fireLocation.y-characterLocation.y),2))
+        if (dist <= distanceToHear){
+            return 1 - dist/distanceToHear;
+        }
+        return 0;
     }
 
     //------------------------------------------------------------------
@@ -534,15 +530,6 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
             playerOthers[id].texture.worldCordinates.x = playerOthers[id].model.state.worldCordinates.x;
             playerOthers[id].texture.worldCordinates.y = playerOthers[id].model.state.worldCordinates.y;
             playerOthers[id].texture.update(elapsedTime,viewPort);
-        }
-
-        rapidUpdate += elapsedTime;
-        if (rapidUpdate > 30){
-            rapidSound = true;
-            rapidUpdate -= 30;
-        }
-        else {
-            rapidSound = false;
         }
 
         let removeMissiles = [];
@@ -706,11 +693,11 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
                     type: NetworkIds.INPUT_RAPIDFIRE
                 };
                 socket.emit(NetworkIds.INPUT, message);
-                if (playerSelf.hasRapidFire && !playerSelf.hasBullets){
+                if (playerSelf.hasRapidFire){
                     weaponSound();
                 }
             },
-            input.KeyEvent.rapidFire, true, 80);
+            input.KeyEvent.rapidFire, true, 1000/RAPID_FIRE_PER_SECOND);
 
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
@@ -730,7 +717,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
                     type: NetworkIds.INPUT_SPRINT
                 };
                 socket.emit(NetworkIds.INPUT, message);
-		playerSelf.model.isSprinting=true;
+		playerSelf.model.isSprinting = true;
             },
             input.KeyEvent.sprint, true);
 
@@ -746,7 +733,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
                     type: NetworkIds.INPUT_FIRE
                 };
                 socket.emit(NetworkIds.INPUT, message);
-                weaponSound();
+                // weaponSound();
             });
 
         let canvas = document.getElementById('canvas-main');
