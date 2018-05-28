@@ -360,6 +360,7 @@ function update(elapsedTime, currentTime) {
                 if(collided(activeClients[clientId].player,ammoPowerUps[ammo])){
                     activeClients[clientId].player.foundAmmoPack();
                     ammoPowerUps[ammo].movePowerUp();
+                    powerUpsThatMoved
                     powerUpsChanged = true;
                 }
             }
@@ -450,9 +451,7 @@ function updateClients(elapsedTime) {
                         client.socket.emit(NetworkIds.GAME_OVER, '');
                     }
                     updateHighScores();
-                    //We don't want to quit the game simulation, we want to reset it fresh.
                     quit = true;
-                    //resetGame();
                 }
             }
         }
@@ -471,7 +470,8 @@ function updateClients(elapsedTime) {
     updateClientInt++;
 
 
-
+// TODO: make this actually useful, only emit updates about powerups that have changed their location. 
+// needs to be fixed client side as well as right here.
     if(powerUpsChanged){
         for (let clientId in activeClients) {
             let client = activeClients[clientId];
@@ -624,8 +624,9 @@ function gameLoop(currentTime, elapsedTime) {
         update(elapsedTime, currentTime);
         updateClients(elapsedTime);
     }
-
-    if (!quit) {
+    if (quit){
+        // resetGame();
+    } else {
         setTimeout(() => {
             let now = present();
             gameLoop(now, now - currentTime);
@@ -779,7 +780,7 @@ function initializeSocketIO(httpServer) {
                 };
                 gameStatsOver.push(pushed);
             }
-            socket.emit(NetworkIds.SCORE_RES,gameStatsOver)
+            socket.emit(NetworkIds.SCORE_RES, gameStatsOver);
         });
 
         socket.on('disconnect', function() {

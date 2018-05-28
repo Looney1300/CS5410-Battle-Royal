@@ -753,6 +753,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         //
         // Get the game loop started
         graphics.updateCanvas();
+        console.log('gameloop running...');
         requestAnimationFrame(gameLoop);
     }
 

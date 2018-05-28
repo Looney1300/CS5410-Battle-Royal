@@ -3,11 +3,10 @@ MyGame.screens['game-play'] = (function() {
   
     function initialize() {
       console.log('game-play is inited');
-
+      MyGame.main.initialize();
     }
   
     function run() {
-      MyGame.main.initialize();
     }
   
     return {
