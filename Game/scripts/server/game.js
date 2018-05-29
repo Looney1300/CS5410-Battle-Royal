@@ -93,19 +93,20 @@ function createAmmoPowerUp(){
 }
 
 function updatePowerUps(){
-    while(weaponPowerUps.length < NUM_PLAYERS_PER_GAME * POWERUPS_PER_PLAYER){
+    let numPowerUps = NUM_PLAYERS_PER_GAME * POWERUPS_PER_PLAYER;
+    while(weaponPowerUps.length < numPowerUps){
         createWeaponPowerUp();
     };
-    while(fire_ratePowerUps.length < NUM_PLAYERS_PER_GAME * POWERUPS_PER_PLAYER){
+    while(fire_ratePowerUps.length < numPowerUps){
         createFireRatePowerUp();
     };
-    while(fire_rangePowerUps.length < NUM_PLAYERS_PER_GAME * POWERUPS_PER_PLAYER){
+    while(fire_rangePowerUps.length < numPowerUps){
         createFireRangePowerUp();
     };
-    while(healthPowerUps.length < NUM_PLAYERS_PER_GAME * POWERUPS_PER_PLAYER){
+    while(healthPowerUps.length < numPowerUps/2){
         createHealthPowerUp()
     };
-    while(ammoPowerUps.length < NUM_PLAYERS_PER_GAME * POWERUPS_PER_PLAYER){
+    while(ammoPowerUps.length < numPowerUps){
         createAmmoPowerUp();
     };
 }
@@ -261,6 +262,7 @@ function processInput(elapsedTime) {
     }
 }
 
+//TODO
 function resetGame(){
     //Other gamevariables
     inputQueue = Queue.create();
@@ -574,11 +576,11 @@ function updateClients(elapsedTime) {
                 if (isInRange(client.player, activeClients[otherId].player)){
                     activeClients[otherId].socket.emit(NetworkIds.UPDATE_OTHER, update);
                 }
-                // I think this "optimization" is what is creating other players to lag. 5 updates is .5 sec!
-                // if (updateClientInt%5 === 1){
-                //     activeClients[otherId].socket.emit(NetworkIds.UPDATE_OTHER, update);
-                //     continue;
-                // }
+                // This is so all the clients are placed somewhere on the map in relation to eachother.
+                if (updateClientInt%5 === 0){
+                    activeClients[otherId].socket.emit(NetworkIds.UPDATE_OTHER, update);
+                    continue;
+                }
             }
         }
         //Can we do these by range?
