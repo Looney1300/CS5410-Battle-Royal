@@ -181,8 +181,6 @@ function collided(obj1, obj2) {
     let distance = Math.sqrt(Math.pow(obj1.worldCordinates.x - obj2.worldCordinates.x, 2) 
     + Math.pow(obj1.worldCordinates.y - obj2.worldCordinates.y, 2));
     let radii = obj1.collision_radius + obj2.collision_radius;
-    //console.log('carnage is being detected -->',distance, ' sum:' ,radii);
-
     return distance <= radii;
 }
 
@@ -749,7 +747,6 @@ function initializeSocketIO(httpServer) {
         });
 
         socket.on(NetworkIds.SCORE_REQ,function(){
-            //console.log('I am here in the server');
             let gameStatsOver = [];
             for (let clientId in activeClients) {
                 let client = activeClients[clientId];
@@ -775,7 +772,6 @@ function initializeSocketIO(httpServer) {
         socket.on('exitedchat', function(data) {
             chatterBoxSize--;
             let index = users.indexOf(data);
-            console.log(index);
             if (index > -1) {
                 users.splice(index, 1);
             }

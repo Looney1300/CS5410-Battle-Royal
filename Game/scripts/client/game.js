@@ -99,7 +99,6 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
     });
 
     socket.on(NetworkIds.GAME_OVER, function(){
-        //console.log('working very hard!!!');
         quit = true;
         MyGame.pregame.showScreen('game-over');
     });
@@ -221,9 +220,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
     // Handler for receiving state updates about the self player.
     //
     //------------------------------------------------------------------
-    function updatePlayerSelf(data) {
-        //console.log('x: ',data.worldCordinates.x, ' y: ',data.worldCordinates.y);
-        
+    function updatePlayerSelf(data) {        
         playerSelf.model.direction = data.direction;
         playerSelf.model.worldCordinates.x = data.worldCordinates.x;
         playerSelf.model.worldCordinates.y = data.worldCordinates.y;
@@ -270,7 +267,6 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         let memory = Queue.create();
         while (!messageHistory.empty) {
             let message = messageHistory.dequeue();
-            // console.log('-----> ',message.type,' <-----');
             switch (message.type) {
                 case 'move-up':
                     playerSelf.model.moveUp(message.elapsedTime);
@@ -305,7 +301,6 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
 
             //If the status of is_alive changed, they died.
             if (model.is_alive !== data.is_alive){
-                //console.log(model.is_alive, data.is_alive);
                 particles.playerDied(data.worldCordinates, data.direction, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);
             }
             model.killer = data.killer;
@@ -324,23 +319,15 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
             playerOthers[data.clientId].is_alive = data.is_alive;
             model.is_alive = data.is_alive;
             model.userName = data.userName;
-            //console.log(data.is_alive);
 
             if(!model.is_alive && model.wasNewlyKilled){
-                console.log(killer_and_killed);
                 model.wasNewlyKilled = false;
-
                 let tempKillStat = Object.create(killer_and_killed);
                 tempKillStat.killer = model.userName;
-                //console.log(model.userName);
                 tempKillStat.killed = model.killer;
                 killStatsArray.push(tempKillStat);
-                
             }
         }
-
-
-        //console.log(data.is_alive);
     }
 
     //------------------------------------------------------------------
@@ -415,7 +402,6 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
     }
 
     function powerUpdate(data){
-        console.log(data);
         let tempPowerUp = components.PowerUp({
             worldCordinates: data.worldCordinates,
             type: data.type
