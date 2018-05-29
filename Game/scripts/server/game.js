@@ -61,6 +61,7 @@ let activeClients = {};
 //  as soon as the first player entered the game, but this prevents that.
 let atLeastTwoPlayersOnMap = false;
 
+let MISSILE_SPEED = 3; // In units of player move speed (2 is twice as fast as a player moves normally).
 let newMissiles = [];
 let activeMissiles = [];
 let hits = [];
@@ -131,7 +132,7 @@ function createMissile(clientId, playerModel) {
                 },
                 timeRemaining: tempmistime,
                 direction: playerModel.direction,
-                speed: playerModel.speed*2
+                speed: playerModel.speed * MISSILE_SPEED
             });
             newMissiles.push(missile);
         }

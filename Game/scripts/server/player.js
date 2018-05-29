@@ -39,7 +39,7 @@ function createPlayer(mapLogic) {
     let SPRINT_RECOVERY_RATE = .05 // how fast you regenerate sprint: this is per millisecond
 
 
-    let missileTime = 400;
+    let missileTime = 350;
 
     let size = {
         width: 0.01,
@@ -49,8 +49,7 @@ function createPlayer(mapLogic) {
     let collision_radius = 15;
     let direction = random.nextDouble() * 2 * Math.PI;    // Angle in radians
     let rotateRate = Math.PI / 1000;    // radians per millisecond
-    let speed = 0.2;                  // unit distance per millisecond
-    let moveRate = 200;
+    let speed = 0.15;                  // unit distance per millisecond
 
     let killer = '';
     let kills = 0;
