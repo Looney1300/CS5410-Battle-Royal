@@ -261,11 +261,11 @@ function processInput(elapsedTime) {
 function resetGame(){
     //Other gamevariables
     inputQueue = Queue.create();
-    atLeastTwoPlayersOnMap = false;
     lastUpdate = 0;
     quit = false;
-    activeClients = {};
     atLeastTwoPlayersOnMap = false;
+    activeClients = {};
+    inMapScreenClients = {};
     gameHasBegun = false;
     updateShieldInt = 0;
     updateClientInt = 0;
@@ -429,6 +429,16 @@ function updateClients(elapsedTime) {
                 }
             }
 
+            //This is to check to see if everyone but one person left after being presented the map, but 
+            // before choosing a valid location.
+            if (Object.keys(inMapScreenClients).length < 2){
+                for (let clientId in activeClients) {
+                    let client = activeClients[clientId];
+                    client.socket.emit(NetworkIds.GAME_OVER, '');
+                }
+                updateHighScores();
+                quit = true;
+            }
             if (atLeastTwoPlayersOnMap){
                 if((liveCount <= 1) && (playerCount > 0)){
                     for (let clientId in activeClients) {
@@ -501,7 +511,6 @@ function updateClients(elapsedTime) {
                 }
             }
         }
-
         powerUpsThatMoved.length = 0;    
     }
 
@@ -750,6 +759,7 @@ function initializeSocketIO(httpServer) {
 
         socket.on('disconnect', function() {
             console.log('connection lost: ', socket.id);
+            delete inMapScreenClients[socket.id];
             delete activeClients[socket.id];
             for (var i = 0; i < loggedInPlayers.length; ++i){
                 if (loggedInPlayers[i].id == socket.id){
