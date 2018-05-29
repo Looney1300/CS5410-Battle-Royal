@@ -50,8 +50,15 @@ let powerUpsThatMoved = [];
 
 let lastUpdate = 0;
 let quit = false;
-let activeClients = {};
+
+// loggedInPlayers is the first place clients are registered, right after logging in.
+// inMapScreenClients is the second place clients are registered, right after the game is started (location choice map).
+// activeClients are the clients that are in actual gameplay, dead or alive (after being placed on the map as a player). 
+let loggedInPlayers = {};
 let inMapScreenClients = {};
+let activeClients = {};
+// This is used to begin checking for the win condition of only one player alive, this would get triggered 
+//  as soon as the first player entered the game, but this prevents that.
 let atLeastTwoPlayersOnMap = false;
 
 let newMissiles = [];
@@ -59,8 +66,6 @@ let activeMissiles = [];
 let hits = [];
 let nextMissileId = 1;
 
-//TODO: what is the difference between loggedInPlayers and activeClients?
-let loggedInPlayers = [];
 
 function createWeaponPowerUp(){
     let newLength = weaponPowerUps.push(PowerUp.create(map, 'weapon'));
@@ -374,7 +379,7 @@ function update(elapsedTime, currentTime) {
             activeMissiles.splice(missile, 1);
         }
     }
-    // Of all the missiles that are still active (ie: their time hasn't expired), which are on a valid location.
+    // Of all the missiles that are still active (ie: their time hasn't expired), keep ones on a valid location.
     for (let missile = activeMissiles.length-1; missile >= 0; --missile) {
         let hit = false;
         if (!map.isValid(activeMissiles[missile].worldCordinates.y, activeMissiles[missile].worldCordinates.x)){
@@ -395,7 +400,7 @@ function update(elapsedTime, currentTime) {
                     hits.push({
                         clientId: clientId,
                         missileId: activeMissiles[missile].id,
-                        hit_location: activeClients[clientId].player.worldCordinates
+                        worldCordinates: activeClients[clientId].player.worldCordinates
                     });
                 }
             }
@@ -414,7 +419,7 @@ function updateClients(elapsedTime) {
     // For demonstration purposes, network updates run at a slower rate than
     // the game simulation.
     lastUpdate += elapsedTime;
-    // bookmark dont need
+    // // bookmark dont need
     if (lastUpdate < STATE_UPDATE_RATE_MS) {
         return;
     }
@@ -428,7 +433,6 @@ function updateClients(elapsedTime) {
                     liveCount++;
                 }
             }
-
             //This is to check to see if everyone but one person left after being presented the map, but 
             // before choosing a valid location.
             if (Object.keys(inMapScreenClients).length < 2){
@@ -465,9 +469,7 @@ function updateClients(elapsedTime) {
     updateClientInt++;
 
     if (powerUpsThatMoved.length > 0){
-        for (let clientId in inMapScreenClients) {
-            let client = inMapScreenClients[clientId];
-
+        for (let socketId in inMapScreenClients) {
             for (let i = 0; i < powerUpsThatMoved.length; ++i){
                 if (powerUpsThatMoved[i].type === 'weapon'){
                     let pUp = {
@@ -475,7 +477,7 @@ function updateClients(elapsedTime) {
                         id: powerUpsThatMoved[i].id,
                         worldCordinates: weaponPowerUps[powerUpsThatMoved[i].id].worldCordinates,
                     }
-                    client.socket.emit(NetworkIds.POWER_UP_LOC, pUp);
+                    inMapScreenClients[socketId].emit(NetworkIds.POWER_UP_LOC, pUp);
                 }
                 else if (powerUpsThatMoved[i].type === 'fire_rate'){
                     let pUp = {
@@ -483,7 +485,7 @@ function updateClients(elapsedTime) {
                         id: powerUpsThatMoved[i].id,
                         worldCordinates: fire_ratePowerUps[powerUpsThatMoved[i].id].worldCordinates,
                     }
-                    client.socket.emit(NetworkIds.POWER_UP_LOC, pUp);
+                    inMapScreenClients[socketId].emit(NetworkIds.POWER_UP_LOC, pUp);
                 }
                 else if (powerUpsThatMoved[i].type === 'fire_range'){
                     let pUp = {
@@ -491,7 +493,7 @@ function updateClients(elapsedTime) {
                         id: powerUpsThatMoved[i].id,
                         worldCordinates: fire_rangePowerUps[powerUpsThatMoved[i].id].worldCordinates,
                     }
-                    client.socket.emit(NetworkIds.POWER_UP_LOC, pUp);
+                    inMapScreenClients[socketId].emit(NetworkIds.POWER_UP_LOC, pUp);
                 }
                 else if (powerUpsThatMoved[i].type === 'health'){
                     let pUp = {
@@ -499,7 +501,7 @@ function updateClients(elapsedTime) {
                         id: powerUpsThatMoved[i].id,
                         worldCordinates: healthPowerUps[powerUpsThatMoved[i].id].worldCordinates,
                     }
-                    client.socket.emit(NetworkIds.POWER_UP_LOC, pUp);
+                    inMapScreenClients[socketId].emit(NetworkIds.POWER_UP_LOC, pUp);
                 }
                 else if (powerUpsThatMoved[i].type === 'ammo'){
                     let pUp = {
@@ -507,7 +509,7 @@ function updateClients(elapsedTime) {
                         id: powerUpsThatMoved[i].id,
                         worldCordinates: ammoPowerUps[powerUpsThatMoved[i].id].worldCordinates,
                     }
-                    client.socket.emit(NetworkIds.POWER_UP_LOC, pUp);
+                    inMapScreenClients[socketId].emit(NetworkIds.POWER_UP_LOC, pUp);
                 }
             }
         }
@@ -571,21 +573,26 @@ function updateClients(elapsedTime) {
         // other connected client status.
         for (let otherId in activeClients) {
             if (otherId !== clientId) {
-                if(isInRange(client.player, activeClients[otherId].player)){
+                if (isInRange(client.player, activeClients[otherId].player)){
                     activeClients[otherId].socket.emit(NetworkIds.UPDATE_OTHER, update);
-                    continue;
                 }
-                if(updateClientInt%5==0){
-                    activeClients[otherId].socket.emit(NetworkIds.UPDATE_OTHER, update);
-                    continue;
-                }
+                // I think this "optimization" is what is creating other players to lag. 5 updates is .5 sec!
+                // if (updateClientInt%5 === 1){
+                //     activeClients[otherId].socket.emit(NetworkIds.UPDATE_OTHER, update);
+                //     continue;
+                // }
             }
         }
+        //Can we do these by range?
         for (let missile = 0; missile < missileMessages.length; missile++) {
-            client.socket.emit(NetworkIds.MISSILE_NEW, missileMessages[missile]);
+            if (isInRange(client.player, missileMessages[missile])){
+                client.socket.emit(NetworkIds.MISSILE_NEW, missileMessages[missile]);
+            }
         }
         for (let hit = 0; hit < hits.length; hit++) {
-            client.socket.emit(NetworkIds.MISSILE_HIT, hits[hit]);
+            if (isInRange(client.player, hits[hit])){
+                client.socket.emit(NetworkIds.MISSILE_HIT, hits[hit]);
+            }
         }
     }
 
@@ -691,7 +698,7 @@ function initializeSocketIO(httpServer) {
         });
 
         socket.on('inMapScreen',function(){
-            inMapScreenClients[socket.id] = { socket: socket};
+            inMapScreenClients[socket.id] = socket;
             let seconds_left = 15;
             let interval = setInterval(function() {
                 --seconds_left;
@@ -761,12 +768,7 @@ function initializeSocketIO(httpServer) {
             console.log('connection lost: ', socket.id);
             delete inMapScreenClients[socket.id];
             delete activeClients[socket.id];
-            for (var i = 0; i < loggedInPlayers.length; ++i){
-                if (loggedInPlayers[i].id == socket.id){
-                    loggedInPlayers.splice(i,1);
-                    break;
-                }
-            }
+            delete loggedInPlayers[socket.id];
             notifyDisconnect(socket.id);
         });
 
@@ -829,10 +831,7 @@ function initializeSocketIO(httpServer) {
          socket.on(NetworkIds.VALID_USER, data => {
              if (validUser(data.name,data.password)){
                 newPlayerName = data.name;
-                loggedInPlayers.push({
-                    name: data.name,
-                    id: socket.id
-                });
+                loggedInPlayers[socket.id] = data.name;
                 socket.emit(NetworkIds.VALID_USER, null);
              }
              else{
@@ -843,11 +842,7 @@ function initializeSocketIO(httpServer) {
          socket.on(NetworkIds.VALID_CREATE_USER, data => {
              if(validCreateUser(data.name,data.password)){
                  newPlayerName = data.name;
-                 loggedInPlayers.push({
-                     name: data.name,
-                     id: socket.id
-                 });
-                //newPlayer.userName = data.name;
+                 loggedInPlayers[socket.id] = data.name;
                 socket.emit(NetworkIds.VALID_CREATE_USER,null);
              }
              else {
@@ -873,12 +868,13 @@ function validUser(uName,uPassword){
     var obj = JSON.parse(fs.readFileSync('../Game/data/users.json', 'utf8'));
     var valid = false;
     for (var i = 0; i < obj.length; ++i){
-        if (obj[i].name == uName && CryptoJS.AES.decrypt(obj[i].password, SALT).toString(CryptoJS.enc.Utf8) == uPassword){
+        if (obj[i].name === uName && CryptoJS.AES.decrypt(obj[i].password, SALT).toString(CryptoJS.enc.Utf8) === uPassword){
             valid = true;
         }
     }
-    for (var i = 0; i < loggedInPlayers.length; ++i){
-        if (uName == loggedInPlayers[i].name){
+    let ids = Object.keys(loggedInPlayers);
+    for (var i = 0; i < ids.length; ++i){
+        if (uName === loggedInPlayers[ids[i]]){
             return false;
         }
     }
@@ -888,7 +884,7 @@ function validUser(uName,uPassword){
 function validCreateUser(uName,uPassword){ 
     var obj = JSON.parse(fs.readFileSync('../Game/data/users.json', 'utf8'));
     for (var i = 0; i < obj.length; ++i){
-        if (obj[i].name == uName){
+        if (obj[i].name === uName){
             return false;
         }
     }

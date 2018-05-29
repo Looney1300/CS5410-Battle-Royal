@@ -385,7 +385,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
                 id: nextExplosionId++,
                 spriteSheet: MyGame.assets['bloodsplosion'],
                 spriteSize: { width: 0.035, height: 0.035 },
-                spriteCenter: data.hit_location,
+                spriteCenter: data.worldCordinates,
                 spriteCount: 6,
                 spriteTime: [ 80, 55, 30, 30, 30, 2000]
             });
@@ -393,15 +393,15 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
             //     id: nextExplosionId++,
             //     spriteSheet: MyGame.assets['explosion'],
             //     spriteSize: { width: 0.07, height: 0.07 },
-            //     spriteCenter: data.hit_location,
+            //     spriteCenter: data.worldCordinates,
             //     spriteCount: 16,
             //     spriteTime: [ 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
             // });
-            particles.enemyHit(data.hit_location, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);
+            particles.enemyHit(data.worldCordinates, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);
         }else{
-            particles.playerSelfDied(data.hit_location, playerSelf.model.direction, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);
+            particles.playerSelfDied(data.worldCordinates, playerSelf.model.direction, viewPort.center, DISTANCE_TO_DETECT_PARTICLES);
         }
-        let vol = inRangeVol(data.hit_location, playerSelf.model.worldCordinates);
+        let vol = inRangeVol(data.worldCordinates, playerSelf.model.worldCordinates);
         if (vol > 0){
             sounds.hit.currentTime = 0;
             sounds.hit.volume = vol;
