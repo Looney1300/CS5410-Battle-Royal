@@ -39,7 +39,7 @@ function createPlayer(mapLogic) {
     let SPRINT_RECOVERY_RATE = .05 // how fast you regenerate sprint: this is per millisecond
 
 
-    let missileTime = 1500;
+    let missileTime = 400;
 
     let size = {
         width: 0.01,

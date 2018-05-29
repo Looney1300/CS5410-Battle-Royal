@@ -737,7 +737,6 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
                     type: NetworkIds.INPUT_FIRE
                 };
                 socket.emit(NetworkIds.INPUT, message);
-                // weaponSound();
             });
 
         let canvas = document.getElementById('canvas-main');

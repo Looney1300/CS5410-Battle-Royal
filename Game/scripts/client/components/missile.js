@@ -49,9 +49,6 @@ MyGame.components.Missile = function(spec) {
 
         spec.timeRemaining -= elapsedTime;
 
-
-
-
         let diffX = (Math.abs(viewPort.center.x - this.worldCordinates.x))/viewPort.width;
         let diffY = (Math.abs(viewPort.center.y - this.worldCordinates.y))/viewPort.height;
         if (this.worldCordinates.x < viewPort.center.x){
@@ -66,15 +63,6 @@ MyGame.components.Missile = function(spec) {
         else {
             this.position.y = 0.5 + diffY;
         }
-
-
-
-
-
-
-
-
-
 
         if (spec.timeRemaining <= 0) {
             return false;

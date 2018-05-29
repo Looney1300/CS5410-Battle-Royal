@@ -579,11 +579,10 @@ function updateClients(elapsedTime) {
                 // This is so all the clients are placed somewhere on the map in relation to eachother.
                 if (updateClientInt%5 === 0){
                     activeClients[otherId].socket.emit(NetworkIds.UPDATE_OTHER, update);
-                    continue;
                 }
             }
         }
-        //Can we do these by range?
+        
         for (let missile = 0; missile < missileMessages.length; missile++) {
             if (isInRange(client.player, missileMessages[missile])){
                 client.socket.emit(NetworkIds.MISSILE_NEW, missileMessages[missile]);

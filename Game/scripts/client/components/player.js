@@ -50,7 +50,6 @@ MyGame.components.Player = function(mapLogic) {
         set: value => killer = value
     })
 
-
     Object.defineProperty(that, 'SPRINT_DECREASE_RATE', {
         get: () => SPRINT_DECREASE_RATE,
         set: value => SPRINT_DECREASE_RATE = value
