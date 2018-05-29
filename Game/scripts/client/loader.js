@@ -236,11 +236,11 @@ MyGame.loader = (function() {
             source: 'assets/Powerups/weapon_powerup.png'
         },
         {
-            key: 'fire-rate',
+            key: 'fire_rate',
             source: 'assets/Powerups/increased_fire_rate.png'
         },
         {
-            key: 'fire-range',
+            key: 'fire_range',
             source: 'assets/Powerups/increased_range.png'
         },
         {

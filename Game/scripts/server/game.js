@@ -46,7 +46,7 @@ let fire_ratePowerUps = [];
 let fire_rangePowerUps = [];
 let healthPowerUps = [];
 let ammoPowerUps = [];
-let powerUpsChanged = true;
+let powerUpsThatMoved = [];
 
 let lastUpdate = 0;
 let quit = false;
@@ -57,40 +57,37 @@ let newMissiles = [];
 let activeMissiles = [];
 let hits = [];
 let nextMissileId = 1;
-//this is being hard coded for now until I figure out a better solution
 
 //TODO: what is the difference between loggedInPlayers and activeClients?
 let loggedInPlayers = [];
 
-
-
 function createWeaponPowerUp(){
-    let tempwpu = PowerUp.create(map,'weapon');
-    weaponPowerUps.push(tempwpu);  
-};
+    let newLength = weaponPowerUps.push(PowerUp.create(map, 'weapon'));
+    powerUpsThatMoved.push({type: 'weapon', id: newLength-1});
+}
 
 function createFireRatePowerUp(){
-    let tempfrpu = PowerUp.create(map,'fire-rate');
-    fire_ratePowerUps.push(tempfrpu);
-};
+    let newLength = fire_ratePowerUps.push(PowerUp.create(map, 'fire_rate'));
+    powerUpsThatMoved.push({type: 'fire_rate', id: newLength-1});
+}
 
 function createFireRangePowerUp(){
-    let tempfrapu = PowerUp.create(map,'fire-range');
-    fire_rangePowerUps.push(tempfrapu);
-};
+    let newLength = fire_rangePowerUps.push(PowerUp.create(map, 'fire_range'));
+    powerUpsThatMoved.push({type: 'fire_range', id: newLength-1});
+}
 
 function createHealthPowerUp(){
-    let temphpu = PowerUp.create(map,'health');
-    healthPowerUps.push(temphpu);
-};
+    let newLength = healthPowerUps.push(PowerUp.create(map, 'health'));
+    powerUpsThatMoved.push({type: 'health', id: newLength-1});
+}
 
 function createAmmoPowerUp(){
-    let tempapu = PowerUp.create(map,'ammo');
-    ammoPowerUps.push(tempapu);
-};
+    let newLength = ammoPowerUps.push(PowerUp.create(map, 'ammo'));
+    powerUpsThatMoved.push({type: 'ammo', id: newLength-1});
+}
 
 function updatePowerUps(){
-    while(weaponPowerUps.length < NUM_PLAYERS_PER_GAME*POWERUPS_PER_PLAYER){
+    while(weaponPowerUps.length < NUM_PLAYERS_PER_GAME * POWERUPS_PER_PLAYER){
         createWeaponPowerUp();
     };
     while(fire_ratePowerUps.length < NUM_PLAYERS_PER_GAME * POWERUPS_PER_PLAYER){
@@ -105,7 +102,7 @@ function updatePowerUps(){
     while(ammoPowerUps.length < NUM_PLAYERS_PER_GAME * POWERUPS_PER_PLAYER){
         createAmmoPowerUp();
     };
-};
+}
 
 function createMissile(clientId, playerModel) {
     if(!playerModel.is_alive){
@@ -288,7 +285,7 @@ function resetGame(){
     weaponPowerUps.length = 0;
     fire_rangePowerUps.length = 0;
     fire_ratePowerUps.length = 0;
-    powerUpsChanged = true;
+    powerUpsThatMoved.length = 0;
     updatePowerUps();
     //Reset missiles
     newMissiles.length = 0;
@@ -319,7 +316,7 @@ function update(elapsedTime, currentTime) {
                 if(collided(activeClients[clientId].player,weaponPowerUps[weapon])){
                     activeClients[clientId].player.has_gun = true;
                     weaponPowerUps[weapon].movePowerUp();
-                    powerUpsChanged = true;
+                    powerUpsThatMoved.push({type: 'weapon', id: weapon});
                 }
             }
         }
@@ -329,7 +326,7 @@ function update(elapsedTime, currentTime) {
                 if(collided(activeClients[clientId].player,fire_ratePowerUps[fire_rate])){
                     activeClients[clientId].player.has_rapid_fire = true;
                     fire_ratePowerUps[fire_rate].movePowerUp();
-                    powerUpsChanged = true;
+                    powerUpsThatMoved.push({type: 'fire_rate', id: fire_rate});
                 }
             }
         }
@@ -339,7 +336,7 @@ function update(elapsedTime, currentTime) {
                 if(collided(activeClients[clientId].player,fire_rangePowerUps[fire_range])){
                     activeClients[clientId].player.has_long_range = true;
                     fire_rangePowerUps[fire_range].movePowerUp();
-                    powerUpsChanged = true;
+                    powerUpsThatMoved.push({type: 'fire_range', id: fire_range});
                 }
             }
         }
@@ -349,46 +346,35 @@ function update(elapsedTime, currentTime) {
                 if(collided(activeClients[clientId].player,healthPowerUps[health])){
                     activeClients[clientId].player.foundMedPack();
                     healthPowerUps[health].movePowerUp();
-                    powerUpsChanged = true;
+                    powerUpsThatMoved.push({type: 'health', id: health});
                 }
             }
-        }
-        
+        }   
 
         if(activeClients[clientId].player.ammo_remaining < 100){
             for(let ammo = ammoPowerUps.length - 1; ammo >= 0; ammo-- ){
                 if(collided(activeClients[clientId].player,ammoPowerUps[ammo])){
                     activeClients[clientId].player.foundAmmoPack();
                     ammoPowerUps[ammo].movePowerUp();
-                    powerUpsThatMoved
-                    powerUpsChanged = true;
+                    powerUpsThatMoved.push({type: 'ammo', id: ammo});
                 }
             }
         }
         activeClients[clientId].player.update(elapsedTime);
     }
 
-
-
-
-
-
-
-    for (let missile = 0; missile < newMissiles.length; missile++) {
+    for (let missile = 0; missile < newMissiles.length; ++missile) {
         newMissiles[missile].update(elapsedTime);
     }
 
-    let keepMissiles = [];
-    for (let missile = 0; missile < activeMissiles.length; missile++) {
-        if (activeMissiles[missile].update(elapsedTime)) {
-            keepMissiles.push(activeMissiles[missile]);
+    // Preliminary check based on how long the missile should live.
+    for (let missile = activeMissiles.length-1; missile >= 0; --missile) {
+        if (!activeMissiles[missile].update(elapsedTime)) {
+            activeMissiles.splice(missile, 1);
         }
     }
-    activeMissiles = keepMissiles;
-    keepMissiles = [];
-
-
-    for (let missile = 0; missile < activeMissiles.length; missile++) {
+    // Of all the missiles that are still active (ie: their time hasn't expired), which are on a valid location.
+    for (let missile = activeMissiles.length-1; missile >= 0; --missile) {
         let hit = false;
         if (!map.isValid(activeMissiles[missile].worldCordinates.y, activeMissiles[missile].worldCordinates.x)){
             hit = true;
@@ -414,11 +400,10 @@ function update(elapsedTime, currentTime) {
                 }
             }
         }
-        if (!hit) {
-            keepMissiles.push(activeMissiles[missile]);
+        if (hit) {
+            activeMissiles.splice(missile, 1);
         }
     }
-    activeMissiles = keepMissiles;
 }
 
 function updateClients(elapsedTime) {
@@ -434,7 +419,7 @@ function updateClients(elapsedTime) {
         return;
     }
 
-    if(updateClientInt%5 === 1){
+    if (updateClientInt%5 === 1){
         if(gameHasBegun){
             for (let clientId in activeClients) {
                 let client = activeClients[clientId];        
@@ -472,70 +457,54 @@ function updateClients(elapsedTime) {
 
 // TODO: make this actually useful, only emit updates about powerups that have changed their location. 
 // needs to be fixed client side as well as right here.
-    if(powerUpsChanged){
+    if (powerUpsThatMoved.length > 0){
         for (let clientId in activeClients) {
             let client = activeClients[clientId];
 
-            let powerUpArray = [];
+            for (let i = 0; i < powerUpsThatMoved.length; ++i){
+                if (powerUpsThatMoved[i].type === 'weapon'){
+                    let pUp = {
+                        type: 'weapon',
+                        id: powerUpsThatMoved[i].id,
+                        worldCordinates: weaponPowerUps[powerUpsThatMoved[i].id].worldCordinates,
+                    }
+                    client.socket.emit(NetworkIds.POWER_UP_LOC, pUp);
+                }
+                else if (powerUpsThatMoved[i].type === 'fire_rate'){
+                    let pUp = {
+                        type: 'fire_rate',
+                        id: powerUpsThatMoved[i].id,
+                        worldCordinates: fire_ratePowerUps[powerUpsThatMoved[i].id].worldCordinates,
+                    }
+                    client.socket.emit(NetworkIds.POWER_UP_LOC, pUp);
+                }
+                else if (powerUpsThatMoved[i].type === 'fire_range'){
+                    let pUp = {
+                        type: 'fire_range',
+                        id: powerUpsThatMoved[i].id,
+                        worldCordinates: fire_rangePowerUps[powerUpsThatMoved[i].id].worldCordinates,
+                    }
+                    client.socket.emit(NetworkIds.POWER_UP_LOC, pUp);
+                }
+                else if (powerUpsThatMoved[i].type === 'health'){
+                    let pUp = {
+                        type: 'health',
+                        id: powerUpsThatMoved[i].id,
+                        worldCordinates: healthPowerUps[powerUpsThatMoved[i].id].worldCordinates,
+                    }
+                    client.socket.emit(NetworkIds.POWER_UP_LOC, pUp);
+                }
+                else if (powerUpsThatMoved[i].type === 'ammo'){
+                    let pUp = {
+                        type: 'ammo',
+                        id: powerUpsThatMoved[i].id,
+                        worldCordinates: ammoPowerUps[powerUpsThatMoved[i].id].worldCordinates,
+                    }
+                    client.socket.emit(NetworkIds.POWER_UP_LOC, pUp);
+                }
+            }
 
-            for(let weapon = weaponPowerUps.length - 1; weapon >= 0; weapon-- ){
-                let pUp = {
-                    worldCordinates: weaponPowerUps[weapon].worldCordinates,
-                    type: weaponPowerUps[weapon].type,
-                    radius: weaponPowerUps[weapon].radius
-                }
-                powerUpArray.push(pUp);
-            }
-    
-            for(let fire_rate = fire_ratePowerUps.length - 1; fire_rate >= 0; fire_rate-- ){
-                let pUp = {
-                    worldCordinates: fire_ratePowerUps[fire_rate].worldCordinates,
-                    type: fire_ratePowerUps[fire_rate].type,
-                    radius: fire_ratePowerUps[fire_rate].radius
-                }
-                powerUpArray.push(pUp);
-            }
-    
-            for(let fire_range = fire_rangePowerUps.length - 1; fire_range >= 0; fire_range-- ){
-                let pUp = {
-                    worldCordinates: fire_rangePowerUps[fire_range].worldCordinates,
-                    type: fire_rangePowerUps[fire_range].type,
-                    radius: fire_rangePowerUps[fire_range].radius
-                }
-                powerUpArray.push(pUp);
-            }
-    
-            for(let health = healthPowerUps.length - 1; health >= 0; health-- ){
-                let pUp = {
-                    worldCordinates: healthPowerUps[health].worldCordinates,
-                    type: healthPowerUps[health].type,
-                    radius: healthPowerUps[health].radius
-                }
-                powerUpArray.push(pUp);
-            }
-    
-            for(let ammo = ammoPowerUps.length - 1; ammo >= 0; ammo-- ){
-                let pUp = {
-                    worldCordinates: ammoPowerUps[ammo].worldCordinates,
-                    type: ammoPowerUps[ammo].type,
-                    radius: ammoPowerUps[ammo].radius
-                }
-                powerUpArray.push(pUp);
-            }
-    
-            // Now that we have built the powerup array we need to send it to the clients
-            // one piece at a time.
-    
-            for (let powerUp = 0; powerUp < powerUpArray.length; powerUp++){
-                powerUpArray[powerUp].indexId = powerUp;
-                client.socket.emit(NetworkIds.POWER_UP_LOC, powerUpArray[powerUp]);
-            }
-    
-            powerUpArray.length = 0;
-        }
-        powerUpsChanged = false;
-        if(!gameHasBegun){
-            powerUpsChanged = true;
+            powerUpsThatMoved.length = 0;    
         }
     }
 
@@ -889,6 +858,7 @@ function initializeSocketIO(httpServer) {
 //------------------------------------------------------------------
 function initialize(httpServer) {
     initializeSocketIO(httpServer);
+    
     //Then call the gameloop to start running.
     gameLoop(present(), 0);
 }

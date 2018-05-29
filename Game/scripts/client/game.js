@@ -68,8 +68,13 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         playersAliveCount = 0,
         playerOthers = {},
         missiles = {},
-        powerUps = [],
-        printPowerUps = [],
+        powerUps = {
+            weapon: [],
+            fire_rate: [],
+            fire_range: [],
+            health: [],
+            ammo: [],
+        },
         explosions = {},
         messageHistory = Queue.create(),
         messageId = 1,
@@ -86,20 +91,18 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         });
     });
 
-        
     socket.on(NetworkIds.SHIELD_MOVE, data => {
         networkQueue.enqueue({
             type: NetworkIds.SHIELD_MOVE,
             data: data
         });
     });
-    
+
     socket.on(NetworkIds.GAME_OVER, function(){
         //console.log('working very hard!!!');
         quit = true;
         MyGame.pregame.showScreen('game-over');
     });
-
     
     socket.on(NetworkIds.CONNECT_ACK, data => {
         networkQueue.enqueue({
@@ -412,15 +415,12 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
     }
 
     function powerUpdate(data){
-        // If I created an array of all the datas that were coming into here,
-        // and rendered them, and then deleted them, that could work.
-        //console.log(data.type);
+        console.log(data);
         let tempPowerUp = components.PowerUp({
             worldCordinates: data.worldCordinates,
             type: data.type,
-            radius: data.radius
         });
-        powerUps[data.indexId] = tempPowerUp;
+        powerUps[data.type][data.id] = tempPowerUp;
 
     };
 
@@ -438,8 +438,6 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
     //
     //------------------------------------------------------------------
     function processInput(elapsedTime) {
-        //powerUps.length = 0;
-        //
         // Start with the keyboard updates so those messages can get in transit
         // while the local updating of received network messages are processed.
         myKeyboard.update(elapsedTime);
@@ -543,8 +541,20 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
             }
         }
 
-        for(let power = 0; power<powerUps.length; power++){
-            powerUps[power].update(elapsedTime, viewPort);
+        for(let power = 0; power<powerUps.weapon.length; ++power){
+            powerUps.weapon[power].update(elapsedTime, viewPort);
+        }
+        for(let power = 0; power<powerUps.fire_rate.length; ++power){
+            powerUps.fire_rate[power].update(elapsedTime, viewPort);
+        }
+        for(let power = 0; power<powerUps.fire_range.length; ++power){
+            powerUps.fire_range[power].update(elapsedTime, viewPort);
+        }
+        for(let power = 0; power<powerUps.health.length; ++power){
+            powerUps.health[power].update(elapsedTime, viewPort);
+        }
+        for(let power = 0; power<powerUps.ammo.length; ++power){
+            powerUps.ammo[power].update(elapsedTime, viewPort);
         }
 
         for (let missile = 0; missile < removeMissiles.length; missile++) {
@@ -590,8 +600,20 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         graphics.disableFOVClipping();
         renderer.Player.render(playerSelf.model,playerSelf.texture, killStat, killDisplayTime);
         
-        for(let power = 0; power<powerUps.length; power++){
-            renderer.PowerUp.render(powerUps[power],MyGame.assets[powerUps[power].type]);
+        for(let power = 0; power<powerUps.weapon.length; ++power){
+            renderer.PowerUp.render(powerUps.weapon[power], MyGame.assets[powerUps.weapon[power].type]);
+        }
+        for(let power = 0; power<powerUps.fire_rate.length; ++power){
+            renderer.PowerUp.render(powerUps.fire_rate[power], MyGame.assets[powerUps.fire_rate[power].type]);
+        }
+        for(let power = 0; power<powerUps.fire_range.length; ++power){
+            renderer.PowerUp.render(powerUps.fire_range[power], MyGame.assets[powerUps.fire_range[power].type]);
+        }
+        for(let power = 0; power<powerUps.health.length; ++power){
+            renderer.PowerUp.render(powerUps.health[power], MyGame.assets[powerUps.health[power].type]);
+        }
+        for(let power = 0; power<powerUps.ammo.length; ++power){
+            renderer.PowerUp.render(powerUps.ammo[power], MyGame.assets[powerUps.ammo[power].type]);
         }
         
         for (let missile in missiles) {
