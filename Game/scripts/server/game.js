@@ -51,6 +51,7 @@ let powerUpsThatMoved = [];
 let lastUpdate = 0;
 let quit = false;
 let activeClients = {};
+let inMapScreenClients = {};
 let atLeastTwoPlayersOnMap = false;
 
 let newMissiles = [];
@@ -381,7 +382,6 @@ function update(elapsedTime, currentTime) {
             //continue;
         }
         for (let clientId in activeClients) {
-            //
             // Don't allow a missile to hit the player it was fired from.
             if (clientId !== activeMissiles[missile].clientId) {
                 if (collided(activeMissiles[missile], activeClients[clientId].player)) {
@@ -454,12 +454,9 @@ function updateClients(elapsedTime) {
     }
     updateClientInt++;
 
-
-// TODO: make this actually useful, only emit updates about powerups that have changed their location. 
-// needs to be fixed client side as well as right here.
     if (powerUpsThatMoved.length > 0){
-        for (let clientId in activeClients) {
-            let client = activeClients[clientId];
+        for (let clientId in inMapScreenClients) {
+            let client = inMapScreenClients[clientId];
 
             for (let i = 0; i < powerUpsThatMoved.length; ++i){
                 if (powerUpsThatMoved[i].type === 'weapon'){
@@ -503,9 +500,9 @@ function updateClients(elapsedTime) {
                     client.socket.emit(NetworkIds.POWER_UP_LOC, pUp);
                 }
             }
-
-            powerUpsThatMoved.length = 0;    
         }
+
+        powerUpsThatMoved.length = 0;    
     }
 
 
@@ -685,18 +682,18 @@ function initializeSocketIO(httpServer) {
         });
 
         socket.on('inMapScreen',function(){
+            inMapScreenClients[socket.id] = { socket: socket};
             let seconds_left = 15;
             let interval = setInterval(function() {
                 --seconds_left;
-                if (seconds_left <= 0)
-                {
+                if (seconds_left <= 0){
                     //Time is up for choosing start location, all players left forced 
                     // to join game at random location (the one that was picked for them before).
                     socket.emit('forceGameScreen');
                     clearInterval(interval);
                 }
             }, 1000);
-        })
+        });
 
         socket.on('isValidStart',function(data){
             let result = map.isValid(data.y,data.x);
@@ -704,7 +701,6 @@ function initializeSocketIO(httpServer) {
                 io.sockets.emit('isValidRes', {x: data.x, y: data.y});
                 socket.emit('isValidForYou', {result: result, x: data.x, y: data.y});
             }
-            
         });
 
         socket.on('readyplayerone', function(input){

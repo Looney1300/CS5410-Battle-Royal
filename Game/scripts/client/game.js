@@ -418,7 +418,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         console.log(data);
         let tempPowerUp = components.PowerUp({
             worldCordinates: data.worldCordinates,
-            type: data.type,
+            type: data.type
         });
         powerUps[data.type][data.id] = tempPowerUp;
 
@@ -467,8 +467,6 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
                     updatePlayerOther(message.data);
                     break;
                 case NetworkIds.MISSILE_NEW:
-                    //console.log('I am: ',playerSelf.model.userName,' My Score is: ', 
-                    //playerSelf.model.score, ' My Life is at: ', playerSelf.model.life_remaining);
                     missileNew(message.data);
                     break;
                 case NetworkIds.MISSILE_HIT:
@@ -566,7 +564,6 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
                 delete explosions[id];
             }
         }
-        // graphics.updateCanvas();
     }
 
     //------------------------------------------------------------------
@@ -582,7 +579,6 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
                 killDisplayTime = 3;
             }
         }
-        //console.log(killStat);
         killDisplayTime = killDisplayTime - (elapsedTime/1000);
 
         graphics.clear();
@@ -772,7 +768,6 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
             playerSelf.model.changeDirection(mouseWC.x, mouseWC.y, viewPort);
         });
 
-        //
         // Get the game loop started
         graphics.updateCanvas();
         console.log('gameloop running...');
