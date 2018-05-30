@@ -86,37 +86,35 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
     // This is a copy of the above variables, but instead of redeclaring, just reassigning to original values.
     function resetGameModel(){
         lastTimeStamp = performance.now();
-        myKeyboard = input.Keyboard();
-        myMouse = input.Mouse();
-        map = Map.create();
+        // map = Map.create();
         // smallMap = SmallMap.create();
-        mediumMap = MediumMap.create();
-        map.setMap(mediumMap.data);
+        // mediumMap = MediumMap.create();
+        // map.setMap(mediumMap.data);
 
         shield = components.Shield();
-        DISTANCE_TO_DETECT_PARTICLES = 400;
-        RAPID_FIRE_PER_SECOND = 8;
+        // DISTANCE_TO_DETECT_PARTICLES = 400;
+        // RAPID_FIRE_PER_SECOND = 8;
 
-        powerUptextures = {
-            weapon: MyGame.assets['weapon'],
-            fire_rate: MyGame.assets['fire-rate'],
-            fire_range: MyGame.assets['fire-range'],
-            health: MyGame.assets['health'],
-            ammo: MyGame.assets['ammo'],      
-        };
+        // powerUptextures = {
+        //     weapon: MyGame.assets['weapon'],
+        //     fire_rate: MyGame.assets['fire-rate'],
+        //     fire_range: MyGame.assets['fire-range'],
+        //     health: MyGame.assets['health'],
+        //     ammo: MyGame.assets['ammo'],      
+        // };
 
-        sounds = {
-            gunshot: MyGame.assets['gunshot'],
-            hit:  MyGame.assets['hit'],
-            die: MyGame.assets['die'],
-            emptyfire: MyGame.assets['emptyfire'],
-            rapidFire: MyGame.assets['rapidFire'] 
-        };
+        // sounds = {
+        //     gunshot: MyGame.assets['gunshot'],
+        //     hit:  MyGame.assets['hit'],
+        //     die: MyGame.assets['die'],
+        //     emptyfire: MyGame.assets['emptyfire'],
+        //     rapidFire: MyGame.assets['rapidFire'] 
+        // };
         killer_and_killed = {
             killer: '',
             killed: '',
         };
-        killStatsArray = [];
+        killStatsArray.length = 0;
         killStat = {};
         quit = false;
         killWasUpdated = false;
@@ -141,8 +139,8 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
             mapTexture: MyGame.assets['miniMapMedium'],
             playerTexture: MyGame.assets['playerIcon']
         };
-        mapIconTexture = MyGame.assets['mapIcons'];
-        blueMapTexture = MyGame.assets['blueMap'];
+        // mapIconTexture = MyGame.assets['mapIcons'];
+        // blueMapTexture = MyGame.assets['blueMap'];
         fov = components.FOV();
         playersAliveCount = 0;
         playerOthers = {};
@@ -159,7 +157,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         messageId = 1;
         nextExplosionId = 1;
         viewPort = graphics.viewPort;
-        socket = io();
+        // socket = io();
         networkQueue = Queue.create();
     }
         
@@ -830,7 +828,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         // Get the game loop started
         graphics.updateCanvas();
         console.log('gameloop running...');
-        // resetGameModel();
+        resetGameModel();
         requestAnimationFrame(gameLoop);
     }
 
