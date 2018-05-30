@@ -32,7 +32,6 @@ MyGame.screens['main-menu'] = (function() {
 	
 	function run() {
 		console.log('main menu is running!');
-
 	}
 	
 	return {

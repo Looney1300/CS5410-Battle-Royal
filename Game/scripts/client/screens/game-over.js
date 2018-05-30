@@ -14,8 +14,6 @@ MyGame.screens['game-over'] = (function() {
     }
   
     function run() {
-      socket.emit('score-request','hitme!');
-      //this response takes a minute to get out to each client.
       socket.on('score-response',data => {
         console.log(data);
         for (var i = 0; i < data.length; i++){

@@ -1,8 +1,8 @@
 MyGame.screens['join-room'] = (function() {
     'use strict';
 
-    var socket = MyGame.main.socket;
-    var user = null;
+    let socket = MyGame.main.socket;
+    let user = null;
   
     function initialize() {
       console.log('join-room is inited');
@@ -28,8 +28,8 @@ MyGame.screens['join-room'] = (function() {
     
       socket.on('BeginCountDown', function(){
         if(user){
-          var seconds_left = 3;
-          var interval = setInterval(function() {
+          let seconds_left = 3;
+          let interval = setInterval(function() {
             document.getElementById('join-room').innerHTML += --seconds_left;
               if (seconds_left <= 0) {
                 console.log('the game has begun');
@@ -45,7 +45,7 @@ MyGame.screens['join-room'] = (function() {
   
     function run() {
       console.log(socket);
-      var username = document.getElementById('userName').value;
+      let username = document.getElementById('userName').value;
       if (username === ""){
         username = document.getElementById('newUserName').value;
       }
@@ -71,7 +71,7 @@ MyGame.screens['join-room'] = (function() {
   
       document.getElementById('id-chat-start-buttonp2').addEventListener('click', 
         function sendMessage() {
-          var msg = document.getElementById('message').value;
+          let msg = document.getElementById('message').value;
           if(msg) {
             socket.emit('msg', {message: msg, user: user});
             document.getElementById('message').value = "";

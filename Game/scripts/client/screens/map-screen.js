@@ -6,7 +6,6 @@ MyGame.screens['map-screen'] = (function() {
     }
   
     function run() {
-
         let socket = MyGame.main.socket;
         let c = document.getElementById("canvasMapper");
         let context = c.getContext("2d");

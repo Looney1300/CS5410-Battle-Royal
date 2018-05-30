@@ -162,6 +162,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
     }
         
     socket.on(NetworkIds.POWER_UP_LOC, data => {
+        console.log(data);
         networkQueue.enqueue({
             type: NetworkIds.POWER_UP_LOC,
             data: data
@@ -177,6 +178,8 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
 
     socket.on(NetworkIds.GAME_OVER, function(){
         quit = true;
+        resetGameModel();
+        console.log('game reset');
         MyGame.pregame.showScreen('game-over');
     });
     
@@ -700,7 +703,6 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         
     };
 
-
     //------------------------------------------------------------------
     //
     // Public function used to get the game initialized and then up
@@ -710,10 +712,8 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
     function initialize() {
         console.log('game initializing...');
 
-        //
         // Create the keyboard input handler and register the keyboard commands
         //  based on the configurations specified in the options menu (or default).
-
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
                     id: messageId++,
@@ -828,7 +828,6 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         // Get the game loop started
         graphics.updateCanvas();
         console.log('gameloop running...');
-        resetGameModel();
         requestAnimationFrame(gameLoop);
     }
 
