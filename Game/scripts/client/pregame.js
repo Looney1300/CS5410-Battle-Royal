@@ -40,17 +40,12 @@ MyGame.pregame = (function(screens) {
 		//
 		// Go through each of the screens and tell them to initialize
 		for (screen in screens) {
-			if (screens.hasOwnProperty(screen)) {
-				screens[screen].initialize();
-			}
+			screens[screen].initialize();
 		}
 		
-		//
 		// Make the login screen the active one
 		showScreen('startup');
 	}
-
-	MyGame.main 
 	
 	return {
 		initialize : initialize,

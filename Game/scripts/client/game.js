@@ -83,6 +83,85 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         socket = io(),
         networkQueue = Queue.create();
 
+    // This is a copy of the above variables, but instead of redeclaring, just reassigning to original values.
+    function resetGameModel(){
+        lastTimeStamp = performance.now();
+        myKeyboard = input.Keyboard();
+        myMouse = input.Mouse();
+        map = Map.create();
+        // smallMap = SmallMap.create();
+        mediumMap = MediumMap.create();
+        map.setMap(mediumMap.data);
+
+        shield = components.Shield();
+        DISTANCE_TO_DETECT_PARTICLES = 400;
+        RAPID_FIRE_PER_SECOND = 8;
+
+        powerUptextures = {
+            weapon: MyGame.assets['weapon'],
+            fire_rate: MyGame.assets['fire-rate'],
+            fire_range: MyGame.assets['fire-range'],
+            health: MyGame.assets['health'],
+            ammo: MyGame.assets['ammo'],      
+        };
+
+        sounds = {
+            gunshot: MyGame.assets['gunshot'],
+            hit:  MyGame.assets['hit'],
+            die: MyGame.assets['die'],
+            emptyfire: MyGame.assets['emptyfire'],
+            rapidFire: MyGame.assets['rapidFire'] 
+        };
+        killer_and_killed = {
+            killer: '',
+            killed: '',
+        };
+        killStatsArray = [];
+        killStat = {};
+        quit = false;
+        killWasUpdated = false;
+        killDisplayTime = 0;
+
+        myModel = components.Player(map);
+        playerSelf = {
+            model: myModel,
+            texture: components.AnimatedSprite({
+                spriteSheet: MyGame.assets['clientIdleNoGun'],
+                spriteSize: { width: 0.07, height: 0.07 },
+                spriteCenter: {
+                    x: 0.5,
+                    y: 0.5,
+                },
+                spriteCount: 20,
+                spriteTime: [60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60]
+            })
+        };
+        miniMap = {
+            model: components.MiniMap(),
+            mapTexture: MyGame.assets['miniMapMedium'],
+            playerTexture: MyGame.assets['playerIcon']
+        };
+        mapIconTexture = MyGame.assets['mapIcons'];
+        blueMapTexture = MyGame.assets['blueMap'];
+        fov = components.FOV();
+        playersAliveCount = 0;
+        playerOthers = {};
+        missiles = {};
+        powerUps = {
+            weapon: [],
+            fire_rate: [],
+            fire_range: [],
+            health: [],
+            ammo: [],
+        };
+        explosions = {};
+        messageHistory = Queue.create();
+        messageId = 1;
+        nextExplosionId = 1;
+        viewPort = graphics.viewPort;
+        socket = io();
+        networkQueue = Queue.create();
+    }
         
     socket.on(NetworkIds.POWER_UP_LOC, data => {
         networkQueue.enqueue({
@@ -158,12 +237,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
     //
     //------------------------------------------------------------------
     function connectPlayerSelf(data) {
-
         playerSelf.model.worldCordinates = data.worldCordinates;
-
-        // playerSelf.model.size.x = data.size.x;
-        // playerSelf.model.size.y = data.size.y;
-
         playerSelf.model.direction = data.direction;
         playerSelf.model.speed = data.speed;
         playerSelf.model.rotateRate = data.rotateRate;
@@ -721,7 +795,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
                     type: NetworkIds.INPUT_SPRINT
                 };
                 socket.emit(NetworkIds.INPUT, message);
-		playerSelf.model.isSprinting = true;
+                playerSelf.model.isSprinting = true;
             },
             input.KeyEvent.sprint, true);
 
@@ -756,6 +830,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         // Get the game loop started
         graphics.updateCanvas();
         console.log('gameloop running...');
+        // resetGameModel();
         requestAnimationFrame(gameLoop);
     }
 
