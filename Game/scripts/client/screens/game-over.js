@@ -1,7 +1,8 @@
 MyGame.screens['game-over'] = (function() {
     'use strict';
     let socket = MyGame.main.socket;
-    var table = document.getElementById('rankTable');
+    let table = document.getElementById('rankTable');
+    table.innerHTML = "";
     function initialize() {
       //console.log('game-over is inited');
       document.getElementById('id-game-over-back').addEventListener(

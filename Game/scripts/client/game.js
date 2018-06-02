@@ -86,10 +86,10 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
     // This is a copy of the above variables, but instead of redeclaring, just reassigning to original values.
     function resetGameModel(){
         lastTimeStamp = performance.now();
-        // map = Map.create();
+        map = Map.create();
         // smallMap = SmallMap.create();
-        // mediumMap = MediumMap.create();
-        // map.setMap(mediumMap.data);
+        mediumMap = MediumMap.create();
+        map.setMap(mediumMap.data);
 
         shield = components.Shield();
         // DISTANCE_TO_DETECT_PARTICLES = 400;
