@@ -73,35 +73,10 @@ let playersInGamePlay = 0;
 
 // Just copied variables above to below and commented out the ones that don't need to get reset.
 function resetGame(){
-    // NUM_PLAYERS_PER_GAME = 2;
-    // present = require('present');
-    // Player = require('./player');
-    // PowerUp = require('./powerup');
-    // Missile = require('./missile');
-    // NetworkIds = require('../shared/network-ids');
-    // Queue = require('../shared/queue.js');
-    // mapLogic = require('../shared/map');
-    // mapFile = require('../shared/maps/medium');
-    // // mapFile = require('../shared/maps/SmallMap');
-    // CryptoJS = require('crypto-js');
-    // fs = require('fs');
-    // Shield = require('./shield');
-    
-    // const SIMULATION_UPDATE_RATE_MS = 33;
-    // const STATE_UPDATE_RATE_MS = 100;
-    // POWERUPS_PER_PLAYER = 5;
-    // PLAYER_SIZE = {width: 80, height: 80};
-    // SALT = 'xnBZngGg*+FhQz??V6FMjfd9G4m5w^z8P*6';
-    
     inputQueue = Queue.create();
     map = mapLogic.create();
     map.setMap(mapFile);
-    //Shield by passing the map, the percent of map width the first 
-    // shield diameter will be, and how many minutes between shield moves.
-    // FIRST_SHIELD_DIAMETER = 1.2; //This is approximately just outside the playable corners of the map.
-    // TIME_TO_MOVE_SHIELD = 1; // This must be the same in the client.
-    // SHIELD_MOVES = 5; // This must be the same in the client.
-    // SHRINK_DOWN_TO = 0 - ( .5 * PLAYER_SIZE.width)/map.mapWidth; //Need to adjust for collision radius of players.
+    
     shield = Shield.create(map, FIRST_SHIELD_DIAMETER, TIME_TO_MOVE_SHIELD, SHRINK_DOWN_TO, SHIELD_MOVES);
     
     gameHasBegun = false;
@@ -118,15 +93,9 @@ function resetGame(){
     lastUpdate = 0;
     quit = false;
     
-    // loggedInPlayers is the first place clients are registered, right after logging in.
-    // inMapScreenClients is the second place clients are registered, right after the game is started (location choice map).
-    // activeClients are the clients that are in actual gameplay, dead or alive (after being placed on the map as a player). 
-    
-    // loggedInPlayers = {}; // I don't want to reset the players that have logged in, because they are still logged in after the game ends.
     inMapScreenClients = {};
     activeClients = {};
       
-    // MISSILE_SPEED = 3; // In units of player move speed (2 is twice as fast as a player moves normally).
     newMissiles.length = 0;
     activeMissiles.length = 0;
     hits.length = 0;
@@ -135,8 +104,7 @@ function resetGame(){
     users.length = 0;
     minChatterSizeHasBeenReached = false;
     chatterBoxSize = 0;
-    // This is used to begin checking for the win condition of only one player alive, this would get triggered 
-    //  as soon as the first player entered the game, but this prevents that.
+
     playersInGamePlay = 0;
 }
 
@@ -615,7 +583,7 @@ function gameLoop(currentTime, elapsedTime) {
         updateClients(elapsedTime);
     }
     if (quit){
-        console.log('game end condition detected');
+        console.log('Game end condition detected.');
         // Send game stats to each client.
         let gameStatsOver = [];
         for (let clientId in activeClients) {

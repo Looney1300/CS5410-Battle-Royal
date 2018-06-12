@@ -18,14 +18,6 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
     let DISTANCE_TO_DETECT_PARTICLES = 400;
     let RAPID_FIRE_PER_SECOND = 8;
 
-    let powerUptextures = {
-        weapon: MyGame.assets['weapon'],
-        fire_rate: MyGame.assets['fire-rate'],
-        fire_range: MyGame.assets['fire-range'],
-        health: MyGame.assets['health'],
-        ammo: MyGame.assets['ammo'],      
-    };
-
     let sounds = {
         gunshot: MyGame.assets['gunshot'],
         hit:  MyGame.assets['hit'],
@@ -92,24 +84,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         map.setMap(mediumMap.data);
 
         shield = components.Shield();
-        // DISTANCE_TO_DETECT_PARTICLES = 400;
-        // RAPID_FIRE_PER_SECOND = 8;
 
-        // powerUptextures = {
-        //     weapon: MyGame.assets['weapon'],
-        //     fire_rate: MyGame.assets['fire-rate'],
-        //     fire_range: MyGame.assets['fire-range'],
-        //     health: MyGame.assets['health'],
-        //     ammo: MyGame.assets['ammo'],      
-        // };
-
-        // sounds = {
-        //     gunshot: MyGame.assets['gunshot'],
-        //     hit:  MyGame.assets['hit'],
-        //     die: MyGame.assets['die'],
-        //     emptyfire: MyGame.assets['emptyfire'],
-        //     rapidFire: MyGame.assets['rapidFire'] 
-        // };
         killer_and_killed = {
             killer: '',
             killed: '',
@@ -139,8 +114,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
             mapTexture: MyGame.assets['miniMapMedium'],
             playerTexture: MyGame.assets['playerIcon']
         };
-        // mapIconTexture = MyGame.assets['mapIcons'];
-        // blueMapTexture = MyGame.assets['blueMap'];
+
         fov = components.FOV();
         playersAliveCount = 0;
         playerOthers = {};
@@ -157,7 +131,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         messageId = 1;
         nextExplosionId = 1;
         viewPort = graphics.viewPort;
-        // socket = io();
+
         networkQueue = Queue.create();
     }
         
@@ -295,6 +269,12 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
     //
     //------------------------------------------------------------------
     function updatePlayerSelf(data) {        
+        playerSelf.model.life_remaining = data.life_remaining;
+        if (playerSelf.is_alive && !data.is_alive){
+            sounds.die.play();
+        }
+        playerSelf.is_alive = data.is_alive;
+        
         playerSelf.model.direction = data.direction;
         playerSelf.model.worldCordinates.x = data.worldCordinates.x;
         playerSelf.model.worldCordinates.y = data.worldCordinates.y;
@@ -304,23 +284,20 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         playerSelf.model.SPRINT_FACTOR = data.SPRINT_FACTOR;
         playerSelf.model.SPRINT_DECREASE_RATE = data.SPRINT_DECREASE_RATE;
         playerSelf.model.SPRINT_RECOVERY_RATE = data.SPRINT_RECOVERY_RATE;
-        playerSelf.hasBullets = data.hasBullets;
+        playerSelf.model.hasBullets = data.hasBullets;
 
         playerSelf.model.killer = data.killer;
 
         playerSelf.model.userName = data.userName;
-        playerSelf.hasRapidFire = data.hasRapidFire;
-
-        if (!playerSelf.hasWeapon && data.hasWeapon){
-            playerSelf.texture.spriteSheet = MyGame.assets['clientIdleGun']
-        }
-
+        playerSelf.model.hasRapidFire = data.hasRapidFire;
         playerSelf.model.hasWeapon = data.hasWeapon;
-        playerSelf.model.life_remaining = data.life_remaining;
-        if (playerSelf.is_alive && !data.is_alive){
-            sounds.die.play();
+
+        if (playerSelf.model.hasWeapon){
+            playerSelf.texture.spriteSheet = MyGame.assets['clientIdleGun']
+        } else {
+            playerSelf.texture.spriteSheet = MyGame.assets['clientIdleNoGun'];
         }
-        playerSelf.is_alive = data.is_alive;
+
         playerSelf.texture.worldCordinates.x = data.worldCordinates.x;
         playerSelf.texture.worldCordinates.y = data.worldCordinates.y;
 
@@ -544,11 +521,11 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
 
     //deal with sounds for firing weapon
     function weaponSound(){
-        if (playerSelf != null && playerSelf.model.hasWeapon && playerSelf.hasBullets){
+        if (playerSelf != null && playerSelf.model.hasWeapon && playerSelf.model.hasBullets){
             sounds.gunshot.currentTime = 0;
             sounds.gunshot.play();
         } 
-        else if (playerSelf != null && playerSelf.model.hasWeapon && !playerSelf.hasBullets) {
+        else if (playerSelf != null && playerSelf.model.hasWeapon && !playerSelf.model.hasBullets) {
             sounds.emptyfire.currentTime = 0;
             sounds.emptyfire.play();
         }
@@ -654,7 +631,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
             }
         }
         graphics.disableFOVClipping();
-        renderer.Player.render(playerSelf.model,playerSelf.texture, killStat, killDisplayTime);
+        renderer.Player.render(playerSelf.model, playerSelf.texture, killStat, killDisplayTime);
         
         for(let power = 0; power<powerUps.weapon.length; ++power){
             renderer.PowerUp.render(powerUps.weapon[power], MyGame.assets[powerUps.weapon[power].type]);
@@ -673,7 +650,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         }
         
         for (let missile in missiles) {
-            renderer.Missile.render(missiles[missile],playerSelf.texture);
+            renderer.Missile.render(missiles[missile], playerSelf.texture);
         }
         
         for (let id in explosions) {
@@ -768,7 +745,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
                     type: NetworkIds.INPUT_RAPIDFIRE
                 };
                 socket.emit(NetworkIds.INPUT, message);
-                if (playerSelf.hasRapidFire){
+                if (playerSelf.model.hasRapidFire){
                     weaponSound();
                 }
             },

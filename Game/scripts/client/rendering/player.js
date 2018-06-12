@@ -12,14 +12,14 @@ MyGame.renderer.Player = (function(graphics) {
     // Renders a Player model.
     //
     // ------------------------------------------------------------------
-    that.render = function(model, sprite, killStat, time) {
+    that.render = function(model, texture, killStat, time) {
         graphics.saveContext();
         graphics.rotateCanvas(model.position, model.direction);
-        graphics.drawImageSpriteSheet( sprite.spriteSheet,
-            { width: sprite.pixelWidth, height: sprite.pixelHeight },
-            sprite.sprite,
-            {x: sprite.printCenter.x - (sprite.width/2), y: sprite.printCenter.y -(sprite.height/2)},
-            { width: sprite.width, height: sprite.height });
+        graphics.drawImageSpriteSheet( texture.spriteSheet,
+            { width: texture.pixelWidth, height: texture.pixelHeight },
+            texture.sprite,
+            {x: texture.printCenter.x - (texture.width/2), y: texture.printCenter.y -(texture.height/2)},
+            { width: texture.width, height: texture.height });
         graphics.restoreContext();
         graphics.drawHealth(model.position,  model.size , model.life_remaining);
         if(time > 0){
