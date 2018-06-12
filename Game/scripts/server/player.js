@@ -256,7 +256,6 @@ function createPlayer(mapLogic) {
     };
 
     that.wasInShield = function(){
-        //console.log('client in shield');
         life_remaining = life_remaining - 1;
         if(life_remaining <= 0){
             is_alive = false;
@@ -264,7 +263,6 @@ function createPlayer(mapLogic) {
         if(!is_alive){
             life_remaining = 0;
             killer = 'THE SHIELD!';
-            //console.log('I am dead!');
         }
     }
 
@@ -277,7 +275,6 @@ function createPlayer(mapLogic) {
             life_remaining = 0;
             killer = hitter.userName;
             hitter.kills++;
-            //console.log('I am dead!');
         }
     };
 

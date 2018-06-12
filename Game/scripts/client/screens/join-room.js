@@ -44,7 +44,6 @@ MyGame.screens['join-room'] = (function() {
     }
   
     function run() {
-      console.log(socket);
       let username = document.getElementById('userName').value;
       if (username === ""){
         username = document.getElementById('newUserName').value;

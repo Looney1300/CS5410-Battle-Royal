@@ -477,7 +477,6 @@ function updateClients(elapsedTime) {
                 quit = true;
             }
             if (playersInGamePlay > 1){
-                console.log(playersInGamePlay, liveCount, playerCount);
                 if(liveCount <= 1 && playerCount > 0){
                     for (let clientId in activeClients) {
                         let client = activeClients[clientId];
@@ -737,16 +736,11 @@ function initializeSocketIO(httpServer) {
             let result = map.isValid(data.y,data.x);
             if(result){
                 io.sockets.emit('isValidRes', {x: data.x, y: data.y});
-                console.log('emit isValidForYou');
                 socket.emit('isValidForYou', {result: result, x: data.x, y: data.y});
             }
         });
 
         socket.on('readyplayerone', function(input){
-            // This should never happen.
-            // if (quit){
-            //     socket.emit(NetworkIds.GAME_OVER, '');
-            // }
             playersInGamePlay += 1;
             shield.gameStarted = true;
             

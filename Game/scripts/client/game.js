@@ -162,7 +162,6 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
     }
         
     socket.on(NetworkIds.POWER_UP_LOC, data => {
-        console.log(data);
         networkQueue.enqueue({
             type: NetworkIds.POWER_UP_LOC,
             data: data

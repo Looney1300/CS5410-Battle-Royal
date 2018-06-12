@@ -7,7 +7,6 @@ MyGame.screens['map-screen'] = (function() {
     
     function initialize() {
         console.log('map-screen is inited');
-        
         let hasChosen = false;
 
         let xPos = 0;
@@ -46,7 +45,7 @@ MyGame.screens['map-screen'] = (function() {
         socket.on('isValidForYou',function(input){
             hasChosen = true;
             console.log('readyplayerone');
-            socket.emit('readyplayerone');
+            socket.emit('readyplayerone', input);
             MyGame.pregame.showScreen('game-play');
         });
     }

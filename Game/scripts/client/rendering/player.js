@@ -23,7 +23,6 @@ MyGame.renderer.Player = (function(graphics) {
         graphics.restoreContext();
         graphics.drawHealth(model.position,  model.size , model.life_remaining);
         if(time > 0){
-            //console.log(time);
             graphics.drawGameStatus(killStat);
         }
         

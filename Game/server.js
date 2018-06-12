@@ -29,7 +29,7 @@ function handleRequest(request, response) {
                         response.writeHead(200, headers);
                         response.end(data);
                     } catch(error) {
-                        console.log(error);
+
                     }
                 }
             });
@@ -41,8 +41,8 @@ function handleRequest(request, response) {
 }
 
 let server = http.createServer(handleRequest);
-
-server.listen(3000, function() {
+let port = 3000;
+server.listen(port, function() {
     game.initialize(server);
-    console.log('Server is listening on port 3000');
+    console.log('Server is listening on port: ', port);
 });

@@ -90,7 +90,6 @@
                 }
                 diffX = nextPosition.x - position.x;
                 diffY = nextPosition.y - position.y;
-                console.log('shield moved to', position, 'radius', currentRadius);
                 return true;
             }
             if (timeTilNextShield < waitTime/2){
