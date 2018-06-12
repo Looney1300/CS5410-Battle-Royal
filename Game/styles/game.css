@@ -153,8 +153,9 @@ ul.menu li button:active {
 
 #high-scores h3 {
 	color: rgb(223, 200, 42);
-	display: inline;
+	display: inline-block;
 	text-decoration: underline;
+	margin: 10px;
 }
 
 #hslist{
