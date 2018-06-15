@@ -57,9 +57,6 @@ let quit = false;
 let loggedInPlayers = {};
 let inMapScreenClients = {};
 let activeClients = {};
-// This is used to begin checking for the win condition of only one player alive, this would get triggered 
-//  as soon as the first player entered the game, but this prevents that.
-let atLeastTwoPlayersOnMap = false;
 
 let MISSILE_SPEED = 3; // In units of player move speed (2 is twice as fast as a player moves normally).
 let newMissiles = [];
@@ -67,6 +64,49 @@ let activeMissiles = [];
 let hits = [];
 let nextMissileId = 1;
 
+let users = [];
+let minChatterSizeHasBeenReached = false;
+let chatterBoxSize = 0;
+// This is used to begin checking for the win condition of only one player alive, this would get triggered 
+//  as soon as the first player entered the game, but this prevents that.
+let playersInGamePlay = 0;
+
+// Just copied variables above to below and commented out the ones that don't need to get reset.
+function resetGame(){
+    inputQueue = Queue.create();
+    map = mapLogic.create();
+    map.setMap(mapFile);
+    
+    shield = Shield.create(map, FIRST_SHIELD_DIAMETER, TIME_TO_MOVE_SHIELD, SHRINK_DOWN_TO, SHIELD_MOVES);
+    
+    gameHasBegun = false;
+    updateShieldInt = 0;
+    updateClientInt = 0;
+    
+    weaponPowerUps.length = 0;
+    fire_ratePowerUps.length = 0;
+    fire_rangePowerUps.length = 0;
+    healthPowerUps.length = 0;
+    ammoPowerUps.length = 0;
+    powerUpsThatMoved.length = 0;
+    
+    lastUpdate = 0;
+    quit = false;
+    
+    inMapScreenClients = {};
+    activeClients = {};
+      
+    newMissiles.length = 0;
+    activeMissiles.length = 0;
+    hits.length = 0;
+    nextMissileId = 1;
+
+    users.length = 0;
+    minChatterSizeHasBeenReached = false;
+    chatterBoxSize = 0;
+
+    playersInGamePlay = 0;
+}
 
 function createWeaponPowerUp(){
     let newLength = weaponPowerUps.push(PowerUp.create(map, 'weapon'));
@@ -263,44 +303,6 @@ function processInput(elapsedTime) {
     }
 }
 
-//TODO
-function resetGame(){
-    //Other gamevariables
-    inputQueue = Queue.create();
-    lastUpdate = 0;
-    quit = false;
-    atLeastTwoPlayersOnMap = false;
-    activeClients = {};
-    inMapScreenClients = {};
-    gameHasBegun = false;
-    updateShieldInt = 0;
-    updateClientInt = 0;
-    
-    //Reset map
-    map = mapLogic.create();
-    map.setMap(mapFile);
-    
-    //Reset players
-    for (let clientId in activeClients){
-        activeClients[clientId].player.reset();
-    } 
-    //Reset shield
-    shield = Shield.create(map, FIRST_SHIELD_DIAMETER, TIME_TO_MOVE_SHIELD, SHRINK_DOWN_TO, SHIELD_MOVES);
-    //Reset powerups
-    ammoPowerUps.length = 0;
-    healthPowerUps.length = 0;
-    weaponPowerUps.length = 0;
-    fire_rangePowerUps.length = 0;
-    fire_ratePowerUps.length = 0;
-    powerUpsThatMoved.length = 0;
-    updatePowerUps();
-    //Reset missiles
-    newMissiles.length = 0;
-    activeMissiles.length = 0;
-    hits.length = 0;
-    nextMissileId = 1;
-}
-
 function update(elapsedTime, currentTime) {
     shield.update(elapsedTime);
     updatePowerUps();
@@ -413,12 +415,10 @@ function update(elapsedTime, currentTime) {
 }
 
 function updateClients(elapsedTime) {
-
     let liveCount = 0;
     let playerCount = 0;
-    //
-    // For demonstration purposes, network updates run at a slower rate than
-    // the game simulation.
+
+    // For demonstration purposes, network updates run at a slower rate than the game simulation.
     lastUpdate += elapsedTime;
     // // bookmark dont need
     if (lastUpdate < STATE_UPDATE_RATE_MS) {
@@ -428,7 +428,7 @@ function updateClients(elapsedTime) {
     if (updateClientInt%5 === 1){
         if(gameHasBegun){
             for (let clientId in activeClients) {
-                let client = activeClients[clientId];        
+                let client = activeClients[clientId];       
                 playerCount++;
                 if(client.player.is_alive){
                     liveCount++;
@@ -444,8 +444,8 @@ function updateClients(elapsedTime) {
                 updateHighScores();
                 quit = true;
             }
-            if (atLeastTwoPlayersOnMap){
-                if((liveCount <= 1) && (playerCount > 0)){
+            if (playersInGamePlay > 1){
+                if(liveCount <= 1 && playerCount > 0){
                     for (let clientId in activeClients) {
                         let client = activeClients[clientId];
                         client.socket.emit(NetworkIds.GAME_OVER, '');
@@ -472,53 +472,34 @@ function updateClients(elapsedTime) {
     if (powerUpsThatMoved.length > 0){
         for (let socketId in inMapScreenClients) {
             for (let i = 0; i < powerUpsThatMoved.length; ++i){
+                let pUpid = powerUpsThatMoved[i].id;
+                let pUp = {id: pUpid};
                 if (powerUpsThatMoved[i].type === 'weapon'){
-                    let pUp = {
-                        type: 'weapon',
-                        id: powerUpsThatMoved[i].id,
-                        worldCordinates: weaponPowerUps[powerUpsThatMoved[i].id].worldCordinates,
-                    }
-                    inMapScreenClients[socketId].emit(NetworkIds.POWER_UP_LOC, pUp);
+                    pUp.type = 'weapon';
+                    pUp.worldCordinates = weaponPowerUps[pUpid].worldCordinates;
                 }
                 else if (powerUpsThatMoved[i].type === 'fire_rate'){
-                    let pUp = {
-                        type: 'fire_rate',
-                        id: powerUpsThatMoved[i].id,
-                        worldCordinates: fire_ratePowerUps[powerUpsThatMoved[i].id].worldCordinates,
-                    }
-                    inMapScreenClients[socketId].emit(NetworkIds.POWER_UP_LOC, pUp);
+                    pUp.type = 'fire_rate';
+                    pUp.worldCordinates = fire_ratePowerUps[pUpid].worldCordinates
                 }
                 else if (powerUpsThatMoved[i].type === 'fire_range'){
-                    let pUp = {
-                        type: 'fire_range',
-                        id: powerUpsThatMoved[i].id,
-                        worldCordinates: fire_rangePowerUps[powerUpsThatMoved[i].id].worldCordinates,
-                    }
-                    inMapScreenClients[socketId].emit(NetworkIds.POWER_UP_LOC, pUp);
+                    pUp.type = 'fire_range';
+                    pUp.worldCordinates = fire_rangePowerUps[pUpid].worldCordinates
                 }
                 else if (powerUpsThatMoved[i].type === 'health'){
-                    let pUp = {
-                        type: 'health',
-                        id: powerUpsThatMoved[i].id,
-                        worldCordinates: healthPowerUps[powerUpsThatMoved[i].id].worldCordinates,
-                    }
-                    inMapScreenClients[socketId].emit(NetworkIds.POWER_UP_LOC, pUp);
+                    pUp.type = 'health';
+                    pUp.worldCordinates = healthPowerUps[pUpid].worldCordinates;
                 }
                 else if (powerUpsThatMoved[i].type === 'ammo'){
-                    let pUp = {
-                        type: 'ammo',
-                        id: powerUpsThatMoved[i].id,
-                        worldCordinates: ammoPowerUps[powerUpsThatMoved[i].id].worldCordinates,
-                    }
-                    inMapScreenClients[socketId].emit(NetworkIds.POWER_UP_LOC, pUp);
+                    pUp.type = 'ammo';
+                    pUp.worldCordinates = ammoPowerUps[pUpid].worldCordinates;
                 }
+                inMapScreenClients[socketId].emit(NetworkIds.POWER_UP_LOC, pUp);
             }
         }
         powerUpsThatMoved.length = 0;    
     }
 
-
-    //
     // Build the missile messages one time, then reuse inside the loop
     let missileMessages = [];
     for (let item = 0; item < newMissiles.length; item++) {
@@ -536,16 +517,11 @@ function updateClients(elapsedTime) {
         });
     }
 
-    //
     // Move all the new missiles over to the active missiles array
     for (let missile = 0; missile < newMissiles.length; missile++) {
         activeMissiles.push(newMissiles[missile]);
     }
     newMissiles.length = 0;
-
-    // Send the shield and time remaining til it shrinks.
-
-
 
     for (let clientId in activeClients) {
         let client = activeClients[clientId];
@@ -607,13 +583,31 @@ function gameLoop(currentTime, elapsedTime) {
         updateClients(elapsedTime);
     }
     if (quit){
-        // resetGame();
-    } else {
-        setTimeout(() => {
-            let now = present();
-            gameLoop(now, now - currentTime);
-        }, SIMULATION_UPDATE_RATE_MS);
+        console.log('Game end condition detected.');
+        // Send game stats to each client.
+        let gameStatsOver = [];
+        for (let clientId in activeClients) {
+            let client = activeClients[clientId];
+            let pushed = {
+                name: client.player.userName,
+                score: client.player.score,
+                kills: client.player.kills,
+                killer: client.player.killer
+            };
+            gameStatsOver.push(pushed);
+            gameStatsOver.sort(function(a, b){return b.score - a.score;});
+        }
+        for (let clientId in activeClients){
+            let socket = activeClients[clientId].socket;
+            socket.emit(NetworkIds.SCORE_RES, gameStatsOver);
+        }
+        console.log('Resetting server game model.');
+        resetGame();
     }
+    setTimeout(() => {
+        let now = present();
+        gameLoop(now, now - currentTime);
+    }, SIMULATION_UPDATE_RATE_MS);
 }
 
 //------------------------------------------------------------------
@@ -680,11 +674,6 @@ function initializeSocketIO(httpServer) {
         }
     }
     
-    let users = [];
-    let minChatterSizeHasBeenReached = false;
-    let chatterBoxSize = 0;
-    let playersOnMap = 0;
-
     io.on('connection', function(socket) {
         console.log('Connection established: ', socket.id);
 
@@ -720,8 +709,7 @@ function initializeSocketIO(httpServer) {
         });
 
         socket.on('readyplayerone', function(input){
-            playersOnMap += 1;
-            atLeastTwoPlayersOnMap = (playersOnMap === 2 || atLeastTwoPlayersOnMap);
+            playersInGamePlay += 1;
             shield.gameStarted = true;
             
             let newPlayer = Player.create(map);
@@ -748,21 +736,6 @@ function initializeSocketIO(httpServer) {
             notifyConnect(socket, newPlayer);
         });
 
-        socket.on(NetworkIds.SCORE_REQ,function(){
-            let gameStatsOver = [];
-            for (let clientId in activeClients) {
-                let client = activeClients[clientId];
-                let pushed = {
-                    name: client.player.userName,
-                    score: client.player.score,
-                    kills: client.player.kills,
-                    killer: client.player.killer
-                };
-                gameStatsOver.push(pushed);
-            }
-            socket.emit(NetworkIds.SCORE_RES, gameStatsOver);
-        });
-
         socket.on('disconnect', function() {
             console.log('connection lost: ', socket.id);
             delete inMapScreenClients[socket.id];
@@ -777,10 +750,9 @@ function initializeSocketIO(httpServer) {
             if (index > -1) {
                 users.splice(index, 1);
             }
-         });
+        });
 
         socket.on('setUsername', function(data) {
-            
             chatterBoxSize += 1;
             users.push(data);
             socket.emit('userSet', {username: data});
@@ -805,48 +777,45 @@ function initializeSocketIO(httpServer) {
                 }
             }
             
-         });
+        });
 
-
-         socket.on('msg', function(data) {
+        socket.on('msg', function(data) {
             //Send message to everyone
             io.sockets.emit('newmsg', data);
             
-         });
+        });
 
-         socket.on(NetworkIds.HIGH_SCORES, data => {
-            var fs = require('fs');
-            var obj;
+        socket.on(NetworkIds.HIGH_SCORES, data => {
+            let fs = require('fs');
+            let obj;
             fs.readFile('../Game/data/highscores.json', 'utf8', function (err, fileData) {
-            if (err){
-                console.log(err);
-                throw err;
-            }
-            socket.emit(NetworkIds.HIGH_SCORES,JSON.parse(fileData));
+                if (err){
+                    console.log(err);
+                    throw err;
+                }
+                socket.emit(NetworkIds.HIGH_SCORES, JSON.parse(fileData));
             });
-         });
+        });
 
-         socket.on(NetworkIds.VALID_USER, data => {
-             if (validUser(data.name,data.password)){
+        socket.on(NetworkIds.VALID_USER, data => {
+            if (validUser(data.name, data.password)){
                 newPlayerName = data.name;
                 loggedInPlayers[socket.id] = data.name;
                 socket.emit(NetworkIds.VALID_USER, null);
-             }
-             else{
-                 socket.emit(NetworkIds.INVALID_USER,null);
-             }
-         });
+            } else {
+                socket.emit(NetworkIds.INVALID_USER, null);
+            }
+        });
 
-         socket.on(NetworkIds.VALID_CREATE_USER, data => {
-             if(validCreateUser(data.name,data.password)){
-                 newPlayerName = data.name;
-                 loggedInPlayers[socket.id] = data.name;
+        socket.on(NetworkIds.VALID_CREATE_USER, data => {
+            if (validCreateUser(data.name,data.password)){
+                newPlayerName = data.name;
+                loggedInPlayers[socket.id] = data.name;
                 socket.emit(NetworkIds.VALID_CREATE_USER,null);
-             }
-             else {
+            } else {
                 socket.emit(NetworkIds.INVALID_CREATE_USER, null);
-             }
-         })
+            }
+        })
     });
 }
 
@@ -857,7 +826,6 @@ function initializeSocketIO(httpServer) {
 //------------------------------------------------------------------
 function initialize(httpServer) {
     initializeSocketIO(httpServer);
-    
     //Then call the gameloop to start running.
     gameLoop(present(), 0);
 }
@@ -894,16 +862,6 @@ function validCreateUser(uName,uPassword){
     fs.writeFileSync('../Game/data/users.json',JSON.stringify(obj));
 
     return true;
-}
-
-//------------------------------------------------------------------
-//
-// Public function that allows the game simulation and processing to
-// be terminated.
-//
-//------------------------------------------------------------------
-function terminate() {
-    this.quit = true;
 }
 
 module.exports.initialize = initialize;

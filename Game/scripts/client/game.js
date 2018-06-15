@@ -18,14 +18,6 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
     let DISTANCE_TO_DETECT_PARTICLES = 400;
     let RAPID_FIRE_PER_SECOND = 8;
 
-    let powerUptextures = {
-        weapon: MyGame.assets['weapon'],
-        fire_rate: MyGame.assets['fire-rate'],
-        fire_range: MyGame.assets['fire-range'],
-        health: MyGame.assets['health'],
-        ammo: MyGame.assets['ammo'],      
-    };
-
     let sounds = {
         gunshot: MyGame.assets['gunshot'],
         hit:  MyGame.assets['hit'],
@@ -83,6 +75,65 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         socket = io(),
         networkQueue = Queue.create();
 
+    // This is a copy of the above variables, but instead of redeclaring, just reassigning to original values.
+    function resetGameModel(){
+        lastTimeStamp = performance.now();
+        map = Map.create();
+        // smallMap = SmallMap.create();
+        mediumMap = MediumMap.create();
+        map.setMap(mediumMap.data);
+
+        shield = components.Shield();
+
+        killer_and_killed = {
+            killer: '',
+            killed: '',
+        };
+        killStatsArray.length = 0;
+        killStat = {};
+        quit = false;
+        killWasUpdated = false;
+        killDisplayTime = 0;
+
+        myModel = components.Player(map);
+        playerSelf = {
+            model: myModel,
+            texture: components.AnimatedSprite({
+                spriteSheet: MyGame.assets['clientIdleNoGun'],
+                spriteSize: { width: 0.07, height: 0.07 },
+                spriteCenter: {
+                    x: 0.5,
+                    y: 0.5,
+                },
+                spriteCount: 20,
+                spriteTime: [60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60]
+            })
+        };
+        miniMap = {
+            model: components.MiniMap(),
+            mapTexture: MyGame.assets['miniMapMedium'],
+            playerTexture: MyGame.assets['playerIcon']
+        };
+
+        fov = components.FOV();
+        playersAliveCount = 0;
+        playerOthers = {};
+        missiles = {};
+        powerUps = {
+            weapon: [],
+            fire_rate: [],
+            fire_range: [],
+            health: [],
+            ammo: [],
+        };
+        explosions = {};
+        messageHistory = Queue.create();
+        messageId = 1;
+        nextExplosionId = 1;
+        viewPort = graphics.viewPort;
+
+        networkQueue = Queue.create();
+    }
         
     socket.on(NetworkIds.POWER_UP_LOC, data => {
         networkQueue.enqueue({
@@ -100,6 +151,8 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
 
     socket.on(NetworkIds.GAME_OVER, function(){
         quit = true;
+        resetGameModel();
+        console.log('game reset');
         MyGame.pregame.showScreen('game-over');
     });
     
@@ -158,12 +211,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
     //
     //------------------------------------------------------------------
     function connectPlayerSelf(data) {
-
         playerSelf.model.worldCordinates = data.worldCordinates;
-
-        // playerSelf.model.size.x = data.size.x;
-        // playerSelf.model.size.y = data.size.y;
-
         playerSelf.model.direction = data.direction;
         playerSelf.model.speed = data.speed;
         playerSelf.model.rotateRate = data.rotateRate;
@@ -221,6 +269,12 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
     //
     //------------------------------------------------------------------
     function updatePlayerSelf(data) {        
+        playerSelf.model.life_remaining = data.life_remaining;
+        if (playerSelf.is_alive && !data.is_alive){
+            sounds.die.play();
+        }
+        playerSelf.is_alive = data.is_alive;
+        
         playerSelf.model.direction = data.direction;
         playerSelf.model.worldCordinates.x = data.worldCordinates.x;
         playerSelf.model.worldCordinates.y = data.worldCordinates.y;
@@ -230,23 +284,20 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         playerSelf.model.SPRINT_FACTOR = data.SPRINT_FACTOR;
         playerSelf.model.SPRINT_DECREASE_RATE = data.SPRINT_DECREASE_RATE;
         playerSelf.model.SPRINT_RECOVERY_RATE = data.SPRINT_RECOVERY_RATE;
-        playerSelf.hasBullets = data.hasBullets;
+        playerSelf.model.hasBullets = data.hasBullets;
 
         playerSelf.model.killer = data.killer;
 
         playerSelf.model.userName = data.userName;
-        playerSelf.hasRapidFire = data.hasRapidFire;
-
-        if (!playerSelf.hasWeapon && data.hasWeapon){
-            playerSelf.texture.spriteSheet = MyGame.assets['clientIdleGun']
-        }
-
+        playerSelf.model.hasRapidFire = data.hasRapidFire;
         playerSelf.model.hasWeapon = data.hasWeapon;
-        playerSelf.model.life_remaining = data.life_remaining;
-        if (playerSelf.is_alive && !data.is_alive){
-            sounds.die.play();
+
+        if (playerSelf.model.hasWeapon){
+            playerSelf.texture.spriteSheet = MyGame.assets['clientIdleGun']
+        } else {
+            playerSelf.texture.spriteSheet = MyGame.assets['clientIdleNoGun'];
         }
-        playerSelf.is_alive = data.is_alive;
+
         playerSelf.texture.worldCordinates.x = data.worldCordinates.x;
         playerSelf.texture.worldCordinates.y = data.worldCordinates.y;
 
@@ -470,11 +521,11 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
 
     //deal with sounds for firing weapon
     function weaponSound(){
-        if (playerSelf != null && playerSelf.model.hasWeapon && playerSelf.hasBullets){
+        if (playerSelf != null && playerSelf.model.hasWeapon && playerSelf.model.hasBullets){
             sounds.gunshot.currentTime = 0;
             sounds.gunshot.play();
         } 
-        else if (playerSelf != null && playerSelf.model.hasWeapon && !playerSelf.hasBullets) {
+        else if (playerSelf != null && playerSelf.model.hasWeapon && !playerSelf.model.hasBullets) {
             sounds.emptyfire.currentTime = 0;
             sounds.emptyfire.play();
         }
@@ -580,7 +631,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
             }
         }
         graphics.disableFOVClipping();
-        renderer.Player.render(playerSelf.model,playerSelf.texture, killStat, killDisplayTime);
+        renderer.Player.render(playerSelf.model, playerSelf.texture, killStat, killDisplayTime);
         
         for(let power = 0; power<powerUps.weapon.length; ++power){
             renderer.PowerUp.render(powerUps.weapon[power], MyGame.assets[powerUps.weapon[power].type]);
@@ -599,7 +650,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         }
         
         for (let missile in missiles) {
-            renderer.Missile.render(missiles[missile],playerSelf.texture);
+            renderer.Missile.render(missiles[missile], playerSelf.texture);
         }
         
         for (let id in explosions) {
@@ -628,7 +679,6 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
         
     };
 
-
     //------------------------------------------------------------------
     //
     // Public function used to get the game initialized and then up
@@ -638,10 +688,8 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
     function initialize() {
         console.log('game initializing...');
 
-        //
         // Create the keyboard input handler and register the keyboard commands
         //  based on the configurations specified in the options menu (or default).
-
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
                     id: messageId++,
@@ -697,7 +745,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
                     type: NetworkIds.INPUT_RAPIDFIRE
                 };
                 socket.emit(NetworkIds.INPUT, message);
-                if (playerSelf.hasRapidFire){
+                if (playerSelf.model.hasRapidFire){
                     weaponSound();
                 }
             },
@@ -721,7 +769,7 @@ MyGame.main = (function(graphics, renderer, input, components, particles, persis
                     type: NetworkIds.INPUT_SPRINT
                 };
                 socket.emit(NetworkIds.INPUT, message);
-		playerSelf.model.isSprinting = true;
+                playerSelf.model.isSprinting = true;
             },
             input.KeyEvent.sprint, true);
 

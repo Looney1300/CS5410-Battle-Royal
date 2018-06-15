@@ -407,7 +407,6 @@ MyGame.loader = (function() {
             MyGame.assets[source.key] = asset;
         },
         function(error) {
-            console.log(error);
         },
         function() {
             console.log('All assets loaded');
