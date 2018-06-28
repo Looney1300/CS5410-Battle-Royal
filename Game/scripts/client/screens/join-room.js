@@ -3,21 +3,25 @@ MyGame.screens['join-room'] = (function() {
 
     let socket = MyGame.main.socket;
     let user = null;
+    let chatRoomies = [];
   
     function initialize() {
       console.log('join-room is inited');
-      document.getElementById('id-join-room-back').addEventListener(
-        'click',
-        function() {
-          //socket.emit('exitedchat','gone');  
-          MyGame.pregame.showScreen('main-menu');
-        }
-      );
+
+      socket.on('youAreHost', function(){
+        document.getElementById('youAreHostDiv').innerHTML = "You are the Game's Host, press 'Begin Game' button to start the game.";
+        document.getElementById('startGame').onclick = function (){ socket.emit('hostStartGame'); };
+        document.getElementById('startGame').hidden = false;
+      });
+
+      socket.on('enteredChat', function(usrname){
+          chatRoomies.push(usrname);
+          document.getElementById('joined-chat').innerHTML += usrname + ', ';
+      })
 
       socket.on('userSet', function(data) {
         user = data.username;
       });
-    
 
       socket.on('newmsg', function(data) {
         if(user) {
@@ -49,20 +53,11 @@ MyGame.screens['join-room'] = (function() {
         username = document.getElementById('newUserName').value;
       }
       socket.emit('setUsername', username);
-
-      document.getElementById('join-room').innerHTML = '<input type = "text" maxlength = "40" id = "message">\
-      <button type = "button" id = "id-chat-start-buttonp2" >Send</button>\
-      <button type = "button" id = "id-back-button" >Back</button>\
-      <div id = "message-container"></div>';
+      
+      socket.emit('host', username);
 
       document.getElementById('id-back-button').addEventListener('click', function() {
-        socket.emit('exitedchat',user);
-        document.getElementById('join-room').innerHTML = '<div id = "error-container"></div>\
-        <!-- <input type = "text" id = "id-chat-name" value = "" placeholder = "Enter your name!"> -->\
-        <button type = "button" id = "id-chat-start-button">Let me chat!</button>\
-        <ul class = "menu">\
-        <li><button id = "id-join-room-back">Back</button></li>\
-        </ul>';
+        socket.emit('exitedchat', user);
         user = null;
         MyGame.pregame.showScreen('main-menu');
         }
@@ -71,7 +66,7 @@ MyGame.screens['join-room'] = (function() {
       document.getElementById('id-chat-start-buttonp2').addEventListener('click', 
         function sendMessage() {
           let msg = document.getElementById('message').value;
-          if(msg) {
+          if (msg) {
             socket.emit('msg', {message: msg, user: user});
             document.getElementById('message').value = "";
           }
