@@ -3,7 +3,8 @@ MyGame.screens['join-room'] = (function() {
 
     let socket = MyGame.main.socket;
     let user = null;
-    let chatRoomies = [];
+    let roomies = [];
+    let host = null;
   
     function initialize() {
       console.log('join-room is inited');
@@ -14,13 +15,40 @@ MyGame.screens['join-room'] = (function() {
         document.getElementById('startGame').hidden = false;
       });
 
-      socket.on('enteredChat', function(usrname){
-          chatRoomies.push(usrname);
-          document.getElementById('joined-chat').innerHTML += usrname + ', ';
-      })
+      socket.on('notEnoughPlayers', function(){
+        document.getElementById('youAreHostDiv').innerHTML += "<div style=\"color: red; font-size=2em;\" >Need at least two players to start game.</div>";
+      });
 
-      socket.on('userSet', function(data) {
+      function loadRoomies(){
+        console.log(roomies);
+        document.getElementById('joined-chat').innerHTML = "";
+        for (let i=0; i < roomies.length; ++i){
+          if (roomies[i] === host){
+            document.getElementById('joined-chat').innerHTML += "<span style=\"color: red;\" > Host: " + roomies[i] + "</span>, ";
+          } else {
+            document.getElementById('joined-chat').innerHTML += roomies[i] + ', ';
+          }
+        }
+      }
+
+      socket.on('enteredChat', function(users){
+        roomies = users;
+        loadRoomies();
+      });
+
+      socket.on('chatData', function(data) {
         user = data.username;
+        host = data.host;
+        roomies = data.users;
+        loadRoomies();
+      });
+
+      socket.on('playerExited', function(data){
+        if (data.hostId === 0){
+          host = null;
+        }
+        roomies = data.users;
+        loadRoomies();
       });
 
       socket.on('newmsg', function(data) {
@@ -28,7 +56,7 @@ MyGame.screens['join-room'] = (function() {
           document.getElementById('message-container').innerHTML += '<div><b>' + 
             data.user + '</b>: ' + data.message + '</div>';
         }
-      })
+      });
     
       socket.on('BeginCountDown', function(){
         if(user){
@@ -44,7 +72,6 @@ MyGame.screens['join-room'] = (function() {
             }, 1000);
         }
       });      
-
     }
   
     function run() {
@@ -52,10 +79,8 @@ MyGame.screens['join-room'] = (function() {
       if (username === ""){
         username = document.getElementById('newUserName').value;
       }
-      socket.emit('setUsername', username);
+      socket.emit('joinedChat', username);
       
-      socket.emit('host', username);
-
       document.getElementById('id-back-button').addEventListener('click', function() {
         socket.emit('exitedchat', user);
         user = null;
@@ -70,10 +95,7 @@ MyGame.screens['join-room'] = (function() {
             socket.emit('msg', {message: msg, user: user});
             document.getElementById('message').value = "";
           }
-
       });
-
-     
     }
   
     return {

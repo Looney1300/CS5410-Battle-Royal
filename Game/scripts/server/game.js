@@ -65,7 +65,6 @@ let hits = [];
 let nextMissileId = 1;
 
 let users = [];
-let hostPressedStart = false;
 let numPlayersInChatterBox = 0;
 // This is used to begin checking for the win condition of only one player alive, this would get triggered 
 //  as soon as the first player entered the game, but this prevents that.
@@ -73,6 +72,7 @@ let playersInGamePlay = 0;
 
 // This is to know who is hosting the game and who can start it.
 let hostId = 0;
+let host = '';
 
 // Just copied variables above to below and commented out the ones that don't need to get reset.
 function resetGame(){
@@ -110,6 +110,7 @@ function resetGame(){
 
     playersInGamePlay = 0;
     hostId = 0;
+    host = '';
 }
 
 function createWeaponPowerUp(){
@@ -683,17 +684,26 @@ function initializeSocketIO(httpServer) {
 
         let newPlayerName = '';
 
-        socket.on('host', function(usrn){
-            if (hostId === 0){
-                hostId = socket.id;
-                socket.emit('youAreHost', );
-            }
-            socket.broadcast.emit('enteredChat', usrn);
-        });
-
         socket.on('hostStartGame', function(){
             if (socket.id === hostId){
-                hostPressedStart = true;
+                if (numPlayersInChatterBox >= 2){
+                    console.log('Countdown triggered.');
+                    hostPressedStart = true;
+                    io.sockets.emit('BeginCountDown');
+                    let seconds_left = 15;
+                    let intrval = setInterval(function() {
+                        --seconds_left;
+                        if (seconds_left === 10){
+                            gameHasBegun = true;
+                        }
+                        if (seconds_left <= 0){
+                            console.log('Beginning game.');
+                            clearInterval(intrval);
+                        }
+                    }, 1000);
+                } else {
+                    socket.emit('notEnoughPlayers');
+                }
             }
         });
 
@@ -760,9 +770,17 @@ function initializeSocketIO(httpServer) {
             delete activeClients[socket.id];
             delete loggedInPlayers[socket.id];
             notifyDisconnect(socket.id);
-            if (socket.id === hostId){
-                hostId = 0;
-            }
+            // TODO: need a way to remove users when they close their browser in the chatroom.
+            // --numPlayersInChatterBox;
+            // let index = users.indexOf(data);
+            // if (index > -1) {
+            //     users.splice(index, 1);
+            // }
+            // if (socket.id === hostId){
+            //     hostId = 0;
+            //     host = '';
+            // }
+            // socket.broadcast.emit('playerExited', {hostId: hostId, player: data, users: users});
         });
 
         socket.on('exitedchat', function(data) {
@@ -773,32 +791,21 @@ function initializeSocketIO(httpServer) {
             }
             if (socket.id === hostId){
                 hostId = 0;
+                host = '';
             }
+            socket.broadcast.emit('playerExited', {hostId: hostId, player: data, users: users});
         });
 
-        socket.on('setUsername', function(data) {
-            ++numPlayersInChatterBox;
-            users.push(data);
-            socket.emit('userSet', {username: data});
-
-            if (hostPressedStart){
-                //if (numPlayersInChatterBox >= MAX_NUM_PLAYERS_PER_GAME){
-                    console.log('Countdown triggered.');
-                    hostPressedStart = true;
-                    io.sockets.emit('BeginCountDown');
-                    let seconds_left = 15;
-                    let intrval = setInterval(function() {
-                        --seconds_left;
-                        if (seconds_left === 10){
-                            gameHasBegun = true;
-                        }
-                        if (seconds_left <= 0){
-                            console.log('Beginning game.');
-                            clearInterval(intrval);
-                        }
-                    }, 1000);
-                // }
+        socket.on('joinedChat', function(usrnm) {
+            if (hostId === 0){
+                hostId = socket.id;
+                host = usrnm;
+                socket.emit('youAreHost');
             }
+            users.push(usrnm);
+            socket.emit('chatData', {host: host, username: usrnm, users: users});
+            ++numPlayersInChatterBox;
+            socket.broadcast.emit('enteredChat', users);
         });
 
         socket.on('msg', function(data) {
