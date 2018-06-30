@@ -9,6 +9,12 @@ MyGame.screens['join-room'] = (function() {
     function initialize() {
       console.log('join-room is inited');
 
+      document.getElementById('message').onkeydown = function (ele){
+        if(event.keyCode === 13) {
+          document.getElementById('id-chat-start-buttonp2').click();        
+        }
+      }
+
       socket.on('youAreHost', function(){
         document.getElementById('youAreHostDiv').innerHTML = "You are the Game's Host, press 'Begin Game' button to start the game.";
         document.getElementById('startGame').onclick = function (){ socket.emit('hostStartGame'); };
@@ -20,13 +26,15 @@ MyGame.screens['join-room'] = (function() {
       });
 
       function loadRoomies(){
-        console.log(roomies);
-        document.getElementById('joined-chat').innerHTML = "";
+        document.getElementById('joined-chat').innerHTML = "<tr><th>Players Joined</th></tr>";
         for (let i=0; i < roomies.length; ++i){
-          if (roomies[i] === host){
-            document.getElementById('joined-chat').innerHTML += "<span style=\"color: red;\" > Host: " + roomies[i] + "</span>, ";
+          if (roomies[i] === user){
+            continue;
+          }
+          else if (roomies[i] === host){
+            document.getElementById('joined-chat').innerHTML += "<tr><td><span style=\"color: red;\" > Host: " + roomies[i] + "</span></td></tr> ";
           } else {
-            document.getElementById('joined-chat').innerHTML += roomies[i] + ', ';
+            document.getElementById('joined-chat').innerHTML += "<tr><td>" + roomies[i] + "</td></tr>";
           }
         }
       }
@@ -53,8 +61,10 @@ MyGame.screens['join-room'] = (function() {
 
       socket.on('newmsg', function(data) {
         if(user) {
-          document.getElementById('message-container').innerHTML += '<div><b>' + 
+          let msgContainer = document.getElementById('message-container');
+          msgContainer.innerHTML += '<div id="newestMsg"><b>' + 
             data.user + '</b>: ' + data.message + '</div>';
+          msgContainer.scrollTop = msgContainer.scrollHeight;
         }
       });
     
