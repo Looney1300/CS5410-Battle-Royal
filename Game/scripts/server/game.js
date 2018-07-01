@@ -106,7 +106,6 @@ function resetGame(){
     nextMissileId = 1;
 
     users.length = 0;
-    hostPressedStart = false;
     numPlayersInChatterBox = 0;
 
     playersInGamePlay = 0;
