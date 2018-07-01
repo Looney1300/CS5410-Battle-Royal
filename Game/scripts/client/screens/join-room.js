@@ -57,12 +57,13 @@ MyGame.screens['join-room'] = (function() {
         }
         roomies = data.users;
         loadRoomies();
+        document.getElementById('message-container').innerHTML += '<div><i><b>' + data.player + '</b> has left the lobby.</i>';
       });
 
       socket.on('newmsg', function(data) {
         if(user) {
           let msgContainer = document.getElementById('message-container');
-          msgContainer.innerHTML += '<div id="newestMsg"><b>' + 
+          msgContainer.innerHTML += '<div><b>' + 
             data.user + '</b>: ' + data.message + '</div>';
           msgContainer.scrollTop = msgContainer.scrollHeight;
         }

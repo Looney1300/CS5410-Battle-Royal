@@ -73,6 +73,7 @@ let playersInGamePlay = 0;
 // This is to know who is hosting the game and who can start it.
 let hostId = 0;
 let host = '';
+let idsToUsers = {};
 
 // Just copied variables above to below and commented out the ones that don't need to get reset.
 function resetGame(){
@@ -111,6 +112,7 @@ function resetGame(){
     playersInGamePlay = 0;
     hostId = 0;
     host = '';
+    idsToUsers = {};
 }
 
 function createWeaponPowerUp(){
@@ -764,28 +766,9 @@ function initializeSocketIO(httpServer) {
             notifyConnect(socket, newPlayer);
         });
 
-        socket.on('disconnect', function() {
-            console.log('connection lost: ', socket.id);
-            delete inMapScreenClients[socket.id];
-            delete activeClients[socket.id];
-            delete loggedInPlayers[socket.id];
-            notifyDisconnect(socket.id);
-            // TODO: need a way to remove users when they close their browser in the chatroom.
-            // --numPlayersInChatterBox;
-            // let index = users.indexOf(data);
-            // if (index > -1) {
-            //     users.splice(index, 1);
-            // }
-            // if (socket.id === hostId){
-            //     hostId = 0;
-            //     host = '';
-            // }
-            // socket.broadcast.emit('playerExited', {hostId: hostId, player: data, users: users});
-        });
-
-        socket.on('exitedchat', function(data) {
+        function leftChat(sockId){
             --numPlayersInChatterBox;
-            let index = users.indexOf(data);
+            let index = users.indexOf(idsToUsers[sockId]);
             if (index > -1) {
                 users.splice(index, 1);
             }
@@ -793,7 +776,21 @@ function initializeSocketIO(httpServer) {
                 hostId = 0;
                 host = '';
             }
-            socket.broadcast.emit('playerExited', {hostId: hostId, player: data, users: users});
+            socket.broadcast.emit('playerExited', {hostId: hostId, player: idsToUsers[sockId], users: users});
+        }
+
+        socket.on('disconnect', function() {
+            console.log('connection lost: ', socket.id);
+            delete inMapScreenClients[socket.id];
+            delete activeClients[socket.id];
+            delete loggedInPlayers[socket.id];
+            notifyDisconnect(socket.id);
+            // TODO: need a way to remove users when they close their browser in the chatroom.
+            leftChat(socket.id)
+        });
+
+        socket.on('exitedchat', function(data) {
+            leftChat(socket.id);
         });
 
         socket.on('joinedChat', function(usrnm) {
@@ -803,6 +800,7 @@ function initializeSocketIO(httpServer) {
                 socket.emit('youAreHost');
             }
             users.push(usrnm);
+            idsToUsers[socket.id] = usrnm;
             socket.emit('chatData', {host: host, username: usrnm, users: users});
             ++numPlayersInChatterBox;
             socket.broadcast.emit('enteredChat', users);

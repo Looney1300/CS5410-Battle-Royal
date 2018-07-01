@@ -106,23 +106,29 @@ ul.menu li button:active {
 
 #startGame {
 	background: rgb(182, 21, 15);
+	float: right;
+	margin-right: 5%;
 }
 
 #message {
-	width: 35%;
+	width: 60%;
+}
+
+#chatbox {
+	display: inline-block;
+	margin: 5%;
 }
 
 #message-container {
-	width: 40%;
+	width: 100%;
 	font-size: 2.2vh;
 	float: left;
-	margin: 5%;
 	overflow: scroll;
 	height: 50vh;
 	background: rgba(22, 22, 22, 0.5);
 	border-radius: 10px;
 	text-align: left;
-	padding: 5%;
+	padding: 3%;
 	border:  8px solid black;
 }
 
