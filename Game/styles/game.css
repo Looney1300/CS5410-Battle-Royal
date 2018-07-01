@@ -117,6 +117,7 @@ ul.menu li button:active {
 #chatbox {
 	display: inline-block;
 	margin: 5%;
+	width: 50%;
 }
 
 #message-container {
