@@ -17,7 +17,7 @@ MyGame.screens['join-room'] = (function() {
 
       socket.on('youAreHost', function(){
         document.getElementById('youAreHostDiv').innerHTML = "You are the Game's Host, press 'Begin Game' button to start the game.";
-        document.getElementById('startGame').onclick = function (){ socket.emit('hostStartGame'); };
+        document.getElementById('startGame').onclick = function(){ socket.emit('hostStartGame'); };
         document.getElementById('startGame').hidden = false;
       });
 

@@ -690,7 +690,6 @@ function initializeSocketIO(httpServer) {
             if (socket.id === hostId){
                 if (numPlayersInChatterBox >= 2){
                     console.log('Countdown triggered.');
-                    hostPressedStart = true;
                     io.sockets.emit('BeginCountDown');
                     let seconds_left = 15;
                     let intrval = setInterval(function() {
