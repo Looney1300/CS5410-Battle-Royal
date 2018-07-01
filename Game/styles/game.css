@@ -70,7 +70,8 @@ ul.menu li {
 	margin: 1.5% 0;
 }
 
-ul.menu li button {
+ul.menu li button, #id-chat-start-buttonp2,
+#id-back-button, #startGame {
 	font-family: Arial, sans-serif;
 	font-size: 3.4vh;
 	color: rgb(206, 206, 246);
@@ -92,7 +93,60 @@ ul.menu li button:active {
 
 #join-room {
 	font-size: 3.4vh;
+	font-family: Arial, Helvetica, sans-serif;
 	color: white;
+}
+
+#join-room h3 {
+	margin-top: 0;
+	font-family: 'Courier New', Courier, monospace;
+	text-shadow: 2px 2px 2px black;
+	font-size: 3vh;
+}
+
+#startGame {
+	background: rgb(182, 21, 15);
+	float: right;
+	margin-right: 5%;
+}
+
+#message {
+	width: 60%;
+}
+
+#chatbox {
+	display: inline-block;
+	margin: 5%;
+}
+
+#message-container {
+	width: 100%;
+	font-size: 2.2vh;
+	float: left;
+	overflow: scroll;
+	height: 50vh;
+	background: rgba(22, 22, 22, 0.5);
+	border-radius: 10px;
+	text-align: left;
+	padding: 3%;
+	border:  8px solid black;
+}
+
+#joined-chat {
+	width: 30%;
+	font-size: 3.5vh;
+	float: right;
+	margin: 2%;
+	overflow: scroll;
+	height: auto;
+	background: rgba(22, 22, 22, 0.5);
+	border-radius: 10px;
+}
+
+#joined-chat th {
+	font-size: 4vh;
+	font-family: 'Courier New', Courier, monospace;
+	padding-bottom: 5%;
 }
 
 .keybinding {
