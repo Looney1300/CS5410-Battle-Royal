@@ -26,15 +26,15 @@ MyGame.screens['join-room'] = (function() {
       });
 
       function loadRoomies(){
-        document.getElementById('joined-chat').innerHTML = "<tr><th>Players Joined</th></tr>";
+        document.getElementById('jcTable').innerHTML = "<tr><th>Players Joined</th></tr>";
         for (let i=0; i < roomies.length; ++i){
           if (roomies[i] === user){
             continue;
           }
           else if (roomies[i] === host){
-            document.getElementById('joined-chat').innerHTML += "<tr><td><span style=\"color: red;\" > Host: " + roomies[i] + "</span></td></tr> ";
+            document.getElementById('jcTable').innerHTML += "<tr><td><span style=\"color: red;\" > Host: " + roomies[i] + "</span></td></tr> ";
           } else {
-            document.getElementById('joined-chat').innerHTML += "<tr><td>" + roomies[i] + "</td></tr>";
+            document.getElementById('jcTable').innerHTML += "<tr><td>" + roomies[i] + "</td></tr>";
           }
         }
       }
@@ -72,11 +72,15 @@ MyGame.screens['join-room'] = (function() {
       socket.on('BeginCountDown', function(){
         if(user){
           let seconds_left = 3;
+          let idCountDown = document.getElementById('countDown');
+          idCountDown.innerHTML = '';
+          idCountDown.innerHTML += --seconds_left;
           let interval = setInterval(function() {
-            document.getElementById('join-room').innerHTML += --seconds_left;
+            idCountDown.innerHTML = '';
+            idCountDown.innerHTML += --seconds_left;
               if (seconds_left <= 0) {
                 console.log('the game has begun');
-                document.getElementById('join-room').innerHTML = 'You are ready';
+                // document.getElementById('join-room').innerHTML = 'You are ready';
                 MyGame.pregame.showScreen('map-screen');
                 clearInterval(interval);
               }

@@ -117,7 +117,13 @@ ul.menu li button:active {
 #chatbox {
 	display: inline-block;
 	margin: 5%;
+	margin-bottom: 1%;
 	width: 50%;
+}
+
+#id-back-button {
+	float: left;
+	margin-left: 5%;
 }
 
 #message-container {
@@ -139,15 +145,24 @@ ul.menu li button:active {
 	float: right;
 	margin: 2%;
 	overflow: scroll;
-	height: auto;
+	height: 65vh;
 	background: rgba(22, 22, 22, 0.5);
 	border-radius: 10px;
 }
 
-#joined-chat th {
+#jcTable {
+	width: 100%;
+}
+
+#jcTable th {
 	font-size: 4vh;
 	font-family: 'Courier New', Courier, monospace;
 	padding-bottom: 5%;
+}
+
+#countDown {
+	display: inline-block;
+	font-size: 10vh;
 }
 
 .keybinding {
