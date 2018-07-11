@@ -72,15 +72,15 @@ MyGame.screens['join-room'] = (function() {
       socket.on('BeginCountDown', function(){
         if(user){
           let seconds_left = 3;
-          let idCountDown = document.getElementById('countDown');
-          idCountDown.innerHTML = '';
-          idCountDown.innerHTML += --seconds_left;
+          let msgCont = document.getElementById('message-container');
+          msgCont.innerHTML += '<div class="countDown"><b> Game Countdown Beginning </b></div>';
+          msgCont.scrollTop = msgCont.scrollHeight;
+          msgCont.innerHTML += '<div class="countDown"><b>' + seconds_left + '</b></div>';
           let interval = setInterval(function() {
-            idCountDown.innerHTML = '';
-            idCountDown.innerHTML += --seconds_left;
-              if (seconds_left <= 0) {
-                console.log('the game has begun');
-                // document.getElementById('join-room').innerHTML = 'You are ready';
+            msgCont.innerHTML += '<div class="countDown"><b>' + --seconds_left + '</b></div>';
+            if (seconds_left <= 0) {
+              console.log('the game has begun');
+                msgCont.innerHTML += '';
                 MyGame.pregame.showScreen('map-screen');
                 clearInterval(interval);
               }
