@@ -79,22 +79,14 @@ MyGame.screens['join-room'] = (function() {
           let interval = setInterval(function() {
             msgCont.innerHTML += '<div class="countDown"><b>' + --seconds_left + '</b></div>';
             if (seconds_left <= 0) {
-              console.log('the game has begun');
-                msgCont.innerHTML += '';
+                console.log('the game has begun');
+                msgCont.innerHTML = '';
                 MyGame.pregame.showScreen('map-screen');
                 clearInterval(interval);
               }
             }, 1000);
         }
-      });      
-    }
-  
-    function run() {
-      let username = document.getElementById('userName').value;
-      if (username === ""){
-        username = document.getElementById('newUserName').value;
-      }
-      socket.emit('joinedChat', username);
+      });
       
       document.getElementById('id-back-button').addEventListener('click', function() {
         socket.emit('exitedchat', user);
@@ -111,6 +103,15 @@ MyGame.screens['join-room'] = (function() {
             document.getElementById('message').value = "";
           }
       });
+    }
+  
+    function run() {
+      let username = document.getElementById('userName').value;
+      if (username === ""){
+        username = document.getElementById('newUserName').value;
+      }
+      socket.emit('joinedChat', username);
+      
     }
   
     return {
